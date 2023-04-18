@@ -1,0 +1,43 @@
+node {
+    stage('Git Clone') {
+        echo "GitLab master 브랜치 Clone 중..."
+        git branch: 'develop', credentialsId: 'gitlab_user', url: 'https://lab.ssafy.com/s08-final/S08P31A403.git'
+    }
+
+    stage('Remove Existing Container And Image') {
+        sh '''
+          echo "백엔드 서버 컨테이너 종료"
+          if docker ps -a --format "{{.Names}}" | grep -q maru-back; then
+            echo "Stopping container: maru-back"
+            docker stop $(docker ps -a --format "{{.Names}}" | grep maru-back)
+          else
+            echo "Container maru-back does not exist"
+          fi
+    
+          echo "사용하지 않는 컨테이너 삭제"
+          docker container prune -f
+    
+          echo "사용하지 않는 이미지 삭제"
+          docker image prune -a -f
+        '''
+    }
+
+    stage('Build Spring Server Image') {
+        echo "Dockerfile를 이용하여 백엔드 서버 이미지 생성"
+        sh '''
+			# 현재 디렉토리의 하위 디렉토리인 /back에 있는 Dockerfile을 이용
+              docker build -t maru/back ./back/core
+            '''
+    }
+
+    stage('Run Spring Server Container') {
+        echo "백엔드 서버 컨테이너 실행"
+        sh '''
+			docker run -it --rm \
+            --name maru-back \
+            -p 5000:8080 \
+            -v /app/data/spring/config:/app/config \
+            -d maru/back
+        '''
+    }
+}
