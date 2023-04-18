@@ -9,6 +9,7 @@ import com.mapbox.maps.MapView
 import com.mapbox.maps.dsl.cameraOptions
 import com.mapbox.maps.extension.style.expressions.dsl.generated.interpolate
 import com.mapbox.maps.plugin.LocationPuck2D
+import com.mapbox.maps.plugin.compass.compass
 import com.mapbox.maps.plugin.gestures.gestures
 import com.mapbox.maps.plugin.locationcomponent.R
 import com.mapbox.maps.plugin.locationcomponent.location
@@ -24,6 +25,7 @@ class MapViewModel() : ViewModel() {
         mapView.apply {
             getMapboxMap().loadStyleUri("mapbox://styles/chartype/clgd8mwak000001sczpqlrb72") {
                 scalebar.enabled = false
+                compass.enabled = false
                 cameraOptions {
                     zoom(19.0)
                     pitch(50.0)
@@ -36,9 +38,11 @@ class MapViewModel() : ViewModel() {
     fun trackCameraToUser(context: Context) {
         if (!isTracking) {
             mapView.apply {
-                this.location.updateSettings {
-                    this.enabled = true
-                    this.locationPuck = LocationPuck2D(
+                location.updateSettings {
+                    enabled = true
+                    pulsingEnabled = true
+                    pulsingMaxRadius = 100f
+                    locationPuck = LocationPuck2D(
                         topImage = AppCompatResources.getDrawable(
                             context,
                             R.drawable.mapbox_user_icon
