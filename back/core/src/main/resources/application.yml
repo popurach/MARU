@@ -1,1 +1,12 @@
-
+spring:
+  profiles:
+    active: local
+    group:
+      local:
+        - s3-local
+      dev:
+        - s3-server
+      prod:
+        - s3-server
+    include:
+      - s3
