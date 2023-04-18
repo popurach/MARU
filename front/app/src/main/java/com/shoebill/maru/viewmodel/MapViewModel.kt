@@ -4,12 +4,16 @@ import android.annotation.SuppressLint
 import android.content.Context
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.lifecycle.ViewModel
+import com.mapbox.android.gestures.MoveGestureDetector
 import com.mapbox.maps.CameraOptions
 import com.mapbox.maps.MapView
+import com.mapbox.maps.MapboxMap
 import com.mapbox.maps.dsl.cameraOptions
 import com.mapbox.maps.extension.style.expressions.dsl.generated.interpolate
 import com.mapbox.maps.plugin.LocationPuck2D
 import com.mapbox.maps.plugin.compass.compass
+import com.mapbox.maps.plugin.gestures.OnMoveListener
+import com.mapbox.maps.plugin.gestures.addOnMoveListener
 import com.mapbox.maps.plugin.gestures.gestures
 import com.mapbox.maps.plugin.locationcomponent.R
 import com.mapbox.maps.plugin.locationcomponent.location
@@ -18,10 +22,12 @@ import com.mapbox.maps.plugin.scalebar.scalebar
 @SuppressLint("StaticFieldLeak")
 class MapViewModel() : ViewModel() {
     private lateinit var mapView: MapView
+    private lateinit var mapBoxMap: MapboxMap
     private var isTracking = false
 
     fun createMapView(context: Context): MapView {
         mapView = MapView(context)
+        mapBoxMap = mapView.getMapboxMap()
         mapView.apply {
             getMapboxMap().loadStyleUri("mapbox://styles/chartype/clgd8mwak000001sczpqlrb72") {
                 scalebar.enabled = false
@@ -31,12 +37,25 @@ class MapViewModel() : ViewModel() {
                     pitch(50.0)
                 }
             }
+            mapBoxMap.addOnMoveListener(object : OnMoveListener {
+                override fun onMove(detector: MoveGestureDetector): Boolean {
+                    return true
+                }
+
+                override fun onMoveBegin(detector: MoveGestureDetector) {
+                    if (isTracking) unTrackUser()
+                }
+
+                override fun onMoveEnd(detector: MoveGestureDetector) {
+                }
+            })
         }
         return mapView
     }
 
     fun trackCameraToUser(context: Context) {
         if (!isTracking) {
+            isTracking = true
             mapView.apply {
                 location.updateSettings {
                     enabled = true
@@ -67,7 +86,6 @@ class MapViewModel() : ViewModel() {
                                 literal(1.0)
                             }
                         }.toJson(),
-                        opacity = 20.0f
                     )
                 }
                 this.location.addOnIndicatorBearingChangedListener {
@@ -81,12 +99,17 @@ class MapViewModel() : ViewModel() {
                 }
             }
         } else {
-            mapView.apply {
-                this.location.updateSettings {
-                    this.enabled = false
-                }
+            unTrackUser()
+        }
+    }
+
+    private fun unTrackUser() {
+        isTracking = false
+        mapView.apply {
+            this.location.updateSettings {
+                this.enabled = false
             }
         }
-        isTracking = !isTracking
     }
 }
+
