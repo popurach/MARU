@@ -39,7 +39,7 @@ class MapViewModel() : ViewModel() {
             }
             mapBoxMap.addOnMoveListener(object : OnMoveListener {
                 override fun onMove(detector: MoveGestureDetector): Boolean {
-                    return true
+                    return false
                 }
 
                 override fun onMoveBegin(detector: MoveGestureDetector) {
