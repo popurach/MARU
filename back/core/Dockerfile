@@ -1,7 +1,7 @@
 FROM openjdk:11-slim AS builder
 WORKDIR /app
 COPY . /app
-RUN chmod 777 ./gradlew bootJar
+RUN chmod +x ./gradlew && ./gradlew bootJar
 
 FROM openjdk:11-jre
 ENV TZ="Asiz/Seoul"
