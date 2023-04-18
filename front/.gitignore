@@ -1,6 +1,9 @@
 # Created by https://www.toptal.com/developers/gitignore/api/kotlin,androidstudio,windows
 # Edit at https://www.toptal.com/developers/gitignore?templates=kotlin,androidstudio,windows
 
+# mapbox secret key
+gradle.properties
+
 ### Kotlin ###
 # Compiled class file
 *.class
