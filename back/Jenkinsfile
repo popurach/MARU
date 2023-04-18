@@ -1,7 +1,7 @@
 node {
     stage('Git Clone') {
         echo "GitLab master 브랜치 Clone 중..."
-        git branch: 'develop', credentialsId: 'gitlab_user', url: 'https://lab.ssafy.com/s08-final/S08P31A403.git'
+        git branch: 'develop', credentialsId: 'maru_UserPass', url: 'https://lab.ssafy.com/s08-final/S08P31A403.git'
     }
 
     stage('Remove Existing Container And Image') {
