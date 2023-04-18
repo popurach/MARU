@@ -4,9 +4,13 @@ spring:
     group:
       local:
         - s3-local
+        - db-dev
       dev:
         - s3-server
+        - db-dev
       prod:
         - s3-server
+        - db-prod
     include:
       - s3
+      - db
