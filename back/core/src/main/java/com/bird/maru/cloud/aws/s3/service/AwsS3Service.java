@@ -27,10 +27,19 @@ public class AwsS3Service {
      * 멤버의 프로필 사진을 저장합니다.
      *
      * @param image 저장할 1개의 프로필 사진
-     * @return Image 객체를 반환합니다. 이 객체는 {@code S3Object}에 대한 기본 정보(이름, 경로, URL)를 담고 있습니다.
+     * @return Image 객체를 반환합니다. 이 객체는 {@code S3Object}에 대한 기본 정보(저장 경로, URL)를 담고 있습니다.
      */
     public Image uploadMemberProfile(MultipartFile image) {
         return upload(image, "images/members");
+    }
+
+    /**
+     * 스팟 사진을 저장합니다.
+     * @param image 저장할 1개의 스팟 사진
+     * @return Image 객체를 반환합니다. 이 객체는 {@code S3Object}에 대한 기본 정보(저장 경로, URL)를 담고 있습니다.
+     */
+    public Image uploadSpotImage(MultipartFile image) {
+        return upload(image, "images/spots");
     }
 
     private Image upload(MultipartFile image, String path) {
