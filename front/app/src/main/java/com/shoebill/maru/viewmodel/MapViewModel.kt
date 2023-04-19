@@ -5,7 +5,6 @@ import android.content.Context
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.lifecycle.ViewModel
 import com.mapbox.android.gestures.MoveGestureDetector
-import com.mapbox.maps.CameraOptions
 import com.mapbox.maps.MapView
 import com.mapbox.maps.MapboxMap
 import com.mapbox.maps.dsl.cameraOptions
@@ -14,13 +13,16 @@ import com.mapbox.maps.plugin.LocationPuck2D
 import com.mapbox.maps.plugin.compass.compass
 import com.mapbox.maps.plugin.gestures.OnMoveListener
 import com.mapbox.maps.plugin.gestures.addOnMoveListener
-import com.mapbox.maps.plugin.gestures.gestures
 import com.mapbox.maps.plugin.locationcomponent.R
 import com.mapbox.maps.plugin.locationcomponent.location
 import com.mapbox.maps.plugin.scalebar.scalebar
+import com.mapbox.maps.plugin.viewport.data.FollowPuckViewportStateBearing
+import com.mapbox.maps.plugin.viewport.data.FollowPuckViewportStateOptions
+import com.mapbox.maps.plugin.viewport.state.FollowPuckViewportState
+import com.mapbox.maps.plugin.viewport.viewport
 
 @SuppressLint("StaticFieldLeak")
-class MapViewModel() : ViewModel() {
+class MapViewModel : ViewModel() {
     private lateinit var mapView: MapView
     private lateinit var mapBoxMap: MapboxMap
     private var isTracking = false
@@ -56,6 +58,7 @@ class MapViewModel() : ViewModel() {
     fun trackCameraToUser(context: Context) {
         if (!isTracking) {
             isTracking = true
+            moveCameraLinearly()
             mapView.apply {
                 location.updateSettings {
                     enabled = true
@@ -88,18 +91,21 @@ class MapViewModel() : ViewModel() {
                         }.toJson(),
                     )
                 }
-                location.addOnIndicatorBearingChangedListener {
-                    getMapboxMap()
-                        .setCamera(CameraOptions.Builder().build())
-                }
-                location.addOnIndicatorPositionChangedListener {
-                    getMapboxMap()
-                        .setCamera(CameraOptions.Builder().center(it).zoom(18.0).build())
-                    gestures.focalPoint = getMapboxMap().pixelForCoordinate(it)
-                }
             }
         } else {
             unTrackUser()
+        }
+    }
+
+    private fun moveCameraLinearly() {
+        val viewportPlugin = mapView.viewport
+        val followPuckViewportState: FollowPuckViewportState =
+            viewportPlugin.makeFollowPuckViewportState(
+                FollowPuckViewportStateOptions.Builder()
+                    .bearing(FollowPuckViewportStateBearing.Constant(mapBoxMap.cameraState.bearing))
+                    .build()
+            )
+        viewportPlugin.transitionTo(followPuckViewportState) {
         }
     }
 
