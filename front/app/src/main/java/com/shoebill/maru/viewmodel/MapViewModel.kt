@@ -88,14 +88,14 @@ class MapViewModel() : ViewModel() {
                         }.toJson(),
                     )
                 }
-                this.location.addOnIndicatorBearingChangedListener {
-                    this.getMapboxMap()
+                location.addOnIndicatorBearingChangedListener {
+                    getMapboxMap()
                         .setCamera(CameraOptions.Builder().build())
                 }
-                this.location.addOnIndicatorPositionChangedListener {
-                    this.getMapboxMap()
+                location.addOnIndicatorPositionChangedListener {
+                    getMapboxMap()
                         .setCamera(CameraOptions.Builder().center(it).zoom(18.0).build())
-                    this.gestures.focalPoint = this.getMapboxMap().pixelForCoordinate(it)
+                    gestures.focalPoint = getMapboxMap().pixelForCoordinate(it)
                 }
             }
         } else {
@@ -106,8 +106,8 @@ class MapViewModel() : ViewModel() {
     private fun unTrackUser() {
         isTracking = false
         mapView.apply {
-            this.location.updateSettings {
-                this.enabled = false
+            location.updateSettings {
+                enabled = false
             }
         }
     }
