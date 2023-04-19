@@ -5,12 +5,16 @@ spring:
       local:
         - s3-local
         - db-dev
+        - global-dev
       dev:
         - s3-server
         - db-dev
+        - global-dev
       prod:
         - s3-server
         - db-prod
+        - global-prod
     include:
       - s3
       - db
+      - global
