@@ -23,16 +23,19 @@ import com.mapbox.maps.plugin.viewport.data.FollowPuckViewportStateBearing
 import com.mapbox.maps.plugin.viewport.data.FollowPuckViewportStateOptions
 import com.mapbox.maps.plugin.viewport.state.FollowPuckViewportState
 import com.mapbox.maps.plugin.viewport.viewport
+import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 
 @SuppressLint("StaticFieldLeak")
-class MapViewModel : ViewModel() {
+@HiltViewModel
+class MapViewModel @Inject constructor() : ViewModel() {
     private lateinit var mapView: MapView
     private lateinit var mapBoxMap: MapboxMap
-    private var _isTracking = false
+    private var isTracking = false
 
     val myLocationColor: Brush
         get() {
-            return if (_isTracking) {
+            return if (isTracking) {
                 Brush.linearGradient(listOf(Color(0xFF6039DF), Color(0xFFA14AB7)))
             } else {
                 Brush.linearGradient(listOf(Color(0xFF6039DF), Color(0xFFA14AB7)))
@@ -57,7 +60,7 @@ class MapViewModel : ViewModel() {
                 }
 
                 override fun onMoveBegin(detector: MoveGestureDetector) {
-                    if (_isTracking) unTrackUser()
+                    if (isTracking) unTrackUser()
                 }
 
                 override fun onMoveEnd(detector: MoveGestureDetector) {
@@ -68,8 +71,8 @@ class MapViewModel : ViewModel() {
     }
 
     fun trackCameraToUser(context: Context) {
-        if (!_isTracking) {
-            _isTracking = true
+        if (!isTracking) {
+            isTracking = true
             moveCameraLinearly()
             mapView.apply {
                 location.updateSettings {
@@ -125,7 +128,7 @@ class MapViewModel : ViewModel() {
     }
 
     private fun unTrackUser() {
-        _isTracking = false
+        isTracking = false
         mapView.location.updateSettings {
             enabled = false
         }

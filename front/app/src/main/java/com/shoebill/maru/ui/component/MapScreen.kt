@@ -4,7 +4,6 @@ import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.pm.PackageManager
-import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -31,9 +30,10 @@ import com.shoebill.maru.viewmodel.MapViewModel
 
 @Composable
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
-fun MapboxScreen() {
+fun MapboxScreen(
+    viewModel: MapViewModel
+) {
     val context = LocalContext.current
-    val viewModel = MapViewModel()
 
     /** 요청할 권한 **/
     val permissions = arrayOf(
@@ -113,6 +113,5 @@ fun checkAndRequestPermissions(
             ) == PackageManager.PERMISSION_GRANTED
         }) {
         launcher.launch(permissions)
-        Log.d("MapViewModel", "권한을 요청하였습니다.")
     }
 }

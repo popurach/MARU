@@ -1,13 +1,11 @@
 package com.shoebill.maru.ui.page
 
 import android.annotation.SuppressLint
-import android.content.res.Resources.Theme
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.FabPosition
 import androidx.compose.material.FloatingActionButton
 import androidx.compose.material.Icon
-import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -16,20 +14,20 @@ import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.shoebill.maru.R
 import com.shoebill.maru.ui.component.MapboxScreen
-import com.shoebill.maru.ui.component.checkAndRequestPermissions
+import com.shoebill.maru.viewmodel.MapViewModel
 
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @Composable
-fun MainPage() {
-    val context = LocalContext.current
+fun MainPage(
+    viewModel: MapViewModel
+) {
     Scaffold(
         content = {
-          MapboxScreen()
+            MapboxScreen(viewModel)
         },
         floatingActionButton = {
             FloatingActionButton(
