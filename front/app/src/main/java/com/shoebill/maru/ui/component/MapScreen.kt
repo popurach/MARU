@@ -9,14 +9,20 @@ import android.widget.Toast
 import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.FloatingActionButton
 import androidx.compose.material.Icon
 import androidx.compose.material.Scaffold
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.AccountBox
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawWithCache
+import androidx.compose.ui.graphics.BlendMode
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
 import com.mapbox.maps.ResourceOptionsManager
@@ -63,12 +69,33 @@ fun MapboxScreen() {
             )
         },
         floatingActionButton = {
-            FloatingActionButton(onClick = {
-                checkAndRequestPermissions(context, permissions, launcherMultiplePermissions)
-                viewModel.trackCameraToUser(context)
-            }) {
-                Icon(Icons.Rounded.AccountBox, "")
-            }
+            FloatingActionButton(
+                onClick = {
+                    checkAndRequestPermissions(context, permissions, launcherMultiplePermissions)
+                    viewModel.trackCameraToUser(context)
+                },
+                modifier = Modifier
+                    .size(40.dp),
+                shape = RoundedCornerShape(16.dp),
+                backgroundColor = Color.White,
+                content = {
+                    Icon(
+                        modifier = Modifier
+                            .graphicsLayer(alpha = 0.99f)
+                            .drawWithCache {
+                                onDrawWithContent {
+                                    drawContent()
+                                    drawRect(
+                                        viewModel.myLocationColor,
+                                        blendMode = BlendMode.SrcAtop
+                                    )
+                                }
+                            },
+                        painter = painterResource(id = R.drawable.my_location),
+                        contentDescription = ""
+                    )
+                }
+            )
         }
     )
 }

@@ -2,7 +2,10 @@ package com.shoebill.maru.viewmodel
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.util.Log
 import androidx.appcompat.content.res.AppCompatResources
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.ViewModel
 import com.mapbox.android.gestures.MoveGestureDetector
 import com.mapbox.maps.MapView
@@ -25,7 +28,16 @@ import com.mapbox.maps.plugin.viewport.viewport
 class MapViewModel : ViewModel() {
     private lateinit var mapView: MapView
     private lateinit var mapBoxMap: MapboxMap
-    private var isTracking = false
+    private var _isTracking = false
+
+    val myLocationColor: Brush
+        get() {
+            return if (_isTracking) {
+                Brush.linearGradient(listOf(Color(0xFF6039DF), Color(0xFFA14AB7)))
+            } else {
+                Brush.linearGradient(listOf(Color(0xFF6039DF), Color(0xFFA14AB7)))
+            }
+        }
 
     fun createMapView(context: Context): MapView {
         mapView = MapView(context)
@@ -45,7 +57,7 @@ class MapViewModel : ViewModel() {
                 }
 
                 override fun onMoveBegin(detector: MoveGestureDetector) {
-                    if (isTracking) unTrackUser()
+                    if (_isTracking) unTrackUser()
                 }
 
                 override fun onMoveEnd(detector: MoveGestureDetector) {
@@ -56,8 +68,8 @@ class MapViewModel : ViewModel() {
     }
 
     fun trackCameraToUser(context: Context) {
-        if (!isTracking) {
-            isTracking = true
+        if (!_isTracking) {
+            _isTracking = true
             moveCameraLinearly()
             mapView.apply {
                 location.updateSettings {
@@ -99,22 +111,23 @@ class MapViewModel : ViewModel() {
 
     private fun moveCameraLinearly() {
         val viewportPlugin = mapView.viewport
+        Log.d("moveCameraLinearly", "start moveCameraLinearly")
         val followPuckViewportState: FollowPuckViewportState =
             viewportPlugin.makeFollowPuckViewportState(
                 FollowPuckViewportStateOptions.Builder()
                     .bearing(FollowPuckViewportStateBearing.Constant(mapBoxMap.cameraState.bearing))
                     .build()
             )
+        Log.d("moveCameraLinearly", "middle moveCameraLinearly")
         viewportPlugin.transitionTo(followPuckViewportState) {
+            Log.d("moveCameraLinearly", "end moveCameraLinearly")
         }
     }
 
     private fun unTrackUser() {
-        isTracking = false
-        mapView.apply {
-            location.updateSettings {
-                enabled = false
-            }
+        _isTracking = false
+        mapView.location.updateSettings {
+            enabled = false
         }
     }
 }
