@@ -11,6 +11,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.shoebill.maru.ui.component.MapboxScreen
+import com.shoebill.maru.ui.page.MainPage
 import com.shoebill.maru.ui.theme.MaruTheme
 
 class MainActivity : ComponentActivity() {
@@ -23,7 +24,7 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colors.background
                 ) {
-                    MapboxScreen()
+                    MainPage()
                 }
             }
         }
