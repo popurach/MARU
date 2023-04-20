@@ -41,7 +41,7 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun MyApp(
     navController: NavHostController = rememberNavController(),
-    startDestination: String = "notice"
+    startDestination: String = "main"
 ) {
     NavHost(navController = navController, startDestination = startDestination) {
         composable("main") {
