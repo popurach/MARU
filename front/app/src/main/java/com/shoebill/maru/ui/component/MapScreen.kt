@@ -76,7 +76,7 @@ fun MapboxScreen(
                     viewModel.trackCameraToUser(context)
                 },
                 modifier = Modifier
-                    .size(40.dp),
+                    .size(50.dp),
                 shape = RoundedCornerShape(16.dp),
                 backgroundColor = Color.White,
                 content = {

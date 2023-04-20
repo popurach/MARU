@@ -35,12 +35,13 @@ fun MainPage(
                     // TODO: 카메라 화면으로 이동
                 },
                 modifier = Modifier
-                    .size(50.dp),
+                    .size(60.dp),
                 shape = RoundedCornerShape(16.dp),
                 backgroundColor = Color.White,
                 content = {
                     Icon(
                         modifier = Modifier
+                            .size(40.dp)
                             .graphicsLayer(alpha = 0.99f)
                             .drawWithCache {
                                 onDrawWithContent {

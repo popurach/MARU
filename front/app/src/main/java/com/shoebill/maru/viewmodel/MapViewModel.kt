@@ -54,6 +54,7 @@ class MapViewModel @Inject constructor() : ViewModel() {
                     pitch(50.0)
                 }
             }
+
             mapBoxMap.addOnMoveListener(object : OnMoveListener {
                 override fun onMove(detector: MoveGestureDetector): Boolean {
                     return false
@@ -119,6 +120,7 @@ class MapViewModel @Inject constructor() : ViewModel() {
             viewportPlugin.makeFollowPuckViewportState(
                 FollowPuckViewportStateOptions.Builder()
                     .zoom(18.0)
+                    .pitch(mapBoxMap.cameraState.pitch)
                     .bearing(FollowPuckViewportStateBearing.Constant(mapBoxMap.cameraState.bearing))
                     .build()
             )
