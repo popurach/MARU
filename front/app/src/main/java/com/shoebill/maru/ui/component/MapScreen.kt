@@ -8,6 +8,7 @@ import android.widget.Toast
 import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.FloatingActionButton
@@ -58,7 +59,7 @@ fun MapboxScreen(
     Scaffold(
         content = { _ ->
             AndroidView(
-                modifier = Modifier,
+                modifier = Modifier.fillMaxHeight(),
                 factory = { context ->
                     ResourceOptionsManager.getDefault(
                         context,

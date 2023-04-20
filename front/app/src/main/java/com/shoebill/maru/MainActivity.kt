@@ -4,11 +4,14 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import androidx.core.view.WindowCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -23,11 +26,15 @@ import dagger.hilt.android.AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        WindowCompat.setDecorFitsSystemWindows(window, false)
+
         setContent {
             MaruTheme {
                 // A surface container using the 'background' color from the theme
                 Surface(
-                    modifier = Modifier.fillMaxSize(),
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(bottom = 45.dp),
                     color = MaterialTheme.colors.background
                 ) {
                     MyApp()
@@ -42,8 +49,11 @@ fun MyApp(
     navController: NavHostController = rememberNavController(),
     startDestination: String = "main"
 ) {
-    NavHost(navController = navController, startDestination = startDestination) {
-        composable("main") {
+    NavHost(
+        navController = navController,
+        startDestination = startDestination
+    ) {
+        composable("main") { backStackEntry ->
             val viewModel = hiltViewModel<MapViewModel>()
             MainPage(viewModel)
         }
