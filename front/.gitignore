@@ -2,7 +2,7 @@
 # Edit at https://www.toptal.com/developers/gitignore?templates=kotlin,androidstudio,windows
 
 # mapbox secret key
-gradle.properties
+.idea
 
 ### Kotlin ###
 # Compiled class file
