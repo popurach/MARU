@@ -118,6 +118,7 @@ class MapViewModel @Inject constructor() : ViewModel() {
         val followPuckViewportState: FollowPuckViewportState =
             viewportPlugin.makeFollowPuckViewportState(
                 FollowPuckViewportStateOptions.Builder()
+                    .zoom(18.0)
                     .bearing(FollowPuckViewportStateBearing.Constant(mapBoxMap.cameraState.bearing))
                     .build()
             )
