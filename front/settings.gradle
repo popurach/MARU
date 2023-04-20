@@ -5,6 +5,13 @@ pluginManagement {
         gradlePluginPortal()
     }
 }
+
+def localPropertiesFile = new File(rootDir, "local.properties")
+def properties = new Properties()
+localPropertiesFile.withInputStream { input ->
+    properties.load(input)
+}
+
 dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
     repositories {
@@ -17,10 +24,11 @@ dependencyResolutionManagement {
             }
             credentials {
                 username = "mapbox"
-                password = MAPBOX_DOWNLOADS_TOKEN
+                password = "${properties.getProperty("MAPBOX_DOWNLOADS_TOKEN")}"
             }
         }
     }
 }
+
 rootProject.name = "Maru"
 include ':app'
