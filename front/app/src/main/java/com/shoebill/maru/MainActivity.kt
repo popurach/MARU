@@ -15,6 +15,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.shoebill.maru.ui.page.MainPage
+import com.shoebill.maru.ui.page.NoticePage
 import com.shoebill.maru.ui.theme.MaruTheme
 import com.shoebill.maru.viewmodel.MapViewModel
 import dagger.hilt.android.AndroidEntryPoint
@@ -40,14 +41,18 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun MyApp(
     navController: NavHostController = rememberNavController(),
-    startDestination: String = "main"
+    startDestination: String = "notice"
 ) {
     NavHost(navController = navController, startDestination = startDestination) {
         composable("main") {
             val viewModel = hiltViewModel<MapViewModel>()
-            MainPage(viewModel)
+            MainPage(viewModel, navController = navController)
         }
         /** 이곳에 화면 추가 **/
+
+        composable("notice") {
+            NoticePage(navController = navController)
+        }
     }
 }
 
