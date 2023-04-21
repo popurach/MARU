@@ -1,13 +1,14 @@
 package com.bird.maru.common.config;
 
 import com.bird.maru.auth.repository.RedisAuthorizationRequestRepository;
-import com.bird.maru.auth.service.CustomOAuth2UserService;
+import com.bird.maru.auth.service.AuthCodeUserService;
 import com.bird.maru.common.filter.JwtAuthenticationFilter;
-import com.bird.maru.common.handler.OAuth2AuthenticationFailureHandler;
-import com.bird.maru.common.handler.OAuth2AuthenticationSuccessHandler;
 import com.bird.maru.common.handler.JwtAccessDeniedHandler;
 import com.bird.maru.common.handler.JwtAuthenticationEntryPoint;
+import com.bird.maru.common.handler.OAuth2AuthenticationFailureHandler;
+import com.bird.maru.common.handler.OAuth2AuthenticationSuccessHandler;
 import com.bird.maru.common.util.JwtUtil;
+import com.bird.maru.member.repository.MemberRepository;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -16,6 +17,7 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.logout.LogoutFilter;
 import org.springframework.web.cors.CorsConfiguration;
@@ -29,6 +31,8 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 public class SecurityConfig {
 
     private final JwtUtil jwtUtil;
+    private final RedisAuthorizationRequestRepository redisAuthorizationRequestRepository;
+    private final MemberRepository memberRepository;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -42,16 +46,16 @@ public class SecurityConfig {
         http.sessionManagement()
             .sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 
-        // OAuth2 인증 관련 설정 추가
+        // Authorization Code Grant 방식의 OAuth2 인증 관련 설정 추가
         http.oauth2Login(
-                oauth2 -> oauth2.authorizationEndpoint(
-                                        entrypoint -> entrypoint.authorizationRequestRepository(new RedisAuthorizationRequestRepository())
-                                )
-                                .userInfoEndpoint(
-                                        endpoint -> endpoint.userService(new CustomOAuth2UserService())
-                                )
-                                .successHandler(new OAuth2AuthenticationSuccessHandler())
-                                .failureHandler(new OAuth2AuthenticationFailureHandler())
+                configurer -> configurer.authorizationEndpoint(
+                                                config -> config.authorizationRequestRepository(redisAuthorizationRequestRepository)
+                                        )
+                                        .userInfoEndpoint(
+                                                config -> config.userService(new AuthCodeUserService(memberRepository, new DefaultOAuth2UserService()))
+                                        )
+                                        .successHandler(new OAuth2AuthenticationSuccessHandler())
+                                        .failureHandler(new OAuth2AuthenticationFailureHandler())
         );
 
         // JWT 필터, 인증/인가 실패 핸들러 등록
@@ -86,9 +90,8 @@ public class SecurityConfig {
     }
 
     /**
-     * 오리진은 모든 오리진을 허용합니다. (보안에 취약) <br>
-     * 로그인을 제외한 모든 API 요청에서 사용하므로 HTTP Method는 GET, POST, PUT, DELETE를 허용합니다. <br>
-     * JWT 인증을 위해 헤더에 Authorization을 반드시 포함해야 합니다.
+     * 안드로이드 개발을 위해 오리진은 모든 오리진을 허용합니다. <br> 로그인을 제외한 모든 API 요청에서 사용하므로 HTTP Method는 GET, POST, PUT, DELETE를 허용합니다. <br> JWT 인증을 위해 헤더에 Authorization을
+     * 반드시 포함해야 합니다.
      *
      * @return JWT 인증과 관련한 CORS 설정을 반환
      */
@@ -101,9 +104,7 @@ public class SecurityConfig {
     }
 
     /**
-     * 오리진은 모든 오리진을 허용합니다. (보안에 취약) <br>
-     * OAuth2.0 인증 과정에서 사용하므로 HTTP Method는 GET만을 허용합니다. <br>
-     * 반드시 필요한 헤더는 없습니다.
+     * 안드로이드 개발을 위해 오리진은 모든 오리진을 허용합니다. <br> OAuth2.0 인증 과정에서 사용하므로 HTTP Method는 GET만을 허용합니다. <br> 반드시 필요한 헤더는 없습니다.
      *
      * @return JWT 인증과 무관한 CORS 설정을 반환
      */
@@ -111,6 +112,7 @@ public class SecurityConfig {
         CorsConfiguration loginCorsConfiguration = new CorsConfiguration().applyPermitDefaultValues();
         loginCorsConfiguration.setAllowedOrigins(List.of("*"));
         loginCorsConfiguration.setAllowedMethods(List.of("GET"));
+        loginCorsConfiguration.setExposedHeaders(List.of("Access-Token", "Refresh-Token"));
         return loginCorsConfiguration;
     }
 
