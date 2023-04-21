@@ -59,7 +59,8 @@ fun MapboxScreen(
     Scaffold(
         content = { _ ->
             AndroidView(
-                modifier = Modifier.fillMaxHeight(),
+                modifier = Modifier
+                    .fillMaxHeight(),
                 factory = { context ->
                     ResourceOptionsManager.getDefault(
                         context,

@@ -1,6 +1,7 @@
 package com.shoebill.maru.ui.page
 
 import android.annotation.SuppressLint
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.FabPosition
@@ -17,7 +18,9 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.shoebill.maru.R
+import com.shoebill.maru.ui.component.FilterChips
 import com.shoebill.maru.ui.component.MapboxScreen
+import com.shoebill.maru.ui.component.SearchBar
 import com.shoebill.maru.viewmodel.MapViewModel
 
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
@@ -28,10 +31,15 @@ fun MainPage(
     Scaffold(
         content = {
             MapboxScreen(viewModel)
+            Column {
+                SearchBar()
+                FilterChips(viewModel)
+            }
         },
         floatingActionButton = {
             FloatingActionButton(
                 onClick = {
+                    viewModel.clearFocus()
                     // TODO: 카메라 화면으로 이동
                 },
                 modifier = Modifier
