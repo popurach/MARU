@@ -12,11 +12,12 @@ import lombok.Builder;
 import lombok.NoArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder
-public class CustomUserDetails implements UserDetails {
+public class CustomUserDetails implements UserDetails, OAuth2User {
 
     public static final String EMAIL_PATTERN = "email";
 
@@ -34,7 +35,7 @@ public class CustomUserDetails implements UserDetails {
     @Builder.Default
     private boolean deleted = false;
 
-    public static CustomUserDetails of(Provider provider, Map<String, Object> attributes) {
+    public static CustomUserDetails of(Map<String, Object> attributes, Provider provider) {
         switch (provider) {
             case KAKAO:
                 return ofKakao(attributes);
@@ -80,6 +81,10 @@ public class CustomUserDetails implements UserDetails {
 
     public Long getId() {
         return this.id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 
     @Override
@@ -133,6 +138,20 @@ public class CustomUserDetails implements UserDetails {
     @Override
     public boolean isEnabled() {
         return !this.deleted;
+    }
+
+    @Override
+    public Map<String, Object> getAttributes() {
+        return Map.of(
+                EMAIL_PATTERN, this.email,
+                "provider", this.provider,
+                "nickname", this.nickname
+        );
+    }
+
+    @Override
+    public String getName() {
+        return this.email;
     }
 
 }
