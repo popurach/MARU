@@ -6,15 +6,19 @@ spring:
         - s3-local
         - db-dev
         - global-dev
+        - jwt-dev
       dev:
         - s3-server
         - db-dev
         - global-dev
+        - jwt-dev
       prod:
         - s3-server
         - db-prod
         - global-prod
+        - jwt-prod
     include:
       - s3
       - db
       - global
+      - jwt
