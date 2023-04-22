@@ -10,6 +10,7 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.shoebill.maru.util.BrushUtil
 
@@ -24,6 +25,11 @@ fun ChipListItem(
     } else {
         BrushUtil.whiteBrush
     }
+    val textColor = if (!isSelected) {
+        android.graphics.Color.BLACK
+    } else {
+        android.graphics.Color.WHITE
+    }
     Surface(
         elevation = 10.dp,
         shape = RoundedCornerShape(999.dp)
@@ -37,7 +43,8 @@ fun ChipListItem(
                 text = text,
                 modifier = Modifier
                     .padding(vertical = 5.dp, horizontal = 14.dp)
-                    .align(Alignment.Center)
+                    .align(Alignment.Center),
+                color = Color(textColor)
             )
         }
     }
