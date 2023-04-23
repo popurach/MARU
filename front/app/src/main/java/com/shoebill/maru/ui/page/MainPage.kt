@@ -18,7 +18,6 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.shoebill.maru.R
-import com.shoebill.maru.ui.component.FilterChips
 import com.shoebill.maru.ui.component.MapboxScreen
 import com.shoebill.maru.ui.component.SearchBar
 import com.shoebill.maru.viewmodel.MapViewModel
@@ -33,7 +32,7 @@ fun MainPage(
             MapboxScreen(viewModel)
             Column {
                 SearchBar()
-                FilterChips(viewModel)
+
             }
         },
         floatingActionButton = {

@@ -12,11 +12,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.shoebill.maru.viewmodel.MapViewModel
 
 @Composable
 fun FilterChips(
-    mapViewModel: MapViewModel
+    mapViewModel: MapViewModel = viewModel()
 ) {
     val textList = listOf("전체", "랜드 마크", "스팟", "MY 스팟")
     val selectedChipIndex = remember { mutableStateOf(0) }
@@ -36,13 +37,12 @@ fun FilterChips(
                     text = textList[index],
                     isSelected = index == selectedChipIndex.value,
                     onSelected = {
-                        // TODO filtering된 핀 목록 가져오기
                         mapViewModel.clearFocus()
                         selectedChipIndex.value = index
+                        // TODO filtering된 핀 목록 가져오기
                     }
                 )
             }
-
         }
     }
 }
