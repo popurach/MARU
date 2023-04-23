@@ -72,7 +72,7 @@ fun SearchBar(
             }
         )
     }
-    Column() {
-
+    Column {
+        SearchListItem()
     }
 }

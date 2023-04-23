@@ -23,13 +23,13 @@ fun FilterChips(
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(top = 11.dp)
+            .padding(top = 11.dp, start = 10.dp)
     ) {
         Row(
             modifier = Modifier
                 .width(320.dp)
                 .align(Alignment.Center),
-            horizontalArrangement = Arrangement.SpaceBetween
+            horizontalArrangement = Arrangement.spacedBy(10.dp)
         ) {
             for (index in 0..3) {
                 ChipListItem(

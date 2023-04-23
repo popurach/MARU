@@ -11,7 +11,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import com.shoebill.maru.ui.theme.pretendard
 import com.shoebill.maru.util.BrushUtil
 
 @Composable
@@ -20,23 +23,15 @@ fun ChipListItem(
     isSelected: Boolean,
     onSelected: () -> Unit
 ) {
-    val backgroundColor = if (isSelected) {
-        BrushUtil.defaultBrush
-    } else {
-        BrushUtil.whiteBrush
-    }
-    val textColor = if (!isSelected) {
-        android.graphics.Color.BLACK
-    } else {
-        android.graphics.Color.WHITE
-    }
     Surface(
         elevation = 10.dp,
         shape = RoundedCornerShape(999.dp)
     ) {
         Box(
             modifier = Modifier
-                .background(backgroundColor)
+                .background(
+                    if (isSelected) BrushUtil.defaultBrush else BrushUtil.whiteBrush
+                )
                 .clickable(onClick = onSelected),
         ) {
             Text(
@@ -44,7 +39,10 @@ fun ChipListItem(
                 modifier = Modifier
                     .padding(vertical = 5.dp, horizontal = 14.dp)
                     .align(Alignment.Center),
-                color = Color(textColor)
+                color = Color(if (!isSelected) android.graphics.Color.BLACK else android.graphics.Color.WHITE),
+                fontSize = 15.sp,
+                fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
+                fontFamily = pretendard,
             )
         }
     }
