@@ -4,9 +4,12 @@ import com.bird.maru.domain.model.entity.Member;
 import com.bird.maru.notice.model.Message;
 import com.bird.maru.notice.model.Notice;
 import com.bird.maru.notice.repository.NoticeRepository;
+import java.util.LinkedList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -17,8 +20,8 @@ public class NoticeServiceImpl implements NoticeService {
     private final NoticeRepository noticeRepository;
 
     @Override
-    public List<Notice> findByMemberId(Long memberId) {
-        return noticeRepository.findByMemberId(memberId);
+    public Slice<Notice> findByMemberId(Long memberId, Pageable pageable) {
+        return noticeRepository.findByMemberId(memberId, pageable);
     }
 
     @Override
@@ -37,6 +40,7 @@ public class NoticeServiceImpl implements NoticeService {
 
     @Override
     public void saveBulkNotice(List<Member> members, List<Message> messages) {
+        List<Notice> notices = new LinkedList<>();
 
     }
 

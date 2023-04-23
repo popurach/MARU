@@ -4,10 +4,12 @@ import com.bird.maru.domain.model.entity.Member;
 import com.bird.maru.notice.model.Message;
 import com.bird.maru.notice.model.Notice;
 import java.util.List;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 
 public interface NoticeService {
 
-    List<Notice> findByMemberId(Long memberId);
+    Slice<Notice> findByMemberId(Long memberId, Pageable pageable);
 
     void saveNotice(Member member, Message message);
 
