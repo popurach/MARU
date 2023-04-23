@@ -7,6 +7,6 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 
 public interface NoticeRepository extends MongoRepository<Notice, String> {
 
-    Slice<Notice> findByMemberId(Long memberId, Pageable pageable);
+    Slice<Notice> findByMemberIdOrderByCreatedDateTimeDesc(Long memberId, Pageable pageable);
 
 }

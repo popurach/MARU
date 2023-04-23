@@ -21,7 +21,7 @@ public class NoticeServiceImpl implements NoticeService {
 
     @Override
     public Slice<Notice> findByMemberId(Long memberId, Pageable pageable) {
-        return noticeRepository.findByMemberId(memberId, pageable);
+        return noticeRepository.findByMemberIdOrderByCreatedDateTimeDesc(memberId, pageable);
     }
 
     @Override
