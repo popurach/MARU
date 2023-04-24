@@ -1,7 +1,5 @@
 package com.shoebill.maru.ui.component
 
-import androidx.compose.foundation.ScrollState
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
@@ -10,7 +8,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Icon
 import androidx.compose.material.Text
 import androidx.compose.material.TextField
@@ -35,7 +32,6 @@ fun SearchBar(
     val keyword = searchBarViewModel.keyword.observeAsState("")
     BoxWithConstraints() {
         Column {
-
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -76,24 +72,24 @@ fun SearchBar(
             }
             FilterChips()
         }
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 105.dp)
-        ) {
-            Column(
-                modifier = Modifier
-                    .align(Alignment.Center)
-                    .background(Color.White, RoundedCornerShape(8.dp))
-                    .padding()
-                    .width(320.dp)
-                    .size(250.dp)
-                    .verticalScroll(ScrollState(0))
-            ) {
-                for (i in 0..2) {
-                    SuggestionList()
-                }
-            }
-        }
+//        Box(
+//            modifier = Modifier
+//                .fillMaxWidth()
+//                .padding(top = 105.dp)
+//        ) {
+//            Column(
+//                modifier = Modifier
+//                    .align(Alignment.Center)
+//                    .background(Color.White, RoundedCornerShape(8.dp))
+//                    .padding()
+//                    .width(320.dp)
+//                    .size(250.dp)
+//                    .verticalScroll(ScrollState(0))
+//            ) {
+//                for (i in 0..2) {
+//                    SuggestionList()
+//                }
+//            }
+//        }
     }
 }
