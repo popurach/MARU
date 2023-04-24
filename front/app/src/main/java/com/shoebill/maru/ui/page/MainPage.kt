@@ -1,7 +1,7 @@
 package com.shoebill.maru.ui.page
 
 import android.annotation.SuppressLint
-import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.FabPosition
@@ -11,11 +11,17 @@ import androidx.compose.material.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithCache
+import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Outline
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import com.shoebill.maru.R
 import com.shoebill.maru.ui.component.MapboxScreen
@@ -30,11 +36,15 @@ fun MainPage(
     Scaffold(
         content = {
             MapboxScreen(viewModel)
-            Column {
-                SearchBar()
-
+            SearchBar()
+        },
+        drawerShape = customShape(),
+        drawerContent = {
+            Row {
+                DrawerMenuPage()
             }
         },
+        drawerGesturesEnabled = true,
         floatingActionButton = {
             FloatingActionButton(
                 onClick = {
@@ -72,4 +82,21 @@ fun MainPage(
         },
         floatingActionButtonPosition = FabPosition.Center
     )
+}
+
+fun customShape() = object : Shape {
+    override fun createOutline(
+        size: Size,
+        layoutDirection: LayoutDirection,
+        density: Density
+    ): Outline {
+        return Outline.Rectangle(
+            Rect(
+                0f,
+                0f,
+                size.width * 3 / 4 /* width */,
+                size.height /* height */
+            )
+        )
+    }
 }
