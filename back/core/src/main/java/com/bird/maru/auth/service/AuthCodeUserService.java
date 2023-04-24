@@ -34,10 +34,9 @@ public class AuthCodeUserService implements OAuth2UserService<OAuth2UserRequest,
         OAuth2User oAuth2User = oAuth2UserService.loadUser(userRequest);
 
         Map<String, Object> attributes = oAuth2User.getAttributes();
-        Provider provider = Provider.converter(
+        Provider provider = Provider.convert(
                 userRequest.getClientRegistration()
                            .getRegistrationId()
-                           .toUpperCase()
         );
 
         CustomUserDetails userDetails = CustomUserDetails.of(attributes, provider);
