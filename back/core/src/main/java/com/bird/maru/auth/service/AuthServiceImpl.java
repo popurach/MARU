@@ -5,6 +5,7 @@ import com.bird.maru.domain.model.type.CustomUserDetails;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,7 +26,7 @@ public class AuthServiceImpl implements AuthService {
 
         redisTemplate.opsForValue()
                      .set(
-                             createRedisKey(refreshToken),
+                             createRedisKey(member.getId()),
                              refreshToken,
                              jwtUtil.getRefreshTokenExpirationTime()
                      );
@@ -36,8 +37,28 @@ public class AuthServiceImpl implements AuthService {
         );
     }
 
-    private String createRedisKey(String refreshToken) {
-        return REFRESH_TOKEN_PREFIX + refreshToken;
+    @Override
+    public String regenerateAccessToken(CustomUserDetails member) throws AccessDeniedException {
+        if (isDenied(member)) {
+            throw new AccessDeniedException("이 Refresh Token은 탈취 가능성이 있습니다.");
+        }
+
+        return jwtUtil.generateAccessToken(member);
+    }
+
+    @Override
+    public void reportRefreshToken(CustomUserDetails member) {
+        this.redisTemplate.delete(createRedisKey(member.getId()));
+    }
+
+    private boolean isDenied(CustomUserDetails member) {
+        String refreshToken = this.redisTemplate.opsForValue()
+                                                .get(createRedisKey(member.getId()));
+        return refreshToken == null;
+    }
+
+    private String createRedisKey(Long memberId) {
+        return REFRESH_TOKEN_PREFIX + memberId;
     }
 
 }
