@@ -10,7 +10,6 @@ import io.jsonwebtoken.UnsupportedJwtException;
 import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.security.SignatureException;
 import java.security.Key;
-import java.security.Principal;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -46,11 +45,15 @@ public class JwtUtil {
         this.key = Keys.hmacShaKeyFor(secret.getBytes());
     }
 
-    public String generateAccessToken(Principal principal) {
+    public long getRefreshTokenExpirationTime() {
+        return refreshTokenExpirationTime;
+    }
+
+    public String generateAccessToken(CustomUserDetails principal) {
         return generateToken(principal, accessTokenExpirationTime);
     }
 
-    public String generateRefreshToken(Principal principal) {
+    public String generateRefreshToken(CustomUserDetails principal) {
         return generateToken(principal, refreshTokenExpirationTime);
     }
 
@@ -64,7 +67,7 @@ public class JwtUtil {
         return authorization.substring(TOKEN_PATTERN.length());
     }
 
-    public boolean isValid(String jwt) {
+    public boolean validate(String jwt) {
         try {
             getClaims(jwt);
             return true;
@@ -96,15 +99,13 @@ public class JwtUtil {
         return new UsernamePasswordAuthenticationToken(member, jwt, authorities);
     }
 
-    private String generateToken(Principal principal, long expirationTime) {
-        CustomUserDetails member = (CustomUserDetails) principal;
-
+    private String generateToken(CustomUserDetails principal, long expirationTime) {
         return Jwts.builder()
-                   .claim("id", member.getId())
-                   .claim("email", member.getEmail())
-                   .claim("provider", member.getProvider())
-                   .claim("nickname", member.getNickname())
-                   .claim(AUTHORITIES_CLAIM_KEY, member.getStringAuthorities())
+                   .claim("id", principal.getId())
+                   .claim("email", principal.getEmail())
+                   .claim("provider", principal.getProvider())
+                   .claim("nickname", principal.getNickname())
+                   .claim(AUTHORITIES_CLAIM_KEY, principal.getStringAuthorities())
                    .setExpiration(new Date(System.currentTimeMillis() + expirationTime))
                    .signWith(this.key)
                    .compact();
