@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.util.Log
 import androidx.appcompat.content.res.AppCompatResources
+import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.ViewModel
@@ -32,6 +33,7 @@ class MapViewModel @Inject constructor() : ViewModel() {
     private lateinit var mapView: MapView
     private lateinit var mapBoxMap: MapboxMap
     private var isTracking = false
+    private lateinit var _focusManager: FocusManager
 
     val myLocationColor: Brush
         get() {
@@ -41,6 +43,14 @@ class MapViewModel @Inject constructor() : ViewModel() {
                 Brush.linearGradient(listOf(Color(0xFF6039DF), Color(0xFFA14AB7)))
             }
         }
+
+    fun initFocusManager(fm: FocusManager) {
+        _focusManager = fm
+    }
+
+    fun clearFocus() {
+        _focusManager.clearFocus()
+    }
 
     fun createMapView(context: Context): MapView {
         mapView = MapView(context)
@@ -62,6 +72,7 @@ class MapViewModel @Inject constructor() : ViewModel() {
 
                 override fun onMoveBegin(detector: MoveGestureDetector) {
                     if (isTracking) unTrackUser()
+                    _focusManager.clearFocus()
                 }
 
                 override fun onMoveEnd(detector: MoveGestureDetector) {
@@ -72,6 +83,7 @@ class MapViewModel @Inject constructor() : ViewModel() {
     }
 
     fun trackCameraToUser(context: Context) {
+        clearFocus()
         if (!isTracking) {
             isTracking = true
             moveCameraLinearly()
@@ -119,14 +131,12 @@ class MapViewModel @Inject constructor() : ViewModel() {
         val followPuckViewportState: FollowPuckViewportState =
             viewportPlugin.makeFollowPuckViewportState(
                 FollowPuckViewportStateOptions.Builder()
-                    .zoom(18.0)
+                    .zoom(16.5)
                     .pitch(mapBoxMap.cameraState.pitch)
                     .bearing(FollowPuckViewportStateBearing.Constant(mapBoxMap.cameraState.bearing))
                     .build()
             )
-        Log.d("moveCameraLinearly", "middle moveCameraLinearly")
         viewportPlugin.transitionTo(followPuckViewportState) {
-            Log.d("moveCameraLinearly", "end moveCameraLinearly")
         }
     }
 
