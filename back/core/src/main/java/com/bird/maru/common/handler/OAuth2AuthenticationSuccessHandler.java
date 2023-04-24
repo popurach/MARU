@@ -21,7 +21,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 @Component
 public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 
-    public static final String REFRESH_PREFIX = "member_refresh:";
+    public static final String REFRESH_TOKEN_PREFIX = "member_refresh:";
 
     private final RedisTemplate<String, String> redisTemplate;
     private final JwtUtil jwtUtil;
@@ -61,7 +61,7 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
     }
 
     private String createRedisKey(String refreshToken) {
-        return REFRESH_PREFIX + refreshToken;
+        return REFRESH_TOKEN_PREFIX + refreshToken;
     }
 
     private String getRedirectUrl(String accessToken, String refreshToken) {

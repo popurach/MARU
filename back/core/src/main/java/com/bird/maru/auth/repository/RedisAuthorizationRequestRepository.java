@@ -22,7 +22,7 @@ import org.springframework.stereotype.Repository;
 @Slf4j
 public class RedisAuthorizationRequestRepository implements AuthorizationRequestRepository<OAuth2AuthorizationRequest> {
 
-    private static final String AUTHORIZATION_REQUEST_PREFIX = "authorization_request:";
+    public static final String AUTHORIZATION_REQUEST_PREFIX = "authorization_request:";
 
     private final RedisTemplate<String, OAuth2AuthorizationRequest> redisTemplate;
 
