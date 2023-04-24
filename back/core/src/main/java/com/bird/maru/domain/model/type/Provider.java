@@ -4,7 +4,9 @@ public enum Provider {
 
     NAVER, KAKAO, GOOGLE;
 
-    public static Provider converter(String provider) {
+    public static Provider convert(String provider) {
+        provider = provider.toUpperCase();
+
         for (Provider cur : values()) {
             if (cur.name().equals(provider)) {
                 return cur;
