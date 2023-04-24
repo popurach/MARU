@@ -25,7 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class AuthCodeUserService implements OAuth2UserService<OAuth2UserRequest, OAuth2User> {
 
     private final MemberRepository memberRepository;
-    private final DefaultOAuth2UserService oAuth2UserService;
+    private final DefaultOAuth2UserService oAuth2UserService = new DefaultOAuth2UserService();
 
     @Override
     @Transactional

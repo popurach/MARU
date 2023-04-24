@@ -8,7 +8,6 @@ import com.bird.maru.common.handler.JwtAuthenticationEntryPoint;
 import com.bird.maru.common.handler.OAuth2AuthenticationFailureHandler;
 import com.bird.maru.common.handler.OAuth2AuthenticationSuccessHandler;
 import com.bird.maru.common.util.JwtUtil;
-import com.bird.maru.member.repository.MemberRepository;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -17,7 +16,6 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.logout.LogoutFilter;
 import org.springframework.web.cors.CorsConfiguration;
@@ -32,7 +30,9 @@ public class SecurityConfig {
 
     private final JwtUtil jwtUtil;
     private final RedisAuthorizationRequestRepository redisAuthorizationRequestRepository;
-    private final MemberRepository memberRepository;
+    private final AuthCodeUserService authCodeUserService;
+    private final OAuth2AuthenticationSuccessHandler oAuth2AuthenticationSuccessHandler;
+    private final OAuth2AuthenticationFailureHandler oAuth2AuthenticationFailureHandler;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -52,10 +52,10 @@ public class SecurityConfig {
                                                 config -> config.authorizationRequestRepository(redisAuthorizationRequestRepository)
                                         )
                                         .userInfoEndpoint(
-                                                config -> config.userService(new AuthCodeUserService(memberRepository, new DefaultOAuth2UserService()))
+                                                config -> config.userService(authCodeUserService)
                                         )
-                                        .successHandler(new OAuth2AuthenticationSuccessHandler())
-                                        .failureHandler(new OAuth2AuthenticationFailureHandler())
+                                        .successHandler(oAuth2AuthenticationSuccessHandler)
+                                        .failureHandler(oAuth2AuthenticationFailureHandler)
         );
 
         // JWT 필터, 인증/인가 실패 핸들러 등록
