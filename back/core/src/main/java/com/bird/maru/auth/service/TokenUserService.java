@@ -4,6 +4,7 @@ import com.bird.maru.domain.model.entity.Member;
 import com.bird.maru.domain.model.type.CustomUserDetails;
 import com.bird.maru.domain.model.type.Provider;
 import com.bird.maru.member.repository.MemberRepository;
+import com.bird.maru.member.repository.query.MemberQueryRepository;
 import java.time.Duration;
 import java.util.Map;
 import org.springframework.beans.factory.annotation.Value;
@@ -19,17 +20,20 @@ import org.springframework.web.client.RestTemplate;
 public class TokenUserService {
 
     private final MemberRepository memberRepository;
+    private final MemberQueryRepository memberQueryRepository;
     private final String googleUserInfoUri;
     private final String naverUserInfoUri;
     private final String kakaoUserInfoUri;
 
     public TokenUserService(
             MemberRepository memberRepository,
+            MemberQueryRepository memberQueryRepository,
             @Value("${user-info-uri.google}") String googleUserInfoUri,
             @Value("${user-info-uri.naver}") String naverUserInfoUri,
             @Value("${user-info-uri.kakao}") String kakaoUserInfoUri
     ) {
         this.memberRepository = memberRepository;
+        this.memberQueryRepository = memberQueryRepository;
         this.naverUserInfoUri = naverUserInfoUri;
         this.kakaoUserInfoUri = kakaoUserInfoUri;
         this.googleUserInfoUri = googleUserInfoUri;
@@ -81,8 +85,8 @@ public class TokenUserService {
 
     private OAuth2User createUserDetails(Map<String, Object> attributes, Provider provider) {
         CustomUserDetails userDetails = CustomUserDetails.of(attributes, provider);
-        memberRepository.findByEmailAndProvider(userDetails.getEmail(), userDetails.getProvider())
-                        .ifPresentOrElse(
+        memberQueryRepository.findByEmailAndProvider(userDetails.getEmail(), userDetails.getProvider())
+                             .ifPresentOrElse(
                                 member -> userDetails.setId(member.getId()),
                                 () -> join(userDetails)
                         );
