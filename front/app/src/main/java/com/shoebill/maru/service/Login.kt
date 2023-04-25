@@ -27,13 +27,17 @@ class Login {
 
                 // back end 로그인 API 호출부분
                 ApiInstance.authApi.login("KAKAO ${token.accessToken}")
-                    ?.enqueue(object : Callback<Member> {
-                        override fun onResponse(call: Call<Member>, response: Response<Member>) {
-                            var result: Member? = response.body()
+                    ?.enqueue(object : Callback<Response<Member>> {
+                        override fun onResponse(
+                            call: Call<Response<Member>>,
+                            response: Response<Response<Member>>,
+                        ) {
+                            var headers = response.headers()
+                            var result = response.body()
                             Log.d("LOGIN", "Retrofit success and response : " + result.toString())
                         }
 
-                        override fun onFailure(call: Call<Member>, t: Throwable) {
+                        override fun onFailure(call: Call<Response<Member>>, t: Throwable) {
                             Log.d(
                                 "LOGIN",
                                 "Retrofit onFailure Error reason : " + t.message.toString()
