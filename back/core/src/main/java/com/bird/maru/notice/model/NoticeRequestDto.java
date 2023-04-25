@@ -1,5 +1,6 @@
 package com.bird.maru.notice.model;
 
+import com.bird.maru.domain.model.entity.Landmark;
 import com.bird.maru.domain.model.entity.Member;
 import lombok.Data;
 
@@ -7,6 +8,9 @@ import lombok.Data;
 public class NoticeRequestDto {
 
     private Member member;
-    private Message message;
+
+    private Landmark landmark;
+
+    private Integer point;
 
 }

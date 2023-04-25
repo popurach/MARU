@@ -47,6 +47,6 @@ public class Member {
     @Builder.Default
     private Boolean deleted = Boolean.FALSE;
 
-    private String alarmToken;
+    private String noticeToken;
 
 }
