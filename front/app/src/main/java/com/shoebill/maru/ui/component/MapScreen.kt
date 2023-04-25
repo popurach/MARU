@@ -70,6 +70,7 @@ fun MapboxScreen(
                 }
             )
         },
+        
         floatingActionButton = {
             FloatingActionButton(
                 onClick = {
