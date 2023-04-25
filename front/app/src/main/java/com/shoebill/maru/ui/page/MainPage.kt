@@ -2,13 +2,15 @@ package com.shoebill.maru.ui.page
 
 import android.annotation.SuppressLint
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.BottomSheetScaffold
+import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.FabPosition
 import androidx.compose.material.FloatingActionButton
 import androidx.compose.material.Icon
-import androidx.compose.material.Scaffold
-import androidx.compose.material.rememberScaffoldState
+import androidx.compose.material.rememberBottomSheetScaffoldState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.livedata.observeAsState
@@ -33,13 +35,15 @@ import com.shoebill.maru.ui.component.searchbar.SearchBar
 import com.shoebill.maru.viewmodel.DrawerViewModel
 import com.shoebill.maru.viewmodel.MapViewModel
 
+@OptIn(ExperimentalMaterialApi::class)
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @Composable
 fun MainPage(
     mapViewModel: MapViewModel = viewModel(),
     drawerViewModel: DrawerViewModel = viewModel()
 ) {
-    val scaffoldState = rememberScaffoldState()
+    val scaffoldState = rememberBottomSheetScaffoldState()
+//    val scaffoldState = rememberScaffoldState()
     val isDrawerOpen = drawerViewModel.isOpen.observeAsState(initial = false)
     LaunchedEffect(isDrawerOpen.value) {
         if (isDrawerOpen.value) {
@@ -56,17 +60,24 @@ fun MainPage(
     BackHandler(isDrawerOpen.value) {
         drawerViewModel.updateOpenState(false)
     }
-    Scaffold(
+    BottomSheetScaffold(
         scaffoldState = scaffoldState,
         content = {
-            MapboxScreen(mapViewModel)
-            SearchBar()
+            Box {
+                MapboxScreen(mapViewModel)
+                SearchBar()
+            }
         },
         drawerShape = customShape(),
         drawerContent = {
             DrawerMenuPage()
         },
         drawerGesturesEnabled = scaffoldState.drawerState.isOpen,
+        sheetShape = RoundedCornerShape(16.dp),
+        sheetContent = {
+            BottomSheetPage()
+        },
+        sheetPeekHeight = 25.dp,
         floatingActionButton = {
             FloatingActionButton(
                 onClick = {

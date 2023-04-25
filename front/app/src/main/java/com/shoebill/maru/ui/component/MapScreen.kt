@@ -11,6 +11,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.FloatingActionButton
 import androidx.compose.material.Icon
 import androidx.compose.material.Scaffold
@@ -29,6 +30,7 @@ import com.mapbox.maps.ResourceOptionsManager
 import com.shoebill.maru.R
 import com.shoebill.maru.viewmodel.MapViewModel
 
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 fun MapboxScreen(
@@ -70,7 +72,6 @@ fun MapboxScreen(
                 }
             )
         },
-        
         floatingActionButton = {
             FloatingActionButton(
                 onClick = {

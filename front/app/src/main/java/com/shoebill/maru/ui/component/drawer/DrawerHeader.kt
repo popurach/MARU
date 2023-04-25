@@ -51,7 +51,7 @@ fun DrawerHeader() {
     ) {
         AsyncImage(
             model = "https://picsum.photos/id/237/200/300",
-            contentDescription = "Translated description of what the image contains",
+            contentDescription = "user profile",
             contentScale = ContentScale.Crop,
             modifier = Modifier
                 .size(80.dp)
@@ -118,7 +118,7 @@ fun DrawerHeader() {
             verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
             Icon(
-                painterResource(R.drawable.scrap_icon),
+                painterResource(R.drawable.unscrap_icon),
                 "scrap",
                 Modifier.size(iconSize)
             )
