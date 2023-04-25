@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @EqualsAndHashCode
-public class LikeId extends Serializable {
+public class LikeId implements Serializable {
 
     private Long member;
 

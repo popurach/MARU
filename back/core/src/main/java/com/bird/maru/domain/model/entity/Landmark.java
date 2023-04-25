@@ -2,6 +2,7 @@ package com.bird.maru.domain.model.entity;
 
 import com.bird.maru.domain.model.type.Coordinate;
 import javax.persistence.Column;
+import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
