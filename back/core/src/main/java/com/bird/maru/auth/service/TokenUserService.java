@@ -16,6 +16,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 
+/**
+ * Implicit Grant 방식을 지원합니다. <br>
+ * 이 빈은 ImplicitOAuth2LoginAuthenticationFilter에서 호출합니다. <br>
+ * Provider와 Access-Token을 이용하여 Resource Server로부터 사용자 정보를 받고, 서비스에 맞는 UserDetails 객체를 생성합니다.
+ */
 @Service
 public class TokenUserService {
 
