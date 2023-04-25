@@ -30,11 +30,14 @@ class Login {
                     ?.enqueue(object : Callback<Member> {
                         override fun onResponse(call: Call<Member>, response: Response<Member>) {
                             var result: Member? = response.body()
-                            Log.d("LOGIN", result.toString())
+                            Log.d("LOGIN", "Retrofit success and response : " + result.toString())
                         }
 
                         override fun onFailure(call: Call<Member>, t: Throwable) {
-                            Log.d("LOGIN", "Retrofit onFailure Error" + t.message.toString())
+                            Log.d(
+                                "LOGIN",
+                                "Retrofit onFailure Error reason : " + t.message.toString()
+                            )
                         }
                     })
             }
