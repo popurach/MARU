@@ -32,8 +32,8 @@ public class AuthServiceImpl implements AuthService {
                      );
 
         return Map.of(
-                "accessToken", accessToken,
-                "refreshToken", refreshToken
+                "Access-Token", accessToken,
+                "Refresh-Token", refreshToken
         );
     }
 
