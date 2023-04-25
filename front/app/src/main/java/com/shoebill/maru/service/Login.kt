@@ -6,6 +6,11 @@ import com.kakao.sdk.auth.model.OAuthToken
 import com.kakao.sdk.common.model.ClientError
 import com.kakao.sdk.common.model.ClientErrorCause
 import com.kakao.sdk.user.UserApiClient
+import com.shoebill.maru.model.ApiInstance
+import com.shoebill.maru.model.data.Member
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 
 class Login {
     val TAG = "LOGIN"
@@ -21,6 +26,17 @@ class Login {
                 Log.i(TAG, "카카오 계정으로 로그인 성공 ${token.accessToken}")
 
                 // back end 로그인 API 호출부분
+                ApiInstance.authApi.login("KAKAO ${token.accessToken}")
+                    ?.enqueue(object : Callback<Member> {
+                        override fun onResponse(call: Call<Member>, response: Response<Member>) {
+                            var result: Member? = response.body()
+                            Log.d("LOGIN", result.toString())
+                        }
+
+                        override fun onFailure(call: Call<Member>, t: Throwable) {
+                            Log.d("LOGIN", "Retrofit onFailure Error" + t.message.toString())
+                        }
+                    })
             }
         }
 
