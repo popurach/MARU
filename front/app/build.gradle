@@ -94,6 +94,10 @@ dependencies {
 
     // Kakao Login
     implementation 'com.kakao.sdk:v2-user:2.13.0' // 카카오 로그인
+
+    // Retrofit
+    implementation 'com.squareup.retrofit2:retrofit'
+    implementation 'com.squareup.retrofit2:converter-gson'
 }
 
 kapt {
