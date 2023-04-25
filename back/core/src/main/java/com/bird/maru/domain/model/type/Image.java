@@ -6,7 +6,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import javax.persistence.Column;
 import javax.persistence.Convert;
-import javax.persistence.Converter;
 import javax.persistence.Embeddable;
 import javax.validation.constraints.NotNull;
 import lombok.AccessLevel;
