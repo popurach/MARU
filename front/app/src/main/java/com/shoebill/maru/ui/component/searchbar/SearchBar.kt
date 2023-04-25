@@ -1,5 +1,6 @@
-package com.shoebill.maru.ui.component
+package com.shoebill.maru.ui.component.searchbar
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
@@ -16,17 +17,22 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawWithCache
+import androidx.compose.ui.graphics.BlendMode
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.shoebill.maru.R
+import com.shoebill.maru.ui.component.FilterChips
+import com.shoebill.maru.viewmodel.DrawerViewModel
 import com.shoebill.maru.viewmodel.SearchBarViewModel
 
-@Preview
 @Composable
 fun SearchBar(
+    drawerViewModel: DrawerViewModel = viewModel(),
     searchBarViewModel: SearchBarViewModel = viewModel(),
 ) {
     val keyword = searchBarViewModel.keyword.observeAsState("")
@@ -62,11 +68,27 @@ fun SearchBar(
                     leadingIcon = {
                         Icon(
                             modifier = Modifier
-                                .size(20.dp),
-                            painter = painterResource(id = R.drawable.search_icon),
+                                .size(30.dp)
+                                .graphicsLayer(alpha = 0.99f)
+                                .clickable { drawerViewModel.updateOpenState(true) }
+                                .drawWithCache {
+                                    onDrawWithContent {
+                                        drawContent()
+                                        drawRect(
+                                            Brush.linearGradient(
+                                                listOf(
+                                                    Color(0xFF6039DF),
+                                                    Color(0xFFA14AB7)
+                                                )
+                                            ),
+                                            blendMode = BlendMode.SrcAtop
+                                        )
+                                    }
+                                },
+                            painter = painterResource(id = R.drawable.menu_icon),
                             contentDescription = "",
-                            tint = Color.Unspecified
-                        )
+
+                            )
                     }
                 )
             }
