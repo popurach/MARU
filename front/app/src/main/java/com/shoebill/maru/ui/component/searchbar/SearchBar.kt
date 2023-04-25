@@ -28,10 +28,12 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.shoebill.maru.R
 import com.shoebill.maru.ui.component.FilterChips
 import com.shoebill.maru.viewmodel.DrawerViewModel
+import com.shoebill.maru.viewmodel.MapViewModel
 import com.shoebill.maru.viewmodel.SearchBarViewModel
 
 @Composable
 fun SearchBar(
+    mapViewModel: MapViewModel = viewModel(),
     drawerViewModel: DrawerViewModel = viewModel(),
     searchBarViewModel: SearchBarViewModel = viewModel(),
 ) {
@@ -70,7 +72,10 @@ fun SearchBar(
                             modifier = Modifier
                                 .size(30.dp)
                                 .graphicsLayer(alpha = 0.99f)
-                                .clickable { drawerViewModel.updateOpenState(true) }
+                                .clickable {
+                                    drawerViewModel.updateOpenState(true)
+                                    mapViewModel.clearFocus()
+                                }
                                 .drawWithCache {
                                     onDrawWithContent {
                                         drawContent()
