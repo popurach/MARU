@@ -27,6 +27,7 @@ dependencyResolutionManagement {
                 password = "${properties.getProperty("MAPBOX_DOWNLOADS_TOKEN")}"
             }
         }
+        maven { url 'https://devrepo.kakao.com/nexus/content/groups/public/' }
     }
 }
 
