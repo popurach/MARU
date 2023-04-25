@@ -40,4 +40,4 @@ out/
 **/*.yml
 !**/application.yml
 !**/application-global.yml
-/src/main/resources/maru-268ba-firebase-adminsdk-kz7ws-cbb0d2f724.json
+/src/main/resources/firebase-admin-sdk.json

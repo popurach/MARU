@@ -14,7 +14,7 @@ public class FCMInitializer {
     @PostConstruct
     public void initialize() throws IOException {
 
-        InputStream serviceAccount = getClass().getResourceAsStream("/maru-268ba-firebase-adminsdk-kz7ws-cbb0d2f724.json");
+        InputStream serviceAccount = getClass().getResourceAsStream("/firebase-admin-sdk.json");
 
         FirebaseOptions options = new FirebaseOptions.Builder()
                 .setCredentials(GoogleCredentials.fromStream(serviceAccount))
