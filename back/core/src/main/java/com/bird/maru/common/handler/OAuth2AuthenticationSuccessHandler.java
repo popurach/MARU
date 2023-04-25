@@ -10,7 +10,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
-import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -18,7 +17,7 @@ import org.springframework.web.util.UriComponentsBuilder;
  * Authorization Code Grant 방식을 지원합니다. <br>
  * OAuth 인증에 성공한 경우에 이 빈을 호출합니다.
  */
-@Component
+//@Component
 public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 
     public static final String REFRESH_TOKEN_PREFIX = "member_refresh:";
