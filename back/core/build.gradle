@@ -31,9 +31,12 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-data-mongodb'
 //	implementation 'org.springframework.boot:spring-boot-starter-data-elasticsearch'
 
-    // Spring Security + OAuth 2.0
-//	implementation 'org.springframework.boot:spring-boot-starter-security'
-//	implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
+	// Spring Security, JWT 의존성 추가
+	implementation 'org.springframework.boot:spring-boot-starter-security'
+	implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
+	implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
+	runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.11.5'
+	runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.11.5'
 
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-validation'
@@ -52,4 +55,27 @@ dependencies {
 
 tasks.named('test') {
     useJUnitPlatform()
+}
+
+compileJava {
+	// JPA의 @Query에서 @Param을 생략할 수 있도록 Named Parameter 설정 추가
+	options.compilerArgs << "-parameters"
+}
+
+// QClass를 저장할 경로
+def generated = "$buildDir/generated/querydsl"
+
+tasks.withType(JavaCompile).configureEach {
+	// querydsl QClass 파일 생성 위치를 지정
+	options.getGeneratedSourceOutputDirectory().set(file(generated))
+}
+
+// build 할 때 사용할 sourceSet에 QClass를 추가
+sourceSets {
+	main.java.srcDir generated
+}
+
+// gradle clean 시에 QClass 디렉토리 삭제
+clean {
+	delete file(generated)
 }

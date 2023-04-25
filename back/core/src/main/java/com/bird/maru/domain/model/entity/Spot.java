@@ -1,19 +1,20 @@
 package com.bird.maru.domain.model.entity;
 
 import com.bird.maru.domain.model.type.BaseDateTime;
+import com.bird.maru.domain.model.type.Coordinate;
 import com.bird.maru.domain.model.type.Image;
-import com.bird.maru.domain.model.type.Provider;
+import java.util.Objects;
 import javax.persistence.Column;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Index;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
-import javax.persistence.UniqueConstraint;
-import javax.validation.constraints.Email;
 import javax.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -23,44 +24,51 @@ import lombok.NoArgsConstructor;
 
 @Entity
 @Table(
-        name = "members",
-        uniqueConstraints = @UniqueConstraint(columnNames = { "email", "provider" })
+        name = "spots",
+        indexes = @Index(name = "spot_geo_index", columnList = "lng, lat")
 )
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Getter
 @Builder
-public class Member extends BaseDateTime {
+public class Spot extends BaseDateTime {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "member_id")
     @NotNull
-    private String nickname;
+    private Member member;
 
-    @NotNull
-    @Builder.Default
-    private Integer point = 0;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "landmark_id")
+    private Landmark landmark;
 
     @Embedded
     @NotNull
+    private Image image;
+
+    @Embedded
+    @NotNull
+    private Coordinate coordinate; // (경도, 위도)
+
+    @Column(name = "like_count")
+    @NotNull
     @Builder.Default
-    private Image image = Image.getDefaultMemberProfile();
-
-    @NotNull
-    @Email
-    private String email;
-
-    @NotNull
-    @Enumerated(EnumType.STRING)
-    private Provider provider;
+    private Integer likeCount = 0;
 
     @NotNull
     @Builder.Default
     private Boolean deleted = Boolean.FALSE;
 
-    @Column(name = "notice_token")
-    private String noticeToken;
+    public boolean isLandmark() {
+        return landmark != null;
+    }
+
+    public Landmark getLandmark() {
+        return Objects.requireNonNull(this.landmark);
+    }
 
 }
