@@ -14,8 +14,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawWithCache
+import androidx.compose.ui.graphics.BlendMode
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
@@ -25,7 +31,6 @@ import com.shoebill.maru.R
 fun DrawerHeader() {
     val iconSize = 18.dp
     val fontSize = 12.sp
-
     Box(
         Modifier
             .fillMaxWidth()
@@ -39,9 +44,10 @@ fun DrawerHeader() {
     }
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(5.dp),
         modifier = Modifier
-            .padding(top = 6.dp)
-            .padding(bottom = 40.dp)
+            .padding(top = 6.dp, bottom = 40.dp)
+
     ) {
         AsyncImage(
             model = "https://picsum.photos/id/237/200/300",
@@ -52,16 +58,33 @@ fun DrawerHeader() {
                 .clip(CircleShape)
         )
         // nickname
-        Text(text = "Shoebill")
+        Text(text = "Shoebill", fontSize = 18.sp, fontWeight = FontWeight.Bold)
         Row(
             verticalAlignment = Alignment.CenterVertically,
-
-            ) {
+            horizontalArrangement = Arrangement.spacedBy(5.dp)
+        ) {
             Icon(
                 painter = painterResource(id = R.drawable.point_icon),
-                contentDescription = "point"
+                contentDescription = "point",
+                tint = Color.Unspecified
             )
-            Text(text = "1,000,000,000")
+            Text(text = "1,000,000,000", modifier = Modifier
+                .graphicsLayer(alpha = 0.99f)
+                .drawWithCache {
+                    onDrawWithContent {
+                        drawContent()
+                        drawRect(
+                            Brush.linearGradient(
+                                listOf(
+                                    Color(0xFF6039DF),
+                                    Color(0xFFA14AB7)
+                                )
+                            ),
+                            blendMode = BlendMode.SrcAtop
+                        )
+                    }
+                }
+            )
         }
     }
     Row(
