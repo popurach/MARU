@@ -51,7 +51,7 @@ public class CustomUserDetails implements UserDetails, OAuth2User {
     @SuppressWarnings("unchecked")
     private static CustomUserDetails ofKakao(Map<String, Object> attributes) {
         Map<String, Object> account = (Map<String, Object>) attributes.get("kakao_account");
-        Map<String, Object> profile = (Map<String, Object>) attributes.get("profile");
+        Map<String, Object> profile = (Map<String, Object>) account.get("profile");
 
         return CustomUserDetails.builder()
                                 .provider(Provider.KAKAO)

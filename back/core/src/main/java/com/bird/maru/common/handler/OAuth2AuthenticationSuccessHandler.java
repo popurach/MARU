@@ -3,7 +3,6 @@ package com.bird.maru.common.handler;
 import com.bird.maru.common.util.JwtUtil;
 import com.bird.maru.domain.model.type.CustomUserDetails;
 import java.io.IOException;
-import javax.servlet.FilterChain;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Value;
@@ -41,7 +40,6 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
     public void onAuthenticationSuccess(
             HttpServletRequest request,
             HttpServletResponse response,
-            FilterChain chain,
             Authentication authentication
     ) throws IOException {
         CustomUserDetails member = (CustomUserDetails) authentication.getPrincipal();
