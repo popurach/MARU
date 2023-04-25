@@ -33,7 +33,8 @@ private val LightColorPalette = lightColors(
 fun MaruTheme(darkTheme: Boolean = isSystemInDarkTheme(), content: @Composable () -> Unit) {
     val systemUiController = rememberSystemUiController()
     systemUiController.setStatusBarColor(
-        color = Color.Transparent
+        color = Color.Transparent,
+        darkIcons = true
     )
     val colors = if (darkTheme) {
         DarkColorPalette

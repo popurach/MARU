@@ -2,18 +2,24 @@ package com.shoebill.maru.viewmodel
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.graphics.drawable.BitmapDrawable
 import android.util.Log
-import androidx.appcompat.content.res.AppCompatResources
+import androidx.appcompat.content.res.AppCompatResources.getDrawable
 import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.ViewModel
 import com.mapbox.android.gestures.MoveGestureDetector
+import com.mapbox.geojson.Point
 import com.mapbox.maps.MapView
 import com.mapbox.maps.MapboxMap
 import com.mapbox.maps.dsl.cameraOptions
 import com.mapbox.maps.extension.style.expressions.dsl.generated.interpolate
+import com.mapbox.maps.extension.style.layers.properties.generated.IconAnchor
 import com.mapbox.maps.plugin.LocationPuck2D
+import com.mapbox.maps.plugin.annotation.annotations
+import com.mapbox.maps.plugin.annotation.generated.PointAnnotationOptions
+import com.mapbox.maps.plugin.annotation.generated.createPointAnnotationManager
 import com.mapbox.maps.plugin.compass.compass
 import com.mapbox.maps.plugin.gestures.OnMoveListener
 import com.mapbox.maps.plugin.gestures.addOnMoveListener
@@ -64,7 +70,6 @@ class MapViewModel @Inject constructor() : ViewModel() {
                     pitch(50.0)
                 }
             }
-
             mapBoxMap.addOnMoveListener(object : OnMoveListener {
                 override fun onMove(detector: MoveGestureDetector): Boolean {
                     return false
@@ -79,6 +84,22 @@ class MapViewModel @Inject constructor() : ViewModel() {
                 }
             })
         }
+        val annotationApi = mapView.annotations
+        val pointAnnotationManager = annotationApi.createPointAnnotationManager()
+// Set options for the resulting symbol layer.
+        val drawable = getDrawable(context, com.shoebill.maru.R.drawable.marker)
+        val bitmapDrawable = drawable as BitmapDrawable
+        val bitmap = bitmapDrawable.bitmap
+        val pointAnnotationOptions: PointAnnotationOptions = PointAnnotationOptions()
+            // Define a geographic coordinate.
+            .withPoint(Point.fromLngLat(127.0361793, 37.5001917))
+            // Specify the bitmap you assigned to the point annotation
+            // The bitmap will be added to map style automatically.
+            .withIconImage(bitmap)
+            .withIconAnchor(IconAnchor.BOTTOM)
+            .withIconSize(0.2)
+// Add the resulting pointAnnotation to the map.
+        pointAnnotationManager.create(pointAnnotationOptions)
         return mapView
     }
 
@@ -93,15 +114,15 @@ class MapViewModel @Inject constructor() : ViewModel() {
                     pulsingEnabled = true
                     pulsingMaxRadius = 100f
                     locationPuck = LocationPuck2D(
-                        topImage = AppCompatResources.getDrawable(
+                        topImage = getDrawable(
                             context,
                             R.drawable.mapbox_user_icon
                         ),
-                        bearingImage = AppCompatResources.getDrawable(
+                        bearingImage = getDrawable(
                             context,
                             R.drawable.mapbox_user_bearing_icon
                         ),
-                        shadowImage = AppCompatResources.getDrawable(
+                        shadowImage = getDrawable(
                             context,
                             R.drawable.mapbox_user_stroke_icon
                         ),
