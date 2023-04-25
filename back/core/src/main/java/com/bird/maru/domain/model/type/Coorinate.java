@@ -17,7 +17,7 @@ import lombok.ToString;
 @Builder
 @ToString
 @EqualsAndHashCode
-public class Coorinate {
+public class Coordinate {
 
     @NotNull
     private Double lng; // 경도

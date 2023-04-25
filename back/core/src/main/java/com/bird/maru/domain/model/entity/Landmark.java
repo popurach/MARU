@@ -1,6 +1,6 @@
 package com.bird.maru.domain.model.entity;
 
-import com.bird.maru.domain.model.type.Coorinate;
+import com.bird.maru.domain.model.type.Coordinate;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -36,7 +36,7 @@ public class Landmark {
     private String name;
 
     @NotNull
-    private Coorinate coorinate; // (경도, 위도)
+    private Coordinate coordinate; // (경도, 위도)
 
     @Column(name = "visit_count")
     @NotNull
