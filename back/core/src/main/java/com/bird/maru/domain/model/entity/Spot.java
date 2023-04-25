@@ -1,7 +1,7 @@
 package com.bird.maru.domain.model.entity;
 
 import com.bird.maru.domain.model.type.BaseDateTime;
-import com.bird.maru.domain.model.type.Coorinate;
+import com.bird.maru.domain.model.type.Coordinate;
 import com.bird.maru.domain.model.type.Image;
 import java.util.Objects;
 import javax.persistence.Column;
@@ -52,7 +52,7 @@ public class Spot extends BaseDateTime {
 
     @Embedded
     @NotNull
-    private Coorinate coorinate; // (경도, 위도)
+    private Coordinate coordinate; // (경도, 위도)
 
     @Column(name = "like_count")
     @NotNull

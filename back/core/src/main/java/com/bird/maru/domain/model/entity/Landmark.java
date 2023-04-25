@@ -35,6 +35,7 @@ public class Landmark {
 
     private String name;
 
+    @Embedded
     @NotNull
     private Coordinate coordinate; // (경도, 위도)
 
