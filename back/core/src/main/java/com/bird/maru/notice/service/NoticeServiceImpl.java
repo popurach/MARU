@@ -2,6 +2,7 @@ package com.bird.maru.notice.service;
 
 import com.bird.maru.domain.model.entity.Landmark;
 import com.bird.maru.domain.model.entity.Member;
+import com.bird.maru.fcm.FCMService;
 import com.bird.maru.notice.model.Category;
 import com.bird.maru.notice.model.Notice;
 import com.bird.maru.notice.model.NoticeRequestDto;
@@ -22,6 +23,7 @@ public class NoticeServiceImpl implements NoticeService {
 
     private final NoticeRepository noticeRepository;
     private final CustomNoticeRepository customNoticeRepository;
+    private final FCMService fcmService;
 
     @Override
     public Slice<Notice> findByMemberId(Long memberId, Pageable pageable) {
@@ -49,6 +51,7 @@ public class NoticeServiceImpl implements NoticeService {
         customNoticeRepository.bulkInsertNotices(notices);
 
         // FCM Service 호출 추가 (다수)
+        fcmService.sendMessageToMembers(notices);
     }
 
     /**
@@ -70,6 +73,7 @@ public class NoticeServiceImpl implements NoticeService {
         noticeRepository.save(notice);
 
         // FCM Service 호출 추가 (단건)
+        fcmService.sendMessage(notice);
     }
 
     /**
@@ -93,6 +97,7 @@ public class NoticeServiceImpl implements NoticeService {
         customNoticeRepository.bulkInsertNotices(notices);
 
         // FCM Service 호출 추가 (다수)
+        fcmService.sendMessageToMembers(notices);
     }
 
     /**
