@@ -14,6 +14,11 @@ spring:
         dialect: org.hibernate.dialect.MySQL8Dialect
         default_batch_fetch_size: 500
 
+  batch:
+    job:
+      names: ${job.name:NONE}
+      enabled: false # batch 자동 실행 막음
+
 --- #local, dev
 logging:
   level:

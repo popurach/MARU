@@ -64,6 +64,12 @@ dependencies {
     // FCM
     implementation 'com.google.firebase:firebase-admin:9.1.1'
 
+    // Spring Batch, Quartz 의존성 추가
+    implementation 'org.springframework.boot:spring-boot-starter-batch'
+    implementation 'org.springframework.boot:spring-boot-starter-quartz'
+    testImplementation 'org.springframework.batch:spring-batch-test'
+    annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
+
 }
 
 tasks.named('test') {

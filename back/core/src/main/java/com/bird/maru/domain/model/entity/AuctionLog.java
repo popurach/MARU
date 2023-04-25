@@ -52,4 +52,12 @@ public class AuctionLog {
     @NotNull
     private LocalDateTime createdDateTime;
 
+    public AuctionLog(AuctionLog auctionLogs) {
+        this.id = auctionLogs.getId();
+        this.auction = auctionLogs.getAuction();
+        this.member = auctionLogs.getMember();
+        this.price = auctionLogs.getPrice();
+        this.createdDateTime = auctionLogs.getCreatedDateTime();
+    }
+
 }
