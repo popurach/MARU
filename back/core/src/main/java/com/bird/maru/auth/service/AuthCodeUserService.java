@@ -4,6 +4,7 @@ import com.bird.maru.domain.model.entity.Member;
 import com.bird.maru.domain.model.type.CustomUserDetails;
 import com.bird.maru.domain.model.type.Provider;
 import com.bird.maru.member.repository.MemberRepository;
+import com.bird.maru.member.repository.query.MemberQueryRepository;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
@@ -25,6 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class AuthCodeUserService implements OAuth2UserService<OAuth2UserRequest, OAuth2User> {
 
     private final MemberRepository memberRepository;
+    private final MemberQueryRepository memberQueryRepository;
     private final DefaultOAuth2UserService oAuth2UserService = new DefaultOAuth2UserService();
 
     @Override
@@ -34,15 +36,14 @@ public class AuthCodeUserService implements OAuth2UserService<OAuth2UserRequest,
         OAuth2User oAuth2User = oAuth2UserService.loadUser(userRequest);
 
         Map<String, Object> attributes = oAuth2User.getAttributes();
-        Provider provider = Provider.converter(
+        Provider provider = Provider.convert(
                 userRequest.getClientRegistration()
                            .getRegistrationId()
-                           .toUpperCase()
         );
 
         CustomUserDetails userDetails = CustomUserDetails.of(attributes, provider);
-        memberRepository.findByEmailAndProvider(userDetails.getEmail(), userDetails.getProvider())
-                        .ifPresentOrElse(
+        memberQueryRepository.findByEmailAndProvider(userDetails.getEmail(), userDetails.getProvider())
+                             .ifPresentOrElse(
                                 member -> userDetails.setId(member.getId()),
                                 () -> join(userDetails)
                         );

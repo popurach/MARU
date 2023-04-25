@@ -1,12 +1,10 @@
 package com.bird.maru.common.config;
 
-import com.bird.maru.auth.repository.RedisAuthorizationRequestRepository;
-import com.bird.maru.auth.service.AuthCodeUserService;
+import com.bird.maru.auth.service.TokenUserService;
+import com.bird.maru.common.filter.ImplicitOAuth2LoginAuthenticationFilter;
 import com.bird.maru.common.filter.JwtAuthenticationFilter;
 import com.bird.maru.common.handler.JwtAccessDeniedHandler;
 import com.bird.maru.common.handler.JwtAuthenticationEntryPoint;
-import com.bird.maru.common.handler.OAuth2AuthenticationFailureHandler;
-import com.bird.maru.common.handler.OAuth2AuthenticationSuccessHandler;
 import com.bird.maru.common.util.JwtUtil;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -17,6 +15,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.logout.LogoutFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
@@ -29,10 +28,11 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 public class SecurityConfig {
 
     private final JwtUtil jwtUtil;
-    private final RedisAuthorizationRequestRepository redisAuthorizationRequestRepository;
-    private final AuthCodeUserService authCodeUserService;
-    private final OAuth2AuthenticationSuccessHandler oAuth2AuthenticationSuccessHandler;
-    private final OAuth2AuthenticationFailureHandler oAuth2AuthenticationFailureHandler;
+//    private final RedisAuthorizationRequestRepository redisAuthorizationRequestRepository;
+//    private final AuthCodeUserService authCodeUserService;
+//    private final OAuth2AuthenticationSuccessHandler oAuth2AuthenticationSuccessHandler;
+//    private final OAuth2AuthenticationFailureHandler oAuth2AuthenticationFailureHandler;
+    private final TokenUserService tokenUserService;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -47,15 +47,21 @@ public class SecurityConfig {
             .sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 
         // Authorization Code Grant 방식의 OAuth2 인증 관련 설정 추가
-        http.oauth2Login(
-                configurer -> configurer.authorizationEndpoint(
-                                                config -> config.authorizationRequestRepository(redisAuthorizationRequestRepository)
-                                        )
-                                        .userInfoEndpoint(
-                                                config -> config.userService(authCodeUserService)
-                                        )
-                                        .successHandler(oAuth2AuthenticationSuccessHandler)
-                                        .failureHandler(oAuth2AuthenticationFailureHandler)
+//        http.oauth2Login(
+//                configurer -> configurer.authorizationEndpoint(
+//                                                config -> config.authorizationRequestRepository(redisAuthorizationRequestRepository)
+//                                        )
+//                                        .userInfoEndpoint(
+//                                                config -> config.userService(authCodeUserService)
+//                                        )
+//                                        .successHandler(oAuth2AuthenticationSuccessHandler)
+//                                        .failureHandler(oAuth2AuthenticationFailureHandler)
+//        );
+
+        // Implicit Grant 방식의 OAuth2 인증 관련 설정 추가
+        http.addFilterBefore(
+                new ImplicitOAuth2LoginAuthenticationFilter("/login/oauth2/token", tokenUserService),
+                UsernamePasswordAuthenticationFilter.class
         );
 
         // JWT 필터, 인증/인가 실패 핸들러 등록
@@ -83,8 +89,13 @@ public class SecurityConfig {
         CorsConfiguration jwtCorsConfiguration = getJwtCorsConfiguration();
 
         UrlBasedCorsConfigurationSource corsConfigurationSource = new UrlBasedCorsConfigurationSource();
-        corsConfigurationSource.registerCorsConfiguration("/login/oauth2/code/*", loginCorsConfiguration);
-        corsConfigurationSource.registerCorsConfiguration("/oauth2/authorization/*", loginCorsConfiguration);
+        // Authorization Code Grant 방식 지원
+//        corsConfigurationSource.registerCorsConfiguration("/login/oauth2/code/*", loginCorsConfiguration);
+//        corsConfigurationSource.registerCorsConfiguration("/oauth2/authorization/*", loginCorsConfiguration);
+
+        // Implicit Grant 방식 지원
+        corsConfigurationSource.registerCorsConfiguration("/login/oauth2/token/*", loginCorsConfiguration);
+
         corsConfigurationSource.registerCorsConfiguration("/api/**", jwtCorsConfiguration);
         return corsConfigurationSource;
     }
@@ -112,6 +123,7 @@ public class SecurityConfig {
         CorsConfiguration loginCorsConfiguration = new CorsConfiguration().applyPermitDefaultValues();
         loginCorsConfiguration.setAllowedOrigins(List.of("*"));
         loginCorsConfiguration.setAllowedMethods(List.of("GET"));
+        loginCorsConfiguration.setAllowedHeaders(List.of("Access-Token"));
         loginCorsConfiguration.setExposedHeaders(List.of("Access-Token", "Refresh-Token"));
         return loginCorsConfiguration;
     }

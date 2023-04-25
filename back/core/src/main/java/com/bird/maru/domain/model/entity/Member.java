@@ -3,6 +3,7 @@ package com.bird.maru.domain.model.entity;
 import com.bird.maru.domain.model.type.BaseTime;
 import com.bird.maru.domain.model.type.Image;
 import com.bird.maru.domain.model.type.Provider;
+import javax.persistence.Column;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -56,6 +57,7 @@ public class Member extends BaseTime {
     @Builder.Default
     private Boolean deleted = Boolean.FALSE;
 
-    private String alarmToken;
+    @Column(name = "notice_token")
+    private String noticeToken;
 
 }
