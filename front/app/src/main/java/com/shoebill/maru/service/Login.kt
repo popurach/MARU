@@ -7,10 +7,7 @@ import com.kakao.sdk.common.model.ClientError
 import com.kakao.sdk.common.model.ClientErrorCause
 import com.kakao.sdk.user.UserApiClient
 import com.shoebill.maru.model.ApiInstance
-import com.shoebill.maru.model.data.Member
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
+import kotlinx.coroutines.runBlocking
 
 class Login {
     val TAG = "LOGIN"
@@ -26,24 +23,19 @@ class Login {
                 Log.i(TAG, "카카오 계정으로 로그인 성공 ${token.accessToken}")
 
                 // back end 로그인 API 호출부분
-                ApiInstance.authApi.login("KAKAO ${token.accessToken}")
-                    ?.enqueue(object : Callback<Response<Member>> {
-                        override fun onResponse(
-                            call: Call<Response<Member>>,
-                            response: Response<Response<Member>>,
-                        ) {
-                            var headers = response.headers()
-                            var result = response.body()
-                            Log.d("LOGIN", "Retrofit success and response : " + result.toString())
-                        }
+                runBlocking {
+                    val response: retrofit2.Response<Unit> =
+                        ApiInstance.authApi.login("KAKAO ${token.accessToken}")
+                    if (response.isSuccessful) {
+                        val accessToken = response.headers().get("access-token")
+                        val refreshToken = response.headers().get("refresh-token")
 
-                        override fun onFailure(call: Call<Response<Member>>, t: Throwable) {
-                            Log.d(
-                                "LOGIN",
-                                "Retrofit onFailure Error reason : " + t.message.toString()
-                            )
-                        }
-                    })
+                        Log.d(TAG, "retrofit 통신 성공 -> accessToken :$accessToken")
+                        Log.d(TAG, "retrofit 통신 성공 -> refreshToken :$refreshToken")
+                    } else {
+                        Log.d(TAG, "retrofit 로그인 실패 -> " + response.errorBody())
+                    }
+                }
             }
         }
 

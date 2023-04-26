@@ -57,7 +57,7 @@ fun MyApp(
         composable("main") { backStackEntry ->
             val viewModel = hiltViewModel<MapViewModel>()
             viewModel.initFocusManager(LocalFocusManager.current)
-            MainPage(viewModel, navController)
+            MainPage(mapViewModel = viewModel, navController = navController)
         }
         /** 이곳에 화면 추가 **/
 

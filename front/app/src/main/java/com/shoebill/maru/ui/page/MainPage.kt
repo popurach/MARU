@@ -28,26 +28,20 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.shoebill.maru.R
 import com.shoebill.maru.ui.component.MapboxScreen
-import com.shoebill.maru.ui.component.SearchBar
 import com.shoebill.maru.ui.component.searchbar.SearchBar
 import com.shoebill.maru.viewmodel.DrawerViewModel
 import com.shoebill.maru.viewmodel.MapViewModel
-
-@Composable
-fun DrawerMenuPage() {
-    TODO("Not yet implemented")
-}
 
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @Composable
 fun MainPage(
     mapViewModel: MapViewModel = viewModel(),
-    drawerViewModel: DrawerViewModel = viewModel()
+    drawerViewModel: DrawerViewModel = viewModel(),
     navController: NavHostController = rememberNavController(),
 ) {
     val scaffoldState = rememberScaffoldState()
