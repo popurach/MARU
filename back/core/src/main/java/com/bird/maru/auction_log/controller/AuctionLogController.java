@@ -1,6 +1,6 @@
-package com.bird.maru.AuctionLog.controller;
+package com.bird.maru.auction_log.controller;
 
-import com.bird.maru.AuctionLog.service.AuctionLogService;
+import com.bird.maru.auction_log.service.AuctionLogService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.RequestMapping;

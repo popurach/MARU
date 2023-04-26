@@ -1,4 +1,4 @@
-package com.bird.maru.AuctionLog.service;
+package com.bird.maru.auction_log.service;
 
 import com.bird.maru.domain.model.entity.AuctionLog;
 
