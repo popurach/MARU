@@ -103,23 +103,18 @@ fun MainPage(
                     }
                 )
             }
-
         },
         drawerShape = customShape(),
         drawerContent = {
             DrawerMenuPage()
         },
         drawerGesturesEnabled = scaffoldState.drawerState.isOpen,
-        sheetShape = RoundedCornerShape(16.dp),
+        sheetShape = RoundedCornerShape(topEnd = 16.dp, topStart = 16.dp),
         sheetContent = {
             BottomSheetPage()
         },
         sheetPeekHeight = 25.dp,
         floatingActionButton = null
-//        floatingActionButton = {
-//
-//        },
-//        floatingActionButtonPosition = FabPosition.Center
     )
 }
 

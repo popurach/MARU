@@ -1,5 +1,6 @@
 package com.shoebill.maru.ui.component.bottomsheet
 
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -9,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -29,7 +31,7 @@ fun SpotListItem(
     Column(
         Modifier
             .padding(horizontal = 27.dp)
-            .padding(top = 26.dp)
+            .padding(top = 26.dp, bottom = 7.dp)
     ) {
         Box(
             Modifier
@@ -63,8 +65,10 @@ fun SpotListItem(
             }
 
         }
+        val scrollState = rememberScrollState()
         Row(
-            horizontalArrangement = Arrangement.spacedBy(4.dp)
+            horizontalArrangement = Arrangement.spacedBy(6.dp),
+            modifier = Modifier.horizontalScroll(scrollState)
         ) {
             spot.hashTags.forEach() { tag ->
                 Chip(text = tag)

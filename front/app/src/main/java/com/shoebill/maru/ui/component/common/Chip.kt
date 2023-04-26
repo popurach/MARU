@@ -9,18 +9,27 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 
 @Composable
 fun Chip(
-    text: String
+    text: String,
+    textColor: Color = Color.Black,
+    color: Color = Color.White,
+    border: BorderStroke = BorderStroke(0.5.dp, Color(0XFFECECEC))
 ) {
     Surface(
+        color = color,
         shape = RoundedCornerShape(16.dp),
-        border = BorderStroke(0.5.dp, Color(0XFFECECEC)),
-        elevation = 2.dp
+        border = border,
+        elevation = 2.dp,
+        modifier = Modifier.padding(top = 12.dp)
     ) {
         Text(
-            text = text, modifier = Modifier.padding(horizontal = 15.dp, vertical = 5.dp),
+            text = text,
+            modifier = Modifier.padding(horizontal = 15.dp, vertical = 7.dp),
+            fontSize = 12.sp,
+            color = textColor
         )
     }
 

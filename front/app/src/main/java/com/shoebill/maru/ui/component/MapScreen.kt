@@ -30,6 +30,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.mapbox.maps.ResourceOptionsManager
 import com.shoebill.maru.R
 import com.shoebill.maru.viewmodel.MapViewModel
@@ -38,7 +39,7 @@ import com.shoebill.maru.viewmodel.MapViewModel
 @Composable
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 fun MapboxScreen(
-    viewModel: MapViewModel
+    viewModel: MapViewModel = hiltViewModel()
 ) {
     val context = LocalContext.current
 
