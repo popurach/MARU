@@ -5,14 +5,16 @@ import androidx.compose.material.Button
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
-import com.shoebill.maru.service.Login
+import androidx.hilt.navigation.compose.hiltViewModel
+import com.shoebill.maru.service.LoginViewModel
 
 @Composable
 fun LoginPage() {
-    val login = Login(LocalContext.current)
+    val context = LocalContext.current
+    val loginViewModel: LoginViewModel = hiltViewModel()
 
     Column() {
-        Button(onClick = { login.kakaoLogin() }) {
+        Button(onClick = { loginViewModel.kakaoLogin(context) }) {
             Text(text = "카카오 로그인")
         }
         Button(onClick = { /*TODO*/ }) {

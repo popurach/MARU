@@ -1,6 +1,7 @@
 package com.shoebill.maru
 
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.fillMaxSize
@@ -18,16 +19,28 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.shoebill.maru.service.LoginViewModel
 import com.shoebill.maru.ui.page.LoginPage
 import com.shoebill.maru.ui.page.MainPage
 import com.shoebill.maru.ui.theme.MaruTheme
+import com.shoebill.maru.util.PreferenceUtil
 import com.shoebill.maru.viewmodel.MapViewModel
 import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+    @Inject
+    lateinit var util: PreferenceUtil
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        // util 초기화
+        util.setString("test", "test!!!!")
+        val test = util.getString("test", "default")
+        Log.d("TEST", test)
+
         WindowCompat.setDecorFitsSystemWindows(window, false)
         setContent {
             MaruTheme {
@@ -50,6 +63,8 @@ fun MyApp(
     navController: NavHostController = rememberNavController(),
     startDestination: String = "main",
 ) {
+    val loginViewModel: LoginViewModel = hiltViewModel()
+
     NavHost(
         navController = navController,
         startDestination = startDestination

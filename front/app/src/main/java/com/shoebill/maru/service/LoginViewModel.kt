@@ -1,18 +1,24 @@
 package com.shoebill.maru.service
 
 import android.content.Context
-import android.content.Context.MODE_PRIVATE
 import android.util.Log
+import androidx.lifecycle.ViewModel
 import com.kakao.sdk.auth.model.OAuthToken
 import com.kakao.sdk.common.model.ClientError
 import com.kakao.sdk.common.model.ClientErrorCause
 import com.kakao.sdk.user.UserApiClient
 import com.shoebill.maru.model.ApiInstance
+import com.shoebill.maru.util.PreferenceUtil
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.runBlocking
+import javax.inject.Inject
 
-class Login(val context: Context) {
+@HiltViewModel
+class LoginViewModel @Inject constructor(
+    val prefUtil: PreferenceUtil
+) : ViewModel() {
     val TAG = "LOGIN"
-    fun apiLogin(token: OAuthToken) = runBlocking {
+    private fun kakaoApiLogin(token: OAuthToken) = runBlocking {
         val response: retrofit2.Response<Unit> =
             ApiInstance.authApi.login("KAKAO ${token.accessToken}")
         if (response.isSuccessful) {
@@ -22,14 +28,13 @@ class Login(val context: Context) {
             Log.d(TAG, "retrofit 통신 성공 -> accessToken :$accessToken")
             Log.d(TAG, "retrofit 통신 성공 -> refreshToken :$refreshToken")
 
-            val preferences = context.getSharedPreferences("token", MODE_PRIVATE)
-            preferences.edit().putString("accessToken", accessToken)
-                .putString("refreshToken", refreshToken).apply()
+            prefUtil.setString("accessToken", accessToken!!)
+            prefUtil.setString("refreshToken", refreshToken!!)
 
             Log.d(
                 TAG,
                 "saved accessToken: ${
-                    preferences.getString(
+                    prefUtil.getString(
                         "accessToken",
                         "accessToken not exist"
                     )
@@ -38,7 +43,7 @@ class Login(val context: Context) {
             Log.d(
                 TAG,
                 "saved refreshToken: ${
-                    preferences.getString(
+                    prefUtil.getString(
                         "refreshToken",
                         "refreshToken not exist"
                     )
@@ -49,7 +54,7 @@ class Login(val context: Context) {
         }
     }
 
-    fun kakaoLogin() {
+    fun kakaoLogin(context: Context) {
 
         // 카카오계정으로 로그인 공통 callback 구성
         // 카카오톡으로 로그인 할 수 없어 카카오계정으로 로그인할 경우 사용됨
@@ -60,7 +65,7 @@ class Login(val context: Context) {
                 Log.i(TAG, "카카오 계정으로 로그인 성공 ${token.accessToken}")
 
                 // back end 로그인 API 호출부분
-                apiLogin(token)
+                kakaoApiLogin(token)
             }
         }
 
@@ -81,7 +86,7 @@ class Login(val context: Context) {
                     Log.i(TAG, "카카오톡으로 로그인 성공 ${token.accessToken}")
 
                     //back end 로그인 API 호출 부분
-                    apiLogin(token)
+                    kakaoApiLogin(token)
                 }
             }
         } else {
