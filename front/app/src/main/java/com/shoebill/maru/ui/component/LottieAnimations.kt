@@ -9,8 +9,11 @@ import com.airbnb.lottie.compose.rememberLottieComposition
 
 @Composable
 fun LottieDiamond() {
-    val composition by rememberLottieComposition(spec = LottieCompositionSpec.Url("https://assets6.lottiefiles.com/private_files/lf30_lfb13isu.json"))
-    LottieAnimation(composition = composition, iterations = LottieConstants.IterateForever)
+    val composition by rememberLottieComposition(spec = LottieCompositionSpec.Url("https://assets2.lottiefiles.com/packages/lf20_RhZuehZviJ.json"))
+    LottieAnimation(
+        composition = composition,
+        iterations = LottieConstants.IterateForever,
+    )
 }
 
 @Composable

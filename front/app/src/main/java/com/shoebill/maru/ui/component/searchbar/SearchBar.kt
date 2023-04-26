@@ -19,7 +19,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.graphics.BlendMode
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.painterResource
@@ -27,6 +26,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.shoebill.maru.R
 import com.shoebill.maru.ui.component.FilterChips
+import com.shoebill.maru.ui.theme.MaruBrush
 import com.shoebill.maru.viewmodel.DrawerViewModel
 import com.shoebill.maru.viewmodel.MapViewModel
 import com.shoebill.maru.viewmodel.SearchBarViewModel
@@ -80,12 +80,7 @@ fun SearchBar(
                                     onDrawWithContent {
                                         drawContent()
                                         drawRect(
-                                            Brush.linearGradient(
-                                                listOf(
-                                                    Color(0xFF6039DF),
-                                                    Color(0xFFA14AB7)
-                                                )
-                                            ),
+                                            MaruBrush,
                                             blendMode = BlendMode.SrcAtop
                                         )
                                     }
