@@ -3,7 +3,7 @@ WORKDIR /app
 COPY . /app
 RUN chmod +x ./gradlew && ./gradlew bootJar
 
-FROM openjdk:11-jre
+FROM openjdk:11
 ENV TZ="Asiz/Seoul"
 WORKDIR /app
 COPY --from=builder /app/build/libs/*.jar /app/app.jar
