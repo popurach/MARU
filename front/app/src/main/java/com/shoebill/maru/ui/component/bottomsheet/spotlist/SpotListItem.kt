@@ -1,4 +1,4 @@
-package com.shoebill.maru.ui.component.bottomsheet
+package com.shoebill.maru.ui.component.bottomsheet.spotlist
 
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement

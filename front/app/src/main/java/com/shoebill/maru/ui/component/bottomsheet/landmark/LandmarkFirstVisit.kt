@@ -1,4 +1,4 @@
-package com.shoebill.maru.ui.component.bottomsheet
+package com.shoebill.maru.ui.component.bottomsheet.landmark
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column

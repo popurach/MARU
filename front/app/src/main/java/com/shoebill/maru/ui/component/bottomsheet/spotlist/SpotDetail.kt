@@ -1,4 +1,4 @@
-package com.shoebill.maru.ui.component.bottomsheet
+package com.shoebill.maru.ui.component.bottomsheet.spotlist
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
@@ -23,6 +23,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.shoebill.maru.R
+import com.shoebill.maru.ui.component.bottomsheet.BottomSheetIndicator
 import com.shoebill.maru.ui.component.common.Chip
 
 @Composable

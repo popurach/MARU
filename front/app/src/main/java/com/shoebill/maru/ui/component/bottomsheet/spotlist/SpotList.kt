@@ -1,4 +1,4 @@
-package com.shoebill.maru.ui.component.bottomsheet
+package com.shoebill.maru.ui.component.bottomsheet.spotlist
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
