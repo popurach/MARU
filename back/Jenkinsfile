@@ -1,5 +1,6 @@
 node {
-    def srcPath = "/var/jenkins_home/workspace/maru-core/back/core"
+    // maru-core는 jenkins pipeline name
+    def srcPath = "/var/jenkins_home/workspace/${env.JOB_NAME}/back/core"
     def deployPath = "/app/data/spring/deploy"
     def back02
     def greenPath
