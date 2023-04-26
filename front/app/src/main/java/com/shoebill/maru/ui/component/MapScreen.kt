@@ -8,10 +8,14 @@ import android.widget.Toast
 import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.FabPosition
 import androidx.compose.material.FloatingActionButton
 import androidx.compose.material.Icon
 import androidx.compose.material.Scaffold
@@ -79,6 +83,7 @@ fun MapboxScreen(
                     viewModel.trackCameraToUser(context)
                 },
                 modifier = Modifier
+                    .padding(bottom = 25.dp)
                     .size(50.dp),
                 shape = RoundedCornerShape(16.dp),
                 backgroundColor = Color.White,
@@ -100,7 +105,10 @@ fun MapboxScreen(
                     )
                 }
             )
-        }
+            Box(modifier = Modifier.height(50.dp))
+        },
+        floatingActionButtonPosition = FabPosition.End,
+        isFloatingActionButtonDocked = true
     )
 }
 
