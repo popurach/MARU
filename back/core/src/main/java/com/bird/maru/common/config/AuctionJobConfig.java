@@ -1,7 +1,7 @@
 package com.bird.maru.common.config;
 
 import com.bird.maru.AuctionLog.repository.AuctionLogRepository;
-import com.bird.maru.AuctionLog.service.AuctionService;
+import com.bird.maru.AuctionLog.service.AuctionLogService;
 import com.bird.maru.domain.model.entity.AuctionLog;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -39,7 +39,7 @@ public class AuctionJobConfig {
     @Autowired
     private AuctionLogRepository auctionLogsRepository;
 
-    private final AuctionService auctionService;
+    private final AuctionLogService auctionService;
 
     @Bean
     public Job auctionLogsJob(Step auctionLogsStep) {
@@ -91,12 +91,6 @@ public class AuctionJobConfig {
                 .arguments(List.of())
                 .sorts(Collections.singletonMap("id", Sort.Direction.ASC))
                 .build();
-
-        // entityManagerFactory를 생성해서 직접 쿼리도 가능함
-        //.name()
-        //.entityManagerFactory(entityManagerFactory)
-        //.queryString("SELECT a FROM Auction a where loginDt='"+alarmDate+"'")
-        //.build();
     }
 
     @StepScope

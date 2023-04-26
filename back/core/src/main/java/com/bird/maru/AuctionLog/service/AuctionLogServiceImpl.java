@@ -9,14 +9,21 @@ import com.bird.maru.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 @Slf4j
-public class AuctionServiceImpl implements AuctionService{
+public class AuctionLogServiceImpl implements AuctionLogService {
     private final AuctionRepository auctionRepository;
     private final MemberRepository memberRepository;
 
+    @Transactional(
+            rollbackFor = Exception.class,
+            propagation = Propagation.REQUIRES_NEW
+    )
     @Override
     public void auctionExecute(AuctionLog auctionLog) {
         Landmark landmarks = auctionLog.getAuction().getLandmark();
@@ -29,17 +36,7 @@ public class AuctionServiceImpl implements AuctionService{
         } else { // 유찰자
             int price = auctionLog.getPrice(); // 유찰자의 입찰 가격
             Member member = memberRepository.getReferenceById(auctionLog.getMember().getId()); // 유찰자의 객체
-            Member updateMember = member.builder()
-                    .id(member.getId())
-                    .nickname(member.getNickname())
-                    .point(member.getPoint() + price) // 유찰자 돈 환불
-                    .image(member.getImage())
-                    .email(member.getEmail())
-                    .provider(member.getProvider())
-                    .deleted(member.getDeleted())
-                    .noticeToken(member.getNoticeToken())
-                    .build();
-            memberRepository.save(updateMember);
+            member.changePoint(price);
         }
     }
 }
