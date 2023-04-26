@@ -9,11 +9,10 @@ import com.shoebill.maru.service.Login
 
 @Composable
 fun LoginPage() {
-    val login: Login = Login();
-    val context = LocalContext.current // composable 이 실행되고 있는 Context 반환
+    val login = Login(LocalContext.current)
 
     Column() {
-        Button(onClick = { login.kakaoLogin(context) }) {
+        Button(onClick = { login.kakaoLogin() }) {
             Text(text = "카카오 로그인")
         }
         Button(onClick = { /*TODO*/ }) {
