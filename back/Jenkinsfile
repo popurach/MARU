@@ -41,7 +41,7 @@ node {
 
     stage('Build Spring Server Image') {
         def greenImage = isBlue(back02) ? 'maru/back:1' : 'maru/back:2'
-        sh "docker build -t ${greenImage} ./core"
+        sh "docker build -t ${greenImage} ${srcPath}"
     }
 
     stage('Run Spring Server Container') {
