@@ -8,9 +8,14 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.BottomSheetScaffold
 import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.Button
+import androidx.compose.material.FabPosition
 import androidx.compose.material.FloatingActionButton
 import androidx.compose.material.Icon
 import androidx.compose.material.rememberBottomSheetScaffoldState
+import androidx.compose.material.Scaffold
+import androidx.compose.material.Text
+import androidx.compose.material.rememberScaffoldState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.livedata.observeAsState
@@ -30,6 +35,8 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
 import com.shoebill.maru.R
 import com.shoebill.maru.ui.component.MapboxScreen
 import com.shoebill.maru.ui.component.searchbar.SearchBar
@@ -41,7 +48,8 @@ import com.shoebill.maru.viewmodel.MapViewModel
 @Composable
 fun MainPage(
     mapViewModel: MapViewModel = viewModel(),
-    drawerViewModel: DrawerViewModel = viewModel()
+    drawerViewModel: DrawerViewModel = viewModel(),
+    navController: NavHostController = rememberNavController(),
 ) {
     val scaffoldState = rememberBottomSheetScaffoldState()
 //    val scaffoldState = rememberScaffoldState()

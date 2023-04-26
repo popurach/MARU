@@ -5,6 +5,9 @@ plugins {
     id 'com.google.dagger.hilt.android'
 }
 
+Properties properties = new Properties()
+properties.load(project.rootProject.file('local.properties').newDataInputStream())
+
 android {
     namespace 'com.shoebill.maru'
     compileSdk 33
@@ -20,6 +23,8 @@ android {
         vectorDrawables {
             useSupportLibrary true
         }
+
+        buildConfigField "String", "KAKAO_NATIVE_APP_KEY", properties['KAKAO_NATIVE_APP_KEY']
     }
 
     buildTypes {
@@ -94,6 +99,16 @@ dependencies {
     androidTestImplementation "androidx.compose.ui:ui-test-junit4:$compose_ui_version"
     debugImplementation "androidx.compose.ui:ui-tooling:$compose_ui_version"
     debugImplementation "androidx.compose.ui:ui-test-manifest:$compose_ui_version"
+
+    // Kakao Login
+    implementation 'com.kakao.sdk:v2-user:2.13.0' // 카카오 로그인
+
+    // Retrofit
+    implementation 'com.squareup.retrofit2:retrofit'
+    implementation 'com.squareup.retrofit2:converter-gson'
+
+    // lottie
+    implementation "com.airbnb.android:lottie-compose:4.2.0"
 }
 
 kapt {
