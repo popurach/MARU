@@ -2,6 +2,7 @@ package com.bird.maru.auth.service;
 
 import com.bird.maru.common.util.JwtUtil;
 import com.bird.maru.domain.model.type.CustomUserDetails;
+import java.time.Duration;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -28,7 +29,7 @@ public class AuthServiceImpl implements AuthService {
                      .set(
                              createRedisKey(member.getId()),
                              refreshToken,
-                             jwtUtil.getRefreshTokenExpirationTime()
+                             Duration.ofMillis(jwtUtil.getRefreshTokenExpirationTime())
                      );
 
         return Map.of(

@@ -15,7 +15,6 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.logout.LogoutFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
@@ -61,7 +60,7 @@ public class SecurityConfig {
         // Implicit Grant 방식의 OAuth2 인증 관련 설정 추가
         http.addFilterBefore(
                 new ImplicitOAuth2LoginAuthenticationFilter("/login/oauth2/token", tokenUserService),
-                UsernamePasswordAuthenticationFilter.class
+                LogoutFilter.class
         );
 
         // JWT 필터, 인증/인가 실패 핸들러 등록
