@@ -15,24 +15,6 @@ node {
         sh "cp -rp /app/data/spring/conf ${srcPath}/conf"
     }
 
-    stage('Remove Existing Container And Image') {
-        sh '''
-          echo "백엔드 서버 컨테이너 종료"
-          if docker ps -a --format "{{.Names}}" | grep -q maru-back; then
-            echo "Stopping container: maru-back"
-            docker stop $(docker ps -a --format "{{.Names}}" | grep maru-back)
-          else
-            echo "Container maru-back does not exist"
-          fi
-    
-          echo "사용하지 않는 컨테이너 삭제"
-          docker container prune -f
-    
-          echo "사용하지 않는 이미지 삭제"
-          docker image prune -a -f
-        '''
-    }
-
     stage('Find Deployed File') {
         back02 = sh(
                 script: "docker-compose -f ${deployPath}/back-02/docker-compose.yml ps -q | wc -l",
