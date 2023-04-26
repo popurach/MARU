@@ -66,14 +66,14 @@ fun LoginPage() {
                         .clickable { login.kakaoLogin(context) }
                         .padding(start = 40.dp, end = 40.dp, top = 4.dp, bottom = 4.dp),
                     painter = painterResource(id = R.drawable.kakao_login),
-                    contentDescription = ""
+                    contentDescription = "카카오 로그인"
                 )
                 Image(
                     modifier = Modifier
                         .clickable { /*TODO*/ }
                         .padding(start = 40.dp, end = 40.dp, top = 4.dp, bottom = 4.dp),
                     painter = painterResource(id = R.drawable.naver_login),
-                    contentDescription = ""
+                    contentDescription = "네이버 로그인"
                 )
                 Image(
                     modifier = Modifier
@@ -82,7 +82,7 @@ fun LoginPage() {
                         .background(color = Color.White)
                         .border(width = 0.5.dp, color = Color(0xFFEAEDEF)),
                     painter = painterResource(id = R.drawable.google_login),
-                    contentDescription = ""
+                    contentDescription = "구글 로그인"
                 )
             }
         }
