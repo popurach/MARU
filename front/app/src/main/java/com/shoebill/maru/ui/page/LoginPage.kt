@@ -50,7 +50,7 @@ fun LoginPage() {
             modifier = Modifier
                 .padding(top = 60.dp),
             painter = painterResource(id = R.drawable.maru_logo),
-            contentDescription = ""
+            contentDescription = "로고"
         )
         Box() {
             Box(
