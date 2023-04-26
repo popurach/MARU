@@ -64,7 +64,7 @@ public class Member extends BaseDateTime {
     private String noticeToken;
 
     // 유찰자 페이백 처리
-    public void changePoint(int price) {
+    public void gainPoint(int price) {
         this.point += price;
     }
 

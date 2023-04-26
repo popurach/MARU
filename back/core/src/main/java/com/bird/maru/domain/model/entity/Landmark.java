@@ -21,7 +21,6 @@ import lombok.*;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Getter
-@Setter
 @Builder
 public class Landmark {
 
@@ -42,5 +41,9 @@ public class Landmark {
     @NotNull
     @Builder.Default
     private Integer visitCount = 0;
+
+    public void changeOwner(Long memberId) {
+        this.memberId = memberId;
+    }
 
 }

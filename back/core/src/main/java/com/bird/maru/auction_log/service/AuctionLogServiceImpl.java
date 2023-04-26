@@ -1,4 +1,4 @@
-package com.bird.maru.AuctionLog.service;
+package com.bird.maru.auction_log.service;
 
 import com.bird.maru.auction.repository.AuctionRepository;
 import com.bird.maru.domain.model.entity.Auction;
@@ -17,26 +17,29 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 @Slf4j
 public class AuctionLogServiceImpl implements AuctionLogService {
+
     private final AuctionRepository auctionRepository;
     private final MemberRepository memberRepository;
 
     @Transactional(
-            rollbackFor = Exception.class,
+//            rollbackFor = Exception.class,
             propagation = Propagation.REQUIRES_NEW
     )
     @Override
     public void auctionExecute(AuctionLog auctionLog) {
-        Landmark landmarks = auctionLog.getAuction().getLandmark();
-        Auction auction = auctionRepository.findByLandmarkIdAndFinished(landmarks.getId(), false);
+        Member member = auctionLog.getMember();
+        Auction auction = auctionLog.getAuction();
+        Landmark landmark = auction.getLandmark();
+        Long successfulBidId = auction.getLastLogId();
 
-        if(auction.getLastLogId().equals(auctionLog.getId())) { //낙찰자
-            log.info("낙찰자 : {}", auctionLog.getMember().getId());
-            landmarks.setMemberId(auctionLog.getMember().getId()); // 랜드마크 대표 회원 정보 업데이트
+        if (successfulBidId.equals(auctionLog.getId())) { // 낙찰자
+            log.info("낙찰자 : {}", member.getId());
+            landmark.changeOwner(member.getId()); // 랜드마크 대표 회원 정보 업데이트
             auction.setFinished(true); // 경매 현재 상태 -> 끝남
         } else { // 유찰자
             int price = auctionLog.getPrice(); // 유찰자의 입찰 가격
-            Member member = memberRepository.getReferenceById(auctionLog.getMember().getId()); // 유찰자의 객체
-            member.changePoint(price);
+            member.gainPoint(price);
         }
     }
+
 }
