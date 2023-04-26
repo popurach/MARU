@@ -1,7 +1,7 @@
 node {
     stage('Git Clone') {
         echo "GitLab master 브랜치 Clone 중..."
-        git branch: 'develop', credentialsId: 'maru_UserPass', url: 'https://lab.ssafy.com/s08-final/S08P31A403.git'
+        git branch: 'develop', credentialsId: 'account', url: 'https://lab.ssafy.com/s08-final/S08P31A403.git'
     }
 
     stage('Remove Existing Container And Image') {
@@ -35,7 +35,7 @@ node {
         sh '''
 			docker run -it --rm \
             --name maru-back \
-            -p 5000:8080 \
+            -p 8080:8080 \
             -v /app/data/spring/config:/app/config \
             -d maru/back
         '''
