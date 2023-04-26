@@ -19,6 +19,16 @@ spring:
       names: ${job.name:NONE}
       enabled: false # batch 자동 실행 막음
 
+management:
+  endpoints:
+    web:
+      base-path: /api
+      path-mapping:
+        health: health
+  endpoint:
+    health:
+      show-details: never
+
 --- #local, dev
 logging:
   level:

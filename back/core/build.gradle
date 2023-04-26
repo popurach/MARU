@@ -66,6 +66,9 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-quartz'
     testImplementation 'org.springframework.batch:spring-batch-test'
     annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
+
+    // Actuator 의존성 추가
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
 }
 
 tasks.named('test') {
@@ -78,7 +81,7 @@ compileJava {
 }
 
 bootJar {
-    from('/app/config/') {
+    from('/app/conf/') {
         into("BOOT-INF/classes/")
     }
 }
