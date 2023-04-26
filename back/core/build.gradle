@@ -19,9 +19,8 @@ repositories {
 }
 
 bootJar {
-    from('/app/config') {
+    from('/app/config/') {
         into("BOOT-INF/classes/")
-        include('firebase-admin-sdk.json')
     }
 }
 
