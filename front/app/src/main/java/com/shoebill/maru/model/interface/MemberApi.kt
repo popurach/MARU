@@ -9,4 +9,9 @@ interface MemberApi {
     suspend fun login(
         @Header("Access-Token") token: String,
     ): retrofit2.Response<Unit>
+
+    @GET("login/oauth2/token")
+    fun refresh(
+        @Header("Authorization") token: String
+    ): retrofit2.Response<Unit>
 }
