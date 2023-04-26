@@ -51,7 +51,7 @@ node {
 
     stage("Check Health of New Spring Containers") {
         def greenCnt = sh(
-                script: "docker-compose -f /app/data/spring/deploy/${greenDir}/docker-compose.yml ps -q | wc -l",
+                script: "docker-compose -f /app/data/spring/deploy/${greenPath}/docker-compose.yml ps -q | wc -l",
                 returnStdout: true
         ).trim().toInteger()
 
