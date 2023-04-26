@@ -1,6 +1,8 @@
 FROM openjdk:11-slim AS builder
 WORKDIR /app
 COPY . /app
+ARG CONFIG_FILE_PATH
+COPY $CONFIG_FILE_PATH /app/config
 RUN chmod +x ./gradlew && ./gradlew bootJar
 
 FROM openjdk:11
