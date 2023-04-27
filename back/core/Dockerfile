@@ -8,5 +8,4 @@ ENV TZ="Asiz/Seoul"
 WORKDIR /app
 COPY --from=builder /app/build/libs/*.jar /app/app.jar
 
-ENTRYPOINT ["java", "-jar", "/app/app.jar", \
-             "-Dspring.profiles.active=dev"]
+ENTRYPOINT ["java", "-Dspring.profiles.active=dev", "-jar", "/app/app.jar"]
