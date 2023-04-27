@@ -19,28 +19,17 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.shoebill.maru.ui.component.LottieDiamond
 import com.shoebill.maru.ui.component.common.FabCamera
+import com.shoebill.maru.viewmodel.LandmarkViewModel
 
 @OptIn(ExperimentalTextApi::class)
 @Composable
 @Preview
-fun LandmarkFirstVisit() {
-    val landmarkName = buildAnnotatedString {
-        withStyle(
-            SpanStyle(
-                brush = Brush.linearGradient(
-                    listOf(
-                        Color(0xFF6039DF),
-                        Color(0xFFA14AB7)
-                    )
-                ),
-                fontWeight = FontWeight.Bold,
-            )
-        ) {
-            append("서울현대박물관") // "Hello"에 색상을 적용합니다.
-        }
-    }
+fun LandmarkFirstVisit(
+    landmarkViewModel: LandmarkViewModel = hiltViewModel()
+) {
     val firstLine = buildAnnotatedString {
         withStyle(
             SpanStyle(
@@ -53,7 +42,7 @@ fun LandmarkFirstVisit() {
                 fontWeight = FontWeight.Bold,
             )
         ) {
-            append("서울현대박물관") // "Hello"에 색상을 적용합니다.
+            append(landmarkViewModel.landmark.name) // "Hello"에 색상을 적용합니다.
         }
         append(" 첫 방문을 축하합니다!")
     }
@@ -70,11 +59,11 @@ fun LandmarkFirstVisit() {
     Column(
         Modifier
             .fillMaxSize()
-            .padding(top = 100.dp),
+            .padding(top = 50.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.SpaceBetween
     ) {
-        Text(text = landmarkName, fontSize = 40.sp)
+        Text(text = landmarkViewModel.coloredLandmarkName, fontSize = 40.sp)
         LottieDiamond()
         Column(Modifier.padding(top = 70.dp), horizontalAlignment = Alignment.CenterHorizontally) {
             Text(text = firstLine, fontSize = 16.sp)

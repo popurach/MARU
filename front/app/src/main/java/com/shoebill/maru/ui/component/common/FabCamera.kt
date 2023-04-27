@@ -1,6 +1,5 @@
 package com.shoebill.maru.ui.component.common
 
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.FloatingActionButton
@@ -29,7 +28,6 @@ fun FabCamera(
             // TODO: 카메라 화면으로 이동
         },
         modifier = modifier
-            .padding(bottom = 40.dp)
             .size(60.dp),
         shape = RoundedCornerShape(16.dp),
         backgroundColor = Color.White,
