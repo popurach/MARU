@@ -3,6 +3,7 @@ package com.bird.maru.common.util;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.bird.maru.domain.model.type.CustomUserDetails;
+import com.bird.maru.domain.model.type.Provider;
 import java.util.Collection;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -21,7 +22,13 @@ class JwtUtilTest {
     @DisplayName("JWT로 인증 객체 생성 테스트")
     void createAuthentication() {
         // given
-        String testToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjEiLCJlbWFpbCI6InRlc3RAbmF2ZXIuY29tIiwicHJvdmlkZXIiOiJOQVZFUiIsIm5pY2tuYW1lIjoidGVzdCIsImF1dGhvcml0aWVzIjoiIn0.4l4CW9Bz4IYkhndDThRo1U8xEgimbHMFYDg3leGZ28c";
+        CustomUserDetails testMember = CustomUserDetails.builder()
+                                                        .id(1L)
+                                                        .nickname("test")
+                                                        .provider(Provider.NAVER)
+                                                        .email("test@naver.com")
+                                                        .build();
+        String testToken = jwtUtil.generateRefreshToken(testMember);
 
         // when
         Authentication authentication = jwtUtil.createAuthentication(testToken);
