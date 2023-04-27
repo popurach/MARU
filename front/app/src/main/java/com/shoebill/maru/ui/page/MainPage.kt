@@ -20,8 +20,6 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
 import com.shoebill.maru.ui.component.MapboxScreen
 import com.shoebill.maru.ui.component.common.FabCamera
 import com.shoebill.maru.ui.component.searchbar.SearchBar
@@ -34,7 +32,6 @@ import com.shoebill.maru.viewmodel.MapViewModel
 fun MainPage(
     mapViewModel: MapViewModel = viewModel(),
     drawerViewModel: DrawerViewModel = viewModel(),
-    navController: NavHostController = rememberNavController(),
 ) {
     val scaffoldState = rememberBottomSheetScaffoldState()
 //    val scaffoldState = rememberScaffoldState()

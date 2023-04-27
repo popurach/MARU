@@ -47,16 +47,19 @@ class MapViewModel @Inject constructor() : ViewModel() {
     private val _spotList = MutableLiveData<List<Spot>>(
         listOf(
             Spot(
+                0,
                 "https://picsum.photos/id/237/200/300",
                 false,
                 listOf("#도로", "#길거리", "#감성", "#인생샷스팟")
             ),
             Spot(
+                1,
                 "https://picsum.photos/id/237/200/300",
                 false,
                 listOf("#도로", "#길거리", "#감성", "#인생샷스팟")
             ),
             Spot(
+                2,
                 "https://picsum.photos/id/237/200/300",
                 false,
                 listOf("#도로", "#길거리", "#감성", "#인생샷스팟")

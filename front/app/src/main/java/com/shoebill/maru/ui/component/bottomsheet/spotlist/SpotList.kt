@@ -1,6 +1,7 @@
 package com.shoebill.maru.ui.component.bottomsheet.spotlist
 
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -24,10 +25,9 @@ import com.shoebill.maru.viewmodel.MapViewModel
 @OptIn(ExperimentalTextApi::class)
 @Composable
 fun SpotList(
-    mapViewModel: MapViewModel = viewModel()
+    mapViewModel: MapViewModel = viewModel(),
 ) {
     val spotList = mapViewModel.spotList.observeAsState(listOf())
-    val nickname = "Shoebill"
     val fontSize = 20.sp
     val annotatedText = buildAnnotatedString {
         withStyle(
@@ -42,7 +42,7 @@ fun SpotList(
                 fontWeight = FontWeight.Bold,
             )
         ) {
-            append(nickname) // "Hello"에 색상을 적용합니다.
+            append("Shoebill")
         }
 
         withStyle(
@@ -60,17 +60,19 @@ fun SpotList(
             append("내 근처 SPOT!") // "World"에 색상을 적용합니다.
         }
     }
-
-    Box(
-        Modifier
-            .fillMaxWidth()
-            .padding(27.dp)
-    ) {
-        Text(text = annotatedText)
-    }
-    LazyColumn() {
-        items(spotList.value) { spot ->
-            SpotListItem(spot)
+    Column {
+        Box(
+            Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 27.dp)
+                .padding(top = 58.dp, bottom = 26.dp)
+        ) {
+            Text(text = annotatedText)
+        }
+        LazyColumn() {
+            items(spotList.value) { spot ->
+                SpotListItem(spot)
+            }
         }
     }
 }

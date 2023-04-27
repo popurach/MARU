@@ -26,6 +26,7 @@ import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
@@ -41,6 +42,7 @@ import com.shoebill.maru.viewmodel.MapViewModel
 fun MapboxScreen(
     viewModel: MapViewModel = hiltViewModel()
 ) {
+    viewModel.initFocusManager(LocalFocusManager.current)
     val context = LocalContext.current
 
     /** 요청할 권한 **/

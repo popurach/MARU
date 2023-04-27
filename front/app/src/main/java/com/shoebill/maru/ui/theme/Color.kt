@@ -8,6 +8,8 @@ val Purple500 = Color(0xFF6200EE)
 val Purple700 = Color(0xFF3700B3)
 val Teal200 = Color(0xFF03DAC5)
 
+val MaruBackground = Color(0xffF5F4FF)
+
 val MaruBrush = Brush.linearGradient(
     listOf(
         Color(0xFF6039DF),

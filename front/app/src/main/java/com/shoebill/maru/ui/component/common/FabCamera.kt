@@ -13,18 +13,16 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.shoebill.maru.R
-import com.shoebill.maru.viewmodel.MapViewModel
 
 @Composable
 fun FabCamera(
     modifier: Modifier = Modifier,
-    mapViewModel: MapViewModel = hiltViewModel()
+//    mapViewModel: MapViewModel = hiltViewModel()
 ) {
     FloatingActionButton(
         onClick = {
-            mapViewModel.clearFocus()
+//            mapViewModel.clearFocus()
             // TODO: 카메라 화면으로 이동
         },
         modifier = modifier

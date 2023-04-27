@@ -1,5 +1,6 @@
 package com.shoebill.maru.ui.component.bottomsheet.spotlist
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -19,19 +20,23 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import com.shoebill.maru.R
 import com.shoebill.maru.model.data.Spot
 import com.shoebill.maru.ui.component.common.Chip
+import com.shoebill.maru.viewmodel.BottomSheetNavigatorViewModel
 
 @Composable
 fun SpotListItem(
-    spot: Spot
+    spot: Spot,
+    bottomSheetNavigatorViewModel: BottomSheetNavigatorViewModel = hiltViewModel()
 ) {
     Column(
         Modifier
             .padding(horizontal = 27.dp)
             .padding(top = 26.dp, bottom = 7.dp)
+            .clickable { bottomSheetNavigatorViewModel.navController?.navigate("spot/detail/${spot.id}") }
     ) {
         Box(
             Modifier

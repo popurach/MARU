@@ -21,13 +21,18 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import com.shoebill.maru.R
 import com.shoebill.maru.ui.component.bottomsheet.BottomSheetIndicator
 import com.shoebill.maru.ui.component.common.Chip
+import com.shoebill.maru.viewmodel.BottomSheetNavigatorViewModel
 
 @Composable
-fun SpotDetail() {
+fun SpotDetail(
+    spotId: Long,
+    bottomSheetNavigatorViewModel: BottomSheetNavigatorViewModel = viewModel()
+) {
     Box(Modifier.fillMaxSize()) {
         Box {
             AsyncImage(
@@ -41,7 +46,9 @@ fun SpotDetail() {
                     painter = painterResource(id = R.drawable.back_arrow_icon),
                     contentDescription = "back",
                     tint = Color.White,
-                    modifier = Modifier.size(30.dp)
+                    modifier = Modifier
+                        .size(30.dp)
+                        .clickable { bottomSheetNavigatorViewModel.navController?.popBackStack() }
                 )
             }
             Box(
