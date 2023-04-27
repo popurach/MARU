@@ -1,6 +1,5 @@
 package com.shoebill.maru.model.module
 
-import android.content.Context
 import com.shoebill.maru.model.AppInterceptor
 import com.shoebill.maru.model.interfaces.MemberApi
 import com.shoebill.maru.model.repository.MemberRepository
@@ -8,7 +7,6 @@ import com.shoebill.maru.util.PreferenceUtil
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
-import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
@@ -19,7 +17,7 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class)
 class ApiModule {
     @Provides
-    fun provideBaseUrl() = "http://10.0.2.2:8080/"
+    fun provideBaseUrl() = "http://k8a403.p.ssafy.io/"
 
     @Singleton
     @Provides
@@ -39,10 +37,9 @@ class ApiModule {
     @Singleton
     @Provides
     fun provideInterceptor(
-        @ApplicationContext context: Context,
         prefUtil: PreferenceUtil,
     ): AppInterceptor =
-        AppInterceptor(context = context, prefUtil = prefUtil)
+        AppInterceptor(prefUtil = prefUtil)
 
     @Singleton
     @Provides
@@ -51,6 +48,6 @@ class ApiModule {
 
     @Singleton
     @Provides
-    fun provideMemberRepository(memberApi: MemberApi): MemberRepository =
-        MemberRepository(memberApi)
+    fun provideMemberRepository(memberApi: MemberApi, prefUtil: PreferenceUtil): MemberRepository =
+        MemberRepository(memberApi, prefUtil)
 }

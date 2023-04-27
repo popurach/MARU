@@ -8,18 +8,16 @@ import com.kakao.sdk.auth.model.OAuthToken
 import com.kakao.sdk.common.model.ClientError
 import com.kakao.sdk.common.model.ClientErrorCause
 import com.kakao.sdk.user.UserApiClient
-import com.shoebill.maru.model.data.GlobalNavigator
 import com.shoebill.maru.model.repository.MemberRepository
 import com.shoebill.maru.util.PreferenceUtil
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
 
 @HiltViewModel
 class LoginViewModel @Inject constructor(
     private val prefUtil: PreferenceUtil,
-    private val memberRepository: MemberRepository
+    private val memberRepository: MemberRepository,
 ) : ViewModel() {
     private val TAG = "LOGIN"
     private fun kakaoApiLogin(token: OAuthToken) = runBlocking {
@@ -47,7 +45,7 @@ class LoginViewModel @Inject constructor(
 
         // 카카오계정으로 로그인 공통 callback 구성
         // 카카오톡으로 로그인 할 수 없어 카카오계정으로 로그인할 경우 사용됨
-        var isSuccess = false
+        var isSuccess: Boolean
         val callback: (OAuthToken?, Throwable?) -> Unit = { token, error ->
             if (error != null) {
                 Log.e(TAG, "카카오 계정으로 로그인 실패", error)
@@ -56,6 +54,8 @@ class LoginViewModel @Inject constructor(
 
                 // back end 로그인 API 호출부분
                 isSuccess = kakaoApiLogin(token)
+                if (isSuccess)
+                    navigator?.navigate("main")
             }
         }
 
@@ -77,24 +77,12 @@ class LoginViewModel @Inject constructor(
 
                     //back end 로그인 API 호출 부분
                     isSuccess = kakaoApiLogin(token)
+                    if (isSuccess)
+                        navigator?.navigate("main")
                 }
             }
         } else {
             UserApiClient.instance.loginWithKakaoAccount(context, callback = callback)
         }
-
-        if (isSuccess) navigator?.navigate("main")
-    }
-
-    fun getNotices() = runBlocking {
-        launch {
-            val response = memberRepository.getNotices();
-            if (response.code() == 401)
-                GlobalNavigator.navigator!!.navigate("main")
-
-            Log.d("TEST", "$response")
-        }
-
-
     }
 }

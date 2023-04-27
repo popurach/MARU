@@ -8,12 +8,14 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.view.WindowCompat
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -58,8 +60,11 @@ class MainActivity : ComponentActivity() {
 fun MyApp(
     navController: NavHostController = rememberNavController(),
     startDestination: String = "main",
-    navigateViewModel: NavigateViewModel = viewModel()
 ) {
+    val viewModelStoreOwner = checkNotNull(LocalViewModelStoreOwner.current) {
+        "No ViewModelStoreOwner was provided via LocalViewModelStoreOwner"
+    }
+    val navigateViewModel: NavigateViewModel = viewModel()
     navigateViewModel.init(navController)
 
     NavHost(
@@ -67,15 +72,18 @@ fun MyApp(
         startDestination = startDestination
     ) {
         composable("main") { backStackEntry ->
-            val viewModel = hiltViewModel<MapViewModel>()
-            viewModel.initFocusManager(LocalFocusManager.current)
-            MainPage(mapViewModel = viewModel, navController = navigateViewModel.navigator!!)
+            CompositionLocalProvider(LocalViewModelStoreOwner provides viewModelStoreOwner) {
+                val viewModel = hiltViewModel<MapViewModel>()
+                viewModel.initFocusManager(LocalFocusManager.current)
+                MainPage(mapViewModel = viewModel, navController = navigateViewModel.navigator!!)
+            }
         }
         /** 이곳에 화면 추가 **/
 
         composable("login") { navBackStackEntry ->
-
-            LoginPage(navigateViewModel = navigateViewModel)
+            CompositionLocalProvider(LocalViewModelStoreOwner provides viewModelStoreOwner) {
+                LoginPage()
+            }
         }
     }
 }

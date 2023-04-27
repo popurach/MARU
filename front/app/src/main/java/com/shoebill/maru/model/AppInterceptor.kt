@@ -1,6 +1,5 @@
 package com.shoebill.maru.model
 
-import android.content.Context
 import android.util.Log
 import com.shoebill.maru.util.PreferenceUtil
 import okhttp3.Interceptor
@@ -8,8 +7,7 @@ import okhttp3.Response
 import javax.inject.Inject
 
 class AppInterceptor @Inject constructor(
-    private val context: Context,
-    private val prefUtil: PreferenceUtil
+    private val prefUtil: PreferenceUtil,
 ) :
     Interceptor {
 
@@ -33,7 +31,7 @@ class AppInterceptor @Inject constructor(
                     // 재발급 api 호출 -> 결과는 accessToken : String
                     val refreshRequest =
                         originRequest.newBuilder().header("Authorization", "Bearer $refreshToken")
-                            .url("http://10.0.2.2:8080/api/auth/access-token").build()
+                            .url("http://k8a403.p.ssafy.io/api/auth/access-token").build()
                     val refreshResponse = chain.proceed(refreshRequest)
 
                     // 3. 재발급 받은 accessToken 으로 동일 요청 시도
@@ -45,7 +43,7 @@ class AppInterceptor @Inject constructor(
                         val requestWithNewAccessToken = originRequest.newBuilder()
                             .header("Authorization", "Bearer $newAccessToken")
                             .build()
-                        val newResponse = chain.proceed(requestWithAccessToken)
+                        val newResponse = chain.proceed(requestWithNewAccessToken)
                         // 4. 재발급 받은 accessToken 으로 시도했는데 401이면 재 로그인
                         if (newResponse.code == 401) {
                             Log.d("AUTH", "재발급된 accessToken 으로도 실패")
