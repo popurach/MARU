@@ -22,6 +22,10 @@ class PreferenceUtil @Inject constructor(context: Context) {
     fun setString(key: String, value: String) {
         preference.edit().putString(key, value).apply()
     }
+
+    fun clear() {
+        preference.edit().clear().apply()
+    }
 }
 
 @Module

@@ -1,0 +1,63 @@
+package com.shoebill.maru.model
+
+import android.content.Context
+import android.util.Log
+import com.shoebill.maru.util.PreferenceUtil
+import okhttp3.Interceptor
+import okhttp3.Response
+import javax.inject.Inject
+
+class AppInterceptor @Inject constructor(
+    private val context: Context,
+    private val prefUtil: PreferenceUtil
+) :
+    Interceptor {
+
+    override fun intercept(chain: Interceptor.Chain): Response {
+
+        val originRequest = chain.request()
+        val accessToken = prefUtil.getString("accessToken", "")
+
+        // 1. accessToken 존재한 다면 header 에 추가
+        if (accessToken != "") {
+            val requestWithAccessToken =
+                originRequest.newBuilder().header("Authorization", "Bearer $accessToken")
+                    .build()
+            val response = chain.proceed(requestWithAccessToken)
+
+            // 2. 요청 결과가 401 이라면 refresh token 으로 access token을 재발급 받음
+            if (response.code == 401) {
+                response.close()
+                val refreshToken = prefUtil.getString("refreshToken", "")
+                if (refreshToken != "") {
+                    // 재발급 api 호출 -> 결과는 accessToken : String
+                    val refreshRequest =
+                        originRequest.newBuilder().header("Authorization", "Bearer $refreshToken")
+                            .url("http://10.0.2.2:8080/api/auth/access-token").build()
+                    val refreshResponse = chain.proceed(refreshRequest)
+
+                    // 3. 재발급 받은 accessToken 으로 동일 요청 시도
+                    // 재발급 성공시
+                    if (refreshResponse.isSuccessful) {
+                        val newAccessToken = refreshResponse.headers["Access-Token"]
+                        prefUtil.setString("accessToken", newAccessToken!!)
+
+                        val requestWithNewAccessToken = originRequest.newBuilder()
+                            .header("Authorization", "Bearer $newAccessToken")
+                            .build()
+                        val newResponse = chain.proceed(requestWithAccessToken)
+                        // 4. 재발급 받은 accessToken 으로 시도했는데 401이면 재 로그인
+                        if (newResponse.code == 401) Log.d("AUTH", "재발급된 accessToken 으로도 실패")
+
+                        return newResponse
+                    }
+                    return refreshResponse
+                }
+            }
+            return response
+
+        }
+
+        return chain.proceed(originRequest)
+    }
+}

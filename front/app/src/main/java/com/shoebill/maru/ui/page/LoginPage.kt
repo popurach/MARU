@@ -23,5 +23,8 @@ fun LoginPage() {
         Button(onClick = { /*TODO*/ }) {
             Text(text = "구글 로그인")
         }
+        Button(onClick = { loginViewModel.getNotices() }) {
+            Text(text = "통신 테스트")
+        }
     }
 }

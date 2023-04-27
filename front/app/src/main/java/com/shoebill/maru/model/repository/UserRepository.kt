@@ -2,7 +2,7 @@ package com.shoebill.maru.model.repository
 
 import com.shoebill.maru.model.ApiClient
 import com.shoebill.maru.model.data.UserInfo
-import com.shoebill.maru.model.`interface`.LoginApi
+import com.shoebill.maru.model.interfaces.LoginApi
 import kotlinx.coroutines.flow.Flow
 
 class UserRepository private constructor() {

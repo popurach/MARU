@@ -7,20 +7,23 @@ import com.kakao.sdk.auth.model.OAuthToken
 import com.kakao.sdk.common.model.ClientError
 import com.kakao.sdk.common.model.ClientErrorCause
 import com.kakao.sdk.user.UserApiClient
-import com.shoebill.maru.model.ApiInstance
+import com.shoebill.maru.model.data.GlobalNavigator
+import com.shoebill.maru.model.repository.MemberRepository
 import com.shoebill.maru.util.PreferenceUtil
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
 
 @HiltViewModel
 class LoginViewModel @Inject constructor(
-    val prefUtil: PreferenceUtil
+    private val prefUtil: PreferenceUtil,
+    private val memberRepository: MemberRepository
 ) : ViewModel() {
     val TAG = "LOGIN"
     private fun kakaoApiLogin(token: OAuthToken) = runBlocking {
         val response: retrofit2.Response<Unit> =
-            ApiInstance.authApi.login("KAKAO ${token.accessToken}")
+            memberRepository.login("KAKAO ${token.accessToken}")
         if (response.isSuccessful) {
             val accessToken = response.headers().get("access-token")
             val refreshToken = response.headers().get("refresh-token")
@@ -30,25 +33,6 @@ class LoginViewModel @Inject constructor(
 
             prefUtil.setString("accessToken", accessToken!!)
             prefUtil.setString("refreshToken", refreshToken!!)
-
-            Log.d(
-                TAG,
-                "saved accessToken: ${
-                    prefUtil.getString(
-                        "accessToken",
-                        "accessToken not exist"
-                    )
-                }"
-            )
-            Log.d(
-                TAG,
-                "saved refreshToken: ${
-                    prefUtil.getString(
-                        "refreshToken",
-                        "refreshToken not exist"
-                    )
-                }"
-            )
         } else {
             Log.d(TAG, "retrofit 로그인 실패 -> " + response.errorBody())
         }
@@ -92,5 +76,17 @@ class LoginViewModel @Inject constructor(
         } else {
             UserApiClient.instance.loginWithKakaoAccount(context, callback = callback)
         }
+    }
+
+    fun getNotices() = runBlocking {
+        launch {
+            val response = memberRepository.getNotices();
+            if (response.code() == 401)
+                GlobalNavigator.navigator!!.navigate("main")
+
+            Log.d("TEST", "$response")
+        }
+
+
     }
 }
