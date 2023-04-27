@@ -72,4 +72,5 @@ public class Member extends BaseDateTime {
     public void bidPoint(int price) {
         this.point -= price;
     }
+
 }

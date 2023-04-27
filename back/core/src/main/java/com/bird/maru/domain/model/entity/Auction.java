@@ -43,4 +43,5 @@ public class Auction {
     public void changeLastLogId(Long lastLogId) {
         this.lastLogId = lastLogId;
     }
+
 }

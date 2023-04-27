@@ -55,4 +55,5 @@ public class AuctionLog {
     public void bidding(int price) {
         this.price = price;
     }
+
 }
