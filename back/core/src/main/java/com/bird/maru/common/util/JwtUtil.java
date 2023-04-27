@@ -90,9 +90,11 @@ public class JwtUtil {
         List<? extends GrantedAuthority> authorities = getAuthorities(claims);
 
         CustomUserDetails member = CustomUserDetails.builder()
-                                                    .id(Long.parseLong(claims.get("id", String.class)))
+                                                    .id(claims.get("id", Long.class))
                                                     .email(claims.get("email", String.class))
-                                                    .provider(Provider.convert(claims.get("provider", String.class)))
+                                                    .provider(Provider.convert(
+                                                            claims.get("provider", String.class)
+                                                    ))
                                                     .nickname(claims.get("nickname", String.class))
                                                     .authorities(authorities)
                                                     .build();
