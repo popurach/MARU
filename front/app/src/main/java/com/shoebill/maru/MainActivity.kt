@@ -18,6 +18,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.shoebill.maru.ui.page.AuctionPage
 import com.shoebill.maru.ui.page.LoginPage
 import com.shoebill.maru.ui.page.MainPage
 import com.shoebill.maru.ui.theme.MaruTheme
@@ -48,7 +49,7 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun MyApp(
     navController: NavHostController = rememberNavController(),
-    startDestination: String = "main",
+    startDestination: String = "auction",
 ) {
     NavHost(
         navController = navController,
@@ -61,9 +62,8 @@ fun MyApp(
         }
         /** 이곳에 화면 추가 **/
 
-        composable("login") { navBackStackEntry ->
-
-            LoginPage()
+        composable("auction") { navBackStackEntry ->
+            AuctionPage()
         }
     }
 }
