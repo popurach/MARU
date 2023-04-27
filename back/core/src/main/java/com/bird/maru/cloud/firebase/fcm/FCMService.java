@@ -1,4 +1,4 @@
-package com.bird.maru.fcm;
+package com.bird.maru.cloud.firebase.fcm;
 
 import com.bird.maru.notice.model.Notice;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -45,10 +45,13 @@ public class FCMService {
                                                           .setNotification(AndroidNotification.builder()
                                                                                               .setTitle(notice.getCategory().getTitle())
                                                                                               .setBody(notice.getContent())
-                                                                                              .build()).build())
+                                                                                              .build())
+                                                          .build()
+                                     )
                                      .putData("content", objectMapper.writeValueAsString(notice))
                                      .setToken(notice.getNoticeToken())
                                      .build();
+
             FirebaseMessaging.getInstance().send(message);
         } catch (FirebaseMessagingException e) {
             log.error("FCM 으로 message 전송 중 에러 발생");
@@ -58,8 +61,7 @@ public class FCMService {
     }
 
     public void sendMessageToMembers(List<Notice> notices) {
-        for (Notice notice :
-                notices) {
+        for (Notice notice : notices) {
             this.sendMessage(notice);
         }
     }

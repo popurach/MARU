@@ -14,6 +14,21 @@ spring:
         dialect: org.hibernate.dialect.MySQL8Dialect
         default_batch_fetch_size: 500
 
+  batch:
+    job:
+      names: ${job.name:NONE}
+      enabled: false # batch 자동 실행 막음
+
+management:
+  endpoints:
+    web:
+      base-path: /api
+      path-mapping:
+        health: health
+  endpoint:
+    health:
+      show-details: never
+
 --- #local, dev
 logging:
   level:
@@ -30,7 +45,7 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: create-drop
+      ddl-auto: none
     properties:
       hibernate:
         show_sql: true
