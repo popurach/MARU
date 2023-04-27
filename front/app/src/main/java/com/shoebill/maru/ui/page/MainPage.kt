@@ -3,6 +3,7 @@ package com.shoebill.maru.ui.page
 import android.annotation.SuppressLint
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.BottomSheetScaffold
 import androidx.compose.material.ExperimentalMaterialApi
@@ -57,7 +58,11 @@ fun MainPage(
             Box {
                 MapboxScreen(mapViewModel)
                 SearchBar()
-                FabCamera(Modifier.align(Alignment.BottomCenter))
+                FabCamera(
+                    Modifier
+                        .align(Alignment.BottomCenter)
+                        .padding(bottom = 40.dp)
+                )
             }
         },
         drawerShape = customShape(),
