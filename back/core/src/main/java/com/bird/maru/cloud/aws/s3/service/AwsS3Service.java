@@ -109,7 +109,7 @@ public class AwsS3Service {
 
         return Image.builder()
                     .savedPath(key)
-                    .imageUrl(amazonS3.getUrl(this.bucketName, key))
+                    .url(amazonS3.getUrl(this.bucketName, key))
                     .build();
     }
 
