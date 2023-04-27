@@ -25,7 +25,7 @@ public class AuctionLogController {
      */
     @PostMapping("/bidding")
     public void auctionsBidding(@AuthenticationPrincipal CustomUserDetails member) {
-
+        auctionLogService.auctionsBidding();
     }
 
     /**
