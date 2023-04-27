@@ -29,6 +29,16 @@ management:
     health:
       show-details: never
 
+# 클러스터링 환경 변수 설정
+cluster:
+  initZoom: 24
+  maxZoom: 20
+  minZoom: 0
+  nodeSize: 64
+  radius: 100
+  extent: 512
+  crs: MERCATOR
+
 --- #local, dev
 logging:
   level:
