@@ -22,13 +22,13 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.shoebill.maru.ui.component.LottieDiamond
 import com.shoebill.maru.ui.component.common.FabCamera
-import com.shoebill.maru.viewmodel.LandmarkViewModel
+import com.shoebill.maru.viewmodel.LandmarkLandingViewModel
 
 @OptIn(ExperimentalTextApi::class)
 @Composable
 @Preview
 fun LandmarkFirstVisit(
-    landmarkViewModel: LandmarkViewModel = hiltViewModel()
+    landmarkLandingViewModel: LandmarkLandingViewModel = hiltViewModel()
 ) {
     val firstLine = buildAnnotatedString {
         withStyle(
@@ -42,7 +42,7 @@ fun LandmarkFirstVisit(
                 fontWeight = FontWeight.Bold,
             )
         ) {
-            append(landmarkViewModel.landmark.name) // "Hello"에 색상을 적용합니다.
+            append(landmarkLandingViewModel.landmark.name) // "Hello"에 색상을 적용합니다.
         }
         append(" 첫 방문을 축하합니다!")
     }
@@ -63,7 +63,7 @@ fun LandmarkFirstVisit(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.SpaceBetween
     ) {
-        Text(text = landmarkViewModel.coloredLandmarkName, fontSize = 40.sp)
+        Text(text = landmarkLandingViewModel.coloredLandmarkName, fontSize = 40.sp)
         LottieDiamond()
         Column(Modifier.padding(top = 70.dp), horizontalAlignment = Alignment.CenterHorizontally) {
             Text(text = firstLine, fontSize = 16.sp)

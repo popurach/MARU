@@ -25,11 +25,11 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import com.shoebill.maru.R
-import com.shoebill.maru.viewmodel.LandmarkViewModel
+import com.shoebill.maru.viewmodel.LandmarkLandingViewModel
 
 @Composable
 fun LandmarkMain(
-    landmarkViewModel: LandmarkViewModel = hiltViewModel()
+    viewModel: LandmarkLandingViewModel = hiltViewModel()
 ) {
     Column(
         Modifier
@@ -39,7 +39,7 @@ fun LandmarkMain(
         verticalArrangement = Arrangement.spacedBy(50.dp)
     ) {
         Text(
-            text = landmarkViewModel.coloredLandmarkName,
+            text = viewModel.coloredLandmarkName,
             fontSize = 32.sp,
             fontWeight = FontWeight.SemiBold
         )
@@ -49,7 +49,7 @@ fun LandmarkMain(
         ) {
             Box(Modifier.height(267.dp)) {
                 AsyncImage(
-                    model = landmarkViewModel.landmark.occupant.profileImageUrl,
+                    model = viewModel.landmark.occupantProfileImageUrl,
                     contentDescription = "occupant profile",
                     modifier = Modifier
                         .border(4.dp, Color.White, CircleShape)
@@ -68,13 +68,13 @@ fun LandmarkMain(
                 )
             }
             Text(
-                text = landmarkViewModel.landmark.occupant.nickname,
+                text = viewModel.landmark.occupantNickname,
                 fontSize = 25.sp,
                 fontWeight = FontWeight.Bold
             )
         }
         Text(
-            text = landmarkViewModel.landmark.occupant.sentence,
+            text = viewModel.landmark.sentence,
             Modifier.padding(horizontal = 50.dp),
             textAlign = TextAlign.Center
         )

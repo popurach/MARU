@@ -6,7 +6,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.shoebill.maru.ui.component.bottomsheet.landmark.LandmarkMain
+import com.shoebill.maru.ui.component.bottomsheet.landmark.LandmarkPictureList
 import com.shoebill.maru.ui.component.bottomsheet.landmark.LandmarkSheet
 
 @Composable
@@ -19,7 +19,7 @@ fun BottomSheetPage() {
 //        BottomSheetIndicator()
 //        SpotList()
         LandmarkSheet {
-            LandmarkMain()
+            LandmarkPictureList()
         }
     }
 }
