@@ -54,6 +54,11 @@ dependencies {
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
+    // enable logging in test code
+    testCompileOnly 'org.projectlombok:lombok'
+    testAnnotationProcessor 'org.projectlombok:lombok'
+
+    // MapStruct 의존성 추가
     implementation "org.mapstruct:mapstruct:1.3.0.Final"
     annotationProcessor "org.mapstruct:mapstruct-processor:1.3.0.Final"
 
