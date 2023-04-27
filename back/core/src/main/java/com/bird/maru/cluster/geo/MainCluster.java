@@ -27,6 +27,7 @@ public class MainCluster {
     public void setZoom(int zoom) {
         this.zoom = zoom;
     }
+
     public void setParentId(long parentId) {
         this.parentId = parentId;
     }
