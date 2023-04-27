@@ -21,12 +21,15 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.airbnb.lottie.compose.LottieAnimation
 import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.rememberLottieComposition
 import com.shoebill.maru.R
-import com.shoebill.maru.service.Login
+import com.shoebill.maru.service.LoginViewModel
+import com.shoebill.maru.viewmodel.NavigateViewModel
 
 @Composable
 fun LottieOwl() {
@@ -35,8 +38,10 @@ fun LottieOwl() {
 }
 
 @Composable
-fun LoginPage() {
-    val login = Login()
+fun LoginPage(
+    loginViewModel: LoginViewModel = hiltViewModel(),
+    navigateViewModel: NavigateViewModel = viewModel()
+) {
     val context = LocalContext.current // composable 이 실행되고 있는 Context 반환
 
     Column(
@@ -63,7 +68,12 @@ fun LoginPage() {
             ) {
                 Image(
                     modifier = Modifier
-                        .clickable { login.kakaoLogin(context) }
+                        .clickable {
+                            loginViewModel.kakaoLogin(
+                                context,
+                                navigateViewModel.navigator
+                            )
+                        }
                         .padding(start = 40.dp, end = 40.dp, top = 4.dp, bottom = 4.dp),
                     painter = painterResource(id = R.drawable.kakao_login),
                     contentDescription = "카카오 로그인"

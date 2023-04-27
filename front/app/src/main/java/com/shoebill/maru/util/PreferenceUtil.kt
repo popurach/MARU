@@ -15,7 +15,7 @@ class PreferenceUtil @Inject constructor(context: Context) {
     private val preference: SharedPreferences =
         context.getSharedPreferences("token", Context.MODE_PRIVATE)
 
-    fun getString(key: String, defaultValue: String): String {
+    fun getString(key: String, defaultValue: String = ""): String {
         return preference.getString(key, defaultValue).toString()
     }
 
@@ -25,6 +25,10 @@ class PreferenceUtil @Inject constructor(context: Context) {
 
     fun clear() {
         preference.edit().clear().apply()
+    }
+
+    fun isLogin(): Boolean {
+        return getString("accessToken") != ""
     }
 }
 

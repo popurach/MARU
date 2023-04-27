@@ -73,10 +73,6 @@ fun MainPage(
         },
         drawerGesturesEnabled = scaffoldState.drawerState.isOpen,
         floatingActionButton = {
-
-            Button(onClick = { navController.navigate("login") }) {
-                Text(text = "로그인 페이지 ㄱㄱ")
-            }
             FloatingActionButton(
                 onClick = {
                     mapViewModel.clearFocus()

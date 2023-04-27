@@ -47,9 +47,16 @@ class AppInterceptor @Inject constructor(
                             .build()
                         val newResponse = chain.proceed(requestWithAccessToken)
                         // 4. 재발급 받은 accessToken 으로 시도했는데 401이면 재 로그인
-                        if (newResponse.code == 401) Log.d("AUTH", "재발급된 accessToken 으로도 실패")
+                        if (newResponse.code == 401) {
+                            Log.d("AUTH", "재발급된 accessToken 으로도 실패")
+                            // 재발급 받은 토큰으로 안되면 로그인 취소
+                            prefUtil.clear()
+                        }
 
                         return newResponse
+                    } else {
+                        // 재발급 실패시, 로그인 취소
+                        prefUtil.clear()
                     }
                     return refreshResponse
                 }
