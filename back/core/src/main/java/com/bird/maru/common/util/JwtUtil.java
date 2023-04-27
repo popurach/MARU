@@ -60,7 +60,7 @@ public class JwtUtil {
     public String resolveToken(HttpServletRequest request) {
         String authorization = request.getHeader("Authorization");
 
-        if (!StringUtils.hasText(authorization) || authorization.startsWith(TOKEN_PATTERN)) {
+        if (!StringUtils.hasText(authorization) || !authorization.startsWith(TOKEN_PATTERN)) {
             return null;
         }
 
