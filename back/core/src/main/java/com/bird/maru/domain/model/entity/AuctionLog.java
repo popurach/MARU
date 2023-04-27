@@ -52,4 +52,7 @@ public class AuctionLog {
     @NotNull
     private LocalDateTime createdDateTime;
 
+    public void bidding(int price) {
+        this.price = price;
+    }
 }

@@ -40,4 +40,7 @@ public class Auction {
     @Column(name = "last_log_id")
     private Long lastLogId;
 
+    public void changeLastLogId(Long lastLogId) {
+        this.lastLogId = lastLogId;
+    }
 }
