@@ -1,11 +1,13 @@
 package com.bird.maru.cluster.geo;
 
 import lombok.Getter;
+import lombok.ToString;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 @Component
 @Getter
+@ToString
 public class SuperClusterParams {
 
     @Value("${cluster.minZoom}")
