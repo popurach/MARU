@@ -335,7 +335,7 @@ public class SuperCluster {
 
     /**
      * 클러스터링 영역에 포함된 마커의 수 축약어 생성
-     * */
+     */
     private String extractAbbrev(int count) {
         String abbrev;
         if (count >= 1000000) {
