@@ -2,10 +2,7 @@ package com.shoebill.maru.ui.component
 
 import android.Manifest
 import android.annotation.SuppressLint
-import android.content.Context
-import android.content.pm.PackageManager
 import android.widget.Toast
-import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Box
@@ -30,10 +27,10 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
-import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.mapbox.maps.ResourceOptionsManager
 import com.shoebill.maru.R
+import com.shoebill.maru.util.checkAndRequestPermissions
 import com.shoebill.maru.viewmodel.MapViewModel
 
 @OptIn(ExperimentalMaterialApi::class)
@@ -113,20 +110,4 @@ fun MapboxScreen(
         floatingActionButtonPosition = FabPosition.End,
         isFloatingActionButtonDocked = true
     )
-}
-
-fun checkAndRequestPermissions(
-    context: Context,
-    permissions: Array<String>,
-    launcher: ManagedActivityResultLauncher<Array<String>, Map<String, @JvmSuppressWildcards Boolean>>
-) {
-    /** 권한이 없는 경우 **/
-    if (!permissions.all {
-            ContextCompat.checkSelfPermission(
-                context,
-                it
-            ) == PackageManager.PERMISSION_GRANTED
-        }) {
-        launcher.launch(permissions)
-    }
 }

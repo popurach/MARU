@@ -22,6 +22,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.shoebill.maru.ui.page.AuctionPage
+import com.shoebill.maru.ui.page.CameraPage
 import com.shoebill.maru.ui.page.LoginPage
 import com.shoebill.maru.ui.page.MainPage
 import com.shoebill.maru.ui.theme.MaruTheme
@@ -90,6 +91,11 @@ fun MyApp(
         composable("auction") {
             CompositionLocalProvider(LocalViewModelStoreOwner provides viewModelStoreOwner) {
                 AuctionPage()
+            }
+        }
+        composable("camera") { backStackEntry ->
+            CompositionLocalProvider(LocalViewModelStoreOwner provides viewModelStoreOwner) {
+                CameraPage()
             }
         }
     }

@@ -119,4 +119,11 @@ dependencies {
     implementation "com.patrykandpatrick.vico:views:1.6.5"
     implementation "com.patrykandpatrick.vico:compose-m2:1.6.5"
     implementation "com.patrykandpatrick.vico:compose-m3:1.6.5"
+
+    // cameraX
+    implementation "androidx.camera:camera-lifecycle:$cameraxVersion"
+    implementation "androidx.camera:camera-video:$cameraxVersion"
+    implementation "androidx.camera:camera-view:$cameraxVersion"
+    implementation "androidx.camera:camera-extensions:$cameraxVersion"
+    implementation "com.google.accompanist:accompanist-permissions:0.30.0"
 }

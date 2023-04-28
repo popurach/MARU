@@ -39,7 +39,6 @@ class LoginViewModel @Inject constructor(
     }
 
     fun kakaoLogin(context: Context, navigator: NavHostController?) {
-
         // 카카오계정으로 로그인 공통 callback 구성
         // 카카오톡으로 로그인 할 수 없어 카카오계정으로 로그인할 경우 사용됨
         var isSuccess: Boolean
