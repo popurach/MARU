@@ -39,14 +39,11 @@ public class AuctionLogServiceImpl implements AuctionLogService {
     public void auctionsBidding(CustomUserDetails member, Long landmarkId, int price) {
         Member user = memberRepository.getReferenceById(member.getId());
 
-        // 1. 현재 auctionLog에 입찰 기록이 있는지 확인
-        Optional<AuctionLog> auctionLog = auctionLogRepository.findByLandmarkAndMember(landmarkId, member.getId());
-
         // 2. 현재 auction 테이블의 최고 입찰값 (없을 수도 있음) 가져오기
         Optional<Auction> auction = auctionRepository.findByLandmarkAndFinished(landmarkId);
 
         // 3. auction 등록
-        if (auction.isPresent()) { // 기존 입찰 기록 있음
+        if (auction.isPresent()) { // 기존 최고 입찰 기록 있음
             int cost = auctionLogRepository.findById(auction.get().getLastLogId()).get().getPrice();
             if (price > cost && user.getPoint() >= price) { // 입찰 가격이 더 높은지
                 // 4. auctionLog에 입찰 정보 등록
@@ -85,6 +82,8 @@ public class AuctionLogServiceImpl implements AuctionLogService {
 
     /**
      * 입찰 처리 (기존 입찰자) 경매 로그 업데이트
+     *
+     * @Param 랜드마크 PK, 입찰 가격
      */
     @Override
     public void auctionsReBidding(CustomUserDetails member, Long landmarkId, int price) {
@@ -123,11 +122,34 @@ public class AuctionLogServiceImpl implements AuctionLogService {
 
         AuctionLog auctionLog = auctionLogRepository.findById(auctionLogId).orElseThrow();
 
-        // 포인트 환불
-        user.gainPoint(auctionLog.getPrice());
+        Optional<Auction> auction = auctionRepository.findByLandmarkAndFinished(auctionLog.getAuction().getLandmark().getId());
 
-        // auctionLog 삭제
-        auctionLogRepository.deleteById(auctionLogId);
+        // 최고 입찰 로그 삭제라면
+        if (auction.isPresent() && auction.get().getLastLogId().equals(auctionLog.getId())) {
+            // 포인트 환불
+            user.gainPoint(auctionLog.getPrice());
+
+            // auctionLog 삭제
+            auctionLogRepository.deleteById(auctionLogId);
+
+            // auction 테이블 갱신
+            // 하나의 입찰 건수만 있었을 수 있으므로 Optional 처리
+            Optional<AuctionLog> maxAuctionLog = auctionLogRepository.findFirstNByLandmarkId(auction.get().getLandmark().getId());
+
+            if (maxAuctionLog.isPresent()) {
+                auction.get().changeLastLogId(maxAuctionLog.get().getId());
+            }
+
+            // websocket 통신
+
+        } else {
+            // 포인트 환불
+            user.gainPoint(auctionLog.getPrice());
+
+            // auctionLog 삭제
+            auctionLogRepository.deleteById(auctionLogId);
+        }
+
     }
 
     @Transactional(

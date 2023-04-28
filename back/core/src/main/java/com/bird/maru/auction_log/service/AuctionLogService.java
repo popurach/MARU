@@ -1,7 +1,6 @@
 package com.bird.maru.auction_log.service;
 
 import com.bird.maru.domain.model.entity.AuctionLog;
-import com.bird.maru.domain.model.entity.Member;
 import com.bird.maru.domain.model.type.CustomUserDetails;
 
 public interface AuctionLogService {
