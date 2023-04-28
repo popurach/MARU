@@ -5,11 +5,13 @@ import com.bird.maru.domain.model.entity.Member;
 import com.bird.maru.domain.model.type.CustomUserDetails;
 
 public interface AuctionLogService {
+
     void auctionsBidding(CustomUserDetails member, Long landmarkId, int price);
 
-    void auctionsReBidding(Member member, AuctionLog auctionLog, Long landmarkId, int price);
+    void auctionsReBidding(CustomUserDetails member, Long landmarkId, int price);
 
     void auctionsCancelBidding(CustomUserDetails member, Long auctionLogId);
 
     void auctionExecute(AuctionLog auctionLogs);
+
 }

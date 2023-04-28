@@ -30,7 +30,7 @@ public class AuctionLogServiceImpl implements AuctionLogService {
     private final LandmarkRepository landmarkRepository;
 
     /**
-     * 입찰 처리 (신규 입찰자 & 기존 입찰자 분기 처리)
+     * 입찰 처리 (신규 입찰자)
      *
      * @Param member OAuth2 인증에 성공한 회원
      * @Param 랜드마크 PK, 입찰 가격
@@ -45,63 +45,73 @@ public class AuctionLogServiceImpl implements AuctionLogService {
         // 2. 현재 auction 테이블의 최고 입찰값 (없을 수도 있음) 가져오기
         Optional<Auction> auction = auctionRepository.findByLandmarkAndFinished(landmarkId);
 
-        int cost = 0;
-
-        if (auctionLog.isEmpty()) { // 새로운 입찰자
-            // 3. auction 등록
-            if (auction.isPresent()) { // 기존 입찰 기록 있음
-                cost = auctionLogRepository.findById(auction.get().getLastLogId()).get().getPrice();
-                if (price > cost && user.getPoint() >= price) { // 입찰 가격이 더 높은지
-                    // 4. auctionLog에 입찰 정보 등록
-                    AuctionLog newAuctionLog = createAuctionLog(auction.get(), user, price);
-                    auctionLogRepository.save(newAuctionLog);
-
-                    // auction 테이블 갱신
-                    auction.get().changeLastLogId(newAuctionLog.getId());
-
-                    // 5. Member의 point 깎기
-                    user.bidPoint(price);
-
-                    // websocket 통신
-                } else {
-                    // 예외처리
-                }
-            } else { // 첫 입찰자
-                // auction 생성
-                Auction newAuction = createAuction(landmarkRepository.getReferenceById(landmarkId));
-                auctionRepository.save(newAuction);
-
-                // auctionLog 생성
-                AuctionLog newAuctionLog = createAuctionLog(newAuction, user, price);
+        // 3. auction 등록
+        if (auction.isPresent()) { // 기존 입찰 기록 있음
+            int cost = auctionLogRepository.findById(auction.get().getLastLogId()).get().getPrice();
+            if (price > cost && user.getPoint() >= price) { // 입찰 가격이 더 높은지
+                // 4. auctionLog에 입찰 정보 등록
+                AuctionLog newAuctionLog = createAuctionLog(auction.get(), user, price);
                 auctionLogRepository.save(newAuctionLog);
-                newAuction.setLastLogId(newAuctionLog.getId());
 
-                //Member의 point 깎기
+                // auction 테이블 갱신
+                auction.get().changeLastLogId(newAuctionLog.getId());
+
+                // 5. Member의 point 깎기
                 user.bidPoint(price);
-            }
-        } else { // 재 입찰자
-            if (price > cost && (user.getPoint() + auctionLog.get().getPrice()) >= price) {
-                auctionsReBidding(user, auctionLog.get(), landmarkId, price);
+
+                // websocket 통신
+
             } else {
                 // 예외처리
             }
+        } else { // 최초 입찰자
+            // auction 생성
+            Auction newAuction = createAuction(landmarkRepository.getReferenceById(landmarkId));
+            auctionRepository.save(newAuction);
+
+            // auctionLog 생성
+            AuctionLog newAuctionLog = createAuctionLog(newAuction, user, price);
+            auctionLogRepository.save(newAuctionLog);
+            newAuction.setLastLogId(newAuctionLog.getId());
+
+            // Member의 point 깎기
+            user.bidPoint(price);
+
+            // websocket 통신
+
         }
+
     }
 
     /**
-     * 기존 입찰자 경매 로그 업데이트
+     * 입찰 처리 (기존 입찰자) 경매 로그 업데이트
      */
     @Override
-    public void auctionsReBidding(Member member, AuctionLog auctionLog, Long landmarkId, int price) {
-        // 입찰 기록 업데이트
-        auctionLog.bidding(price);
+    public void auctionsReBidding(CustomUserDetails member, Long landmarkId, int price) {
+        Member user = memberRepository.getReferenceById(member.getId());
 
-        //  Member의 point 깎기
-        member.bidPoint(price - auctionLog.getPrice());
+        // 1. 현재 auctionLog에 입찰 기록이 있는지 확인
+        AuctionLog auctionLog = auctionLogRepository.findByLandmarkAndMember(landmarkId, user.getId()).orElseThrow();
 
-        // auction 테이블 갱신
-        Auction auction = auctionRepository.findByLandmarkIdAndFinished(landmarkId, false);
-        auction.changeLastLogId(member.getId());
+        // 2. 현재 auction 테이블의 최고 입찰값 (없을 수도 있음) 가져오기
+        Auction auction = auctionRepository.findByLandmarkAndFinished(landmarkId).orElseThrow();
+
+        int cost = auctionLogRepository.findById(auction.getLastLogId()).get().getPrice();
+
+        if (price > cost && (user.getPoint() + auctionLog.getPrice()) >= price) {
+            // 입찰 기록 업데이트
+            auctionLog.bidding(price);
+
+            //  Member의 point 깎기
+            user.bidPoint(price - auctionLog.getPrice());
+
+            // auction 테이블 갱신
+            auction.changeLastLogId(user.getId());
+
+            // websocket 통신
+        } else {
+            // 예외 처리
+        }
     }
 
     /**
