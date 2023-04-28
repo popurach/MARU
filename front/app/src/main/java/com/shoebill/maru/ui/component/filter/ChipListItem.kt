@@ -14,7 +14,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.shoebill.maru.ui.theme.pretendard
+import com.shoebill.maru.ui.theme.Pretendard
 import com.shoebill.maru.util.BrushUtil
 
 @Composable
@@ -42,7 +42,7 @@ fun ChipListItem(
                 color = Color(if (!isSelected) android.graphics.Color.BLACK else android.graphics.Color.WHITE),
                 fontSize = 15.sp,
                 fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
-                fontFamily = pretendard,
+                fontFamily = Pretendard,
             )
         }
     }

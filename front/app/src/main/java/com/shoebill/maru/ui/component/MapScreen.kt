@@ -8,9 +8,14 @@ import android.widget.Toast
 import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.FabPosition
 import androidx.compose.material.FloatingActionButton
 import androidx.compose.material.Icon
 import androidx.compose.material.Scaffold
@@ -21,19 +26,23 @@ import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.mapbox.maps.ResourceOptionsManager
 import com.shoebill.maru.R
 import com.shoebill.maru.viewmodel.MapViewModel
 
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 fun MapboxScreen(
-    viewModel: MapViewModel
+    viewModel: MapViewModel = hiltViewModel()
 ) {
+    viewModel.initFocusManager(LocalFocusManager.current)
     val context = LocalContext.current
 
     /** 요청할 권한 **/
@@ -70,7 +79,6 @@ fun MapboxScreen(
                 }
             )
         },
-        
         floatingActionButton = {
             FloatingActionButton(
                 onClick = {
@@ -78,6 +86,7 @@ fun MapboxScreen(
                     viewModel.trackCameraToUser(context)
                 },
                 modifier = Modifier
+                    .padding(bottom = 25.dp)
                     .size(50.dp),
                 shape = RoundedCornerShape(16.dp),
                 backgroundColor = Color.White,
@@ -99,7 +108,10 @@ fun MapboxScreen(
                     )
                 }
             )
-        }
+            Box(modifier = Modifier.height(50.dp))
+        },
+        floatingActionButtonPosition = FabPosition.End,
+        isFloatingActionButtonDocked = true
     )
 }
 
