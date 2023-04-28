@@ -1,5 +1,6 @@
 package com.shoebill.maru.model.module
 
+import com.shoebill.maru.BuildConfig
 import com.shoebill.maru.model.AppInterceptor
 import com.shoebill.maru.model.interfaces.MemberApi
 import com.shoebill.maru.model.repository.MemberRepository
@@ -17,7 +18,7 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class)
 class ApiModule {
     @Provides
-    fun provideBaseUrl() = "http://k8a403.p.ssafy.io/"
+    fun provideBaseUrl() = BuildConfig.BASE_URL
 
     @Singleton
     @Provides
