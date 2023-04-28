@@ -23,7 +23,6 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.shoebill.maru.R
-import com.shoebill.maru.service.LoginViewModel
 import com.shoebill.maru.ui.component.LottieOwl
 import com.shoebill.maru.viewmodel.LoginViewModel
 import com.shoebill.maru.viewmodel.NavigateViewModel
@@ -32,7 +31,7 @@ import com.shoebill.maru.viewmodel.NavigateViewModel
 @Composable
 fun LoginPage(
     loginViewModel: LoginViewModel = hiltViewModel(),
-    navigateViewModel: NavigateViewModel = viewModel()
+    navigateViewModel: NavigateViewModel = viewModel(),
 ) {
     val context = LocalContext.current // composable 이 실행되고 있는 Context 반환
 
