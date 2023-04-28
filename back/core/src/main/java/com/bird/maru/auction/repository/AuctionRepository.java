@@ -10,7 +10,7 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface AuctionRepository extends JpaRepository<Auction, Long> {
 
-    @Query("SELECT a FROM Auction a WHERE a.landmark.id = :landmarkId AND a.finished = false")
-    Optional<Auction> findByLandmarkAndNotFinished(@Param("landmarkId") Long landmarkId);
+    @Query("SELECT a FROM Auction a WHERE a.landmark.id = :landmarkId AND a.finished = :finished")
+    Optional<Auction> findByLandmarkAndFinished(@Param("landmarkId") Long landmarkId, @Param("finished") Boolean finished);
 
 }

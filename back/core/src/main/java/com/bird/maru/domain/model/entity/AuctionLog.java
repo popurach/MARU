@@ -3,6 +3,7 @@ package com.bird.maru.domain.model.entity;
 import java.time.LocalDateTime;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EntityListeners;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -18,12 +19,15 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 @Entity
 @Table(
         name = "auction_logs",
         indexes = @Index(name = "log_date_index", columnList = "created_date_time")
 )
+@EntityListeners(AuditingEntityListener.class)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Getter
@@ -48,6 +52,7 @@ public class AuctionLog {
     @NotNull
     private Integer price;
 
+    @CreatedDate
     @Column(name = "created_date_time", columnDefinition = "DATETIME")
     @NotNull
     private LocalDateTime createdDateTime;

@@ -30,7 +30,7 @@ public class AuctionLogController {
      */
     @PostMapping("/bidding")
     public void auctionsBidding(@AuthenticationPrincipal CustomUserDetails member, @RequestBody AuctionLogRequestDto auctionLogRequestDto) {
-        auctionLogService.auctionsBidding(member, auctionLogRequestDto.getLandmarkId(), auctionLogRequestDto.getPrice());
+        auctionLogService.auctionsBidding(member.getId(), auctionLogRequestDto.getLandmarkId(), auctionLogRequestDto.getPrice());
     }
 
     /**
@@ -40,7 +40,7 @@ public class AuctionLogController {
      */
     @PutMapping("/bidding")
     public void auctionsReBidding(@AuthenticationPrincipal CustomUserDetails member, @RequestBody AuctionLogRequestDto auctionLogRequestDto) {
-        auctionLogService.auctionsReBidding(member, auctionLogRequestDto.getLandmarkId(), auctionLogRequestDto.getPrice());
+        auctionLogService.auctionsReBidding(member.getId(), auctionLogRequestDto.getLandmarkId(), auctionLogRequestDto.getPrice());
     }
 
     /**
@@ -49,8 +49,8 @@ public class AuctionLogController {
      * @Param id : auctionLogId (해당 경매 로그 테이블의 PK)
      */
     @DeleteMapping("/bidding/{id}")
-    public void auctionsCancelBidding(@AuthenticationPrincipal CustomUserDetails member, @PathVariable Long id) {
-        auctionLogService.auctionsCancelBidding(member, id);
+    public void auctionsCancelBidding(@AuthenticationPrincipal CustomUserDetails member, @PathVariable java.lang.Long id) {
+        auctionLogService.auctionsCancelBidding(member.getId(), id);
     }
 
     /**
