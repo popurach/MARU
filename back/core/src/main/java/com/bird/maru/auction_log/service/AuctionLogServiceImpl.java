@@ -74,6 +74,7 @@ public class AuctionLogServiceImpl implements AuctionLogService {
                                      // auctionLog 생성
                                      AuctionLog newAuctionLog = createAuctionLog(newAuction, user, price);
                                      auctionLogRepository.save(newAuctionLog);
+
                                      newAuction.setLastLogId(newAuctionLog.getId());
 
                                      // Member의 point 깎기
@@ -102,8 +103,9 @@ public class AuctionLogServiceImpl implements AuctionLogService {
                                         auctionRepository.findByLandmarkAndNotFinished(landmarkId)
                                                          .ifPresentOrElse(
                                                                  auction -> { // auction 테이블에 최고 입찰가 있음
-                                                                     int cost = auctionLogRepository.findById(auction.getLastLogId()).get()
-                                                                                                    .getPrice();
+                                                                     int cost = auctionLogRepository.findById(auction.getLastLogId()).orElseThrow(
+                                                                             () -> new ResourceNotFoundException("해당 리소스 존재하지 않습니다.")
+                                                                     ).getPrice();
 
                                                                      if (price > cost && (user.getPoint() + auctionLog.getPrice()) >= price) {
                                                                          // 입찰 기록 업데이트
@@ -116,24 +118,24 @@ public class AuctionLogServiceImpl implements AuctionLogService {
                                                                          auction.changeLastLogId(user.getId());
 
                                                                          // websocket 통신
+                                                                     } else {
+                                                                         // 포인트 부족 예외 처리
                                                                      }
                                                                  },
                                                                  () -> { // auction 테이블에 최고 입찰가 없음
-                                                                     if ((user.getPoint() + auctionLog.getPrice()) >= price) {
-                                                                         // 입찰 기록 업데이트
-                                                                         auctionLog.bidding(price);
+                                                                     // 입찰 기록 업데이트
+                                                                     auctionLog.bidding(price);
 
-                                                                         //  Member의 point 깎기
-                                                                         user.bidPoint(price - auctionLog.getPrice());
+                                                                     //  Member의 point 깎기
+                                                                     user.bidPoint(price - auctionLog.getPrice());
 
-                                                                         // auction 테이블 생성
-                                                                         Auction newAuction = createAuction(
-                                                                                 landmarkRepository.getReferenceById(landmarkId));
-                                                                         auctionRepository.save(newAuction);
-                                                                         newAuction.changeLastLogId(user.getId());
+                                                                     // auction 테이블 생성
+                                                                     Auction newAuction = createAuction(
+                                                                             landmarkRepository.getReferenceById(landmarkId));
+                                                                     auctionRepository.save(newAuction);
+                                                                     newAuction.changeLastLogId(user.getId());
 
-                                                                         // websocket 통신
-                                                                     }
+                                                                     // websocket 통신
                                                                  }
                                                          );
                                     },
