@@ -1,4 +1,4 @@
-package com.shoebill.maru.service
+package com.shoebill.maru.viewmodel
 
 import android.content.Context
 import android.util.Log

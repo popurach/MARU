@@ -32,7 +32,7 @@ public class AwsS3Service {
      * @param image 저장할 1개의 프로필 사진
      * @return Image 객체를 반환합니다. 이 객체는 {@code S3Object}에 대한 기본 정보(저장 경로, URL)를 담고 있습니다.
      */
-    public Image uploadMemberProfile(MultipartFile image) {
+    public Image uploadMemberProfileImage(MultipartFile image) {
         return upload(image, "images/members");
     }
 
@@ -43,7 +43,7 @@ public class AwsS3Service {
      * @param imageInfo 수정할 사진의 정보
      * @return Image 객체를 반환합니다. 이 객체는 {@code S3Object}에 대한 기본 정보(저장 경로, URL)를 담고 있습니다.
      */
-    public Image updateMemberProfile(MultipartFile image, Image imageInfo) {
+    public Image updateMemberProfileImage(MultipartFile image, Image imageInfo) {
         try (InputStream input = image.getInputStream()) {
             amazonS3.putObject(
                     new PutObjectRequest(
@@ -54,7 +54,10 @@ public class AwsS3Service {
             throw new UncheckedIOException(e);
         }
 
-        return imageInfo;
+        return Image.builder()
+                    .savedPath(imageInfo.getSavedPath())
+                    .url(amazonS3.getUrl(this.bucketName, imageInfo.getSavedPath()))
+                    .build();
     }
 
     /**
@@ -95,7 +98,7 @@ public class AwsS3Service {
     }
 
     private Image upload(MultipartFile image, String path) {
-        String key = createKey(path);
+        String key = createKey(path, image.getOriginalFilename());
 
         try (InputStream input = image.getInputStream()) {
             amazonS3.putObject(
@@ -113,8 +116,8 @@ public class AwsS3Service {
                     .build();
     }
 
-    private String createKey(String path) {
-        return path + "/" + UUID.randomUUID();
+    private String createKey(String path, String originalFilename) {
+        return path + "/" + UUID.randomUUID() + originalFilename.substring(originalFilename.lastIndexOf("."));
     }
 
     private ObjectMetadata getObjectMetadata(MultipartFile multipartFile) {
@@ -123,6 +126,5 @@ public class AwsS3Service {
         metadata.setContentLength(multipartFile.getSize());
         return metadata;
     }
-
 
 }

@@ -4,7 +4,7 @@ spring:
     group:
       local:
         - s3-local
-        - db-local
+        - db-dev
         - global-dev
         - security-dev
       dev:
