@@ -33,7 +33,7 @@ cluster:
   extent: 512
   crs: MERCATOR
 
---- #local, devspring:
+--- #local, dev
 spring:
   config:
     activate:
