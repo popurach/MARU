@@ -63,13 +63,24 @@ public class Member extends BaseDateTime {
     @Column(name = "notice_token")
     private String noticeToken;
 
-    // 유찰자 페이백 처리
+    public void updateNickname(String nickname) {
+        this.nickname = nickname;
+    }
+
+    public void updateImage(Image image) {
+        this.image = image;
+    }
+
     public void gainPoint(int price) {
         this.point += price;
     }
 
-    // 입찰자 입찰 처리
     public void bidPoint(int price) {
         this.point -= price;
     }
+
+    public void changeNoticeToken(String noticeToken) {
+        this.noticeToken = noticeToken;
+    }
+
 }
