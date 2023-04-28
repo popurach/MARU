@@ -79,4 +79,8 @@ public class Member extends BaseDateTime {
         this.point -= price;
     }
 
+    public void changeNoticeToken(String noticeToken) {
+        this.noticeToken = noticeToken;
+    }
+
 }

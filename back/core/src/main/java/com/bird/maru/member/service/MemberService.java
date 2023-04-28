@@ -7,4 +7,6 @@ public interface MemberService {
 
     Member modifyMemberInfo(Long memberId, String nickname, MultipartFile newImage);
 
+    void registerNoticeToken(Long memberId, String noticeToken);
+
 }
