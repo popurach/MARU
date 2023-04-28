@@ -3,7 +3,9 @@ package com.shoebill.maru.model.module
 import com.shoebill.maru.BuildConfig
 import com.shoebill.maru.model.AppInterceptor
 import com.shoebill.maru.model.interfaces.MemberApi
+import com.shoebill.maru.model.interfaces.NoticeApi
 import com.shoebill.maru.model.repository.MemberRepository
+import com.shoebill.maru.model.repository.NoticeRepository
 import com.shoebill.maru.util.PreferenceUtil
 import dagger.Module
 import dagger.Provides
@@ -51,4 +53,14 @@ class ApiModule {
     @Provides
     fun provideMemberRepository(memberApi: MemberApi, prefUtil: PreferenceUtil): MemberRepository =
         MemberRepository(memberApi, prefUtil)
+
+    @Singleton
+    @Provides
+    fun provideNoticeApi(retrofit: Retrofit): NoticeApi =
+        retrofit.create(NoticeApi::class.java)
+
+    @Singleton
+    @Provides
+    fun provideNoticeRepository(noticeApi: NoticeApi): NoticeRepository =
+        NoticeRepository(noticeApi)
 }

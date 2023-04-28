@@ -1,5 +1,6 @@
 package com.shoebill.maru.ui.component.drawer
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -26,14 +27,17 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import com.shoebill.maru.R
 import com.shoebill.maru.model.data.Member
 import com.shoebill.maru.viewmodel.MemberViewModel
+import com.shoebill.maru.viewmodel.NavigateViewModel
 
 @Composable
 fun DrawerHeader(
-    memberViewModel: MemberViewModel = hiltViewModel()
+    memberViewModel: MemberViewModel = hiltViewModel(),
+    navigateViewModel: NavigateViewModel = viewModel()
 ) {
     val iconSize = 18.dp
     val fontSize = 12.sp
@@ -47,7 +51,9 @@ fun DrawerHeader(
         Icon(
             painterResource(id = R.drawable.alert),
             "",
-            Modifier.size(iconSize)
+            modifier = Modifier
+                .size(iconSize)
+                .clickable { navigateViewModel.navigator?.navigate("notice") }
         )
     }
     Column(
