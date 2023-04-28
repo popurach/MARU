@@ -3,6 +3,8 @@ package com.bird.maru.member.controller;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.bird.maru.cloud.aws.s3.service.AwsS3Service;
 import com.bird.maru.common.config.MockMvcConfig;
@@ -26,9 +28,9 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
+import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 @SpringBootTest
 @Import({ MockMvcConfig.class })
@@ -90,7 +92,7 @@ class MemberControllerTest {
                                         get("/api/members/my")
                                                 .header("Authorization", "Bearer " + testToken)
                                 )
-                                .andExpect(MockMvcResultMatchers.status().isOk())
+                                .andExpect(status().isOk())
                                 .andReturn()
                                 .getResponse()
                                 .getContentAsString();
@@ -98,6 +100,35 @@ class MemberControllerTest {
         // then
         MemberInfoDto actual = objectMapper.readValue(content, MemberInfoDto.class);
         assertThat(actual).isEqualTo(mapper.toMemberInfoDto(testMember));
+    }
+
+    @Test
+    @DisplayName("Notice Token 등록 테스트")
+    void registerNoticeTokenTest() throws Exception {
+        // given
+        Member testMember = memberQueryRepository.findAll().get(0);
+        String testAccessToken = jwtUtil.generateAccessToken(
+                CustomUserDetails.builder()
+                                 .id(testMember.getId())
+                                 .nickname(testMember.getNickname())
+                                 .provider(testMember.getProvider())
+                                 .email(testMember.getEmail())
+                                 .build()
+        );
+        String testNoticeToken = "tokenotkemkdsiidkkensiaos";
+
+        // when
+        mockMvc.perform(
+                post("/api/members/notice-token")
+                        .header("Authorization", "Bearer " + testAccessToken)
+                        .characterEncoding("UTF-8")
+                        .contentType(MediaType.TEXT_PLAIN)
+                        .content(testNoticeToken)
+        ).andExpect(status().isOk());
+
+        // then
+        testMember = memberQueryRepository.findAll().get(0);
+        assertThat(testMember.getNoticeToken()).isEqualTo(testNoticeToken);
     }
 
     @Test
@@ -128,7 +159,7 @@ class MemberControllerTest {
                                                 .header("Authorization", "Bearer " + testToken)
                                                 .content("modified")
                                 )
-                                .andExpect(MockMvcResultMatchers.status().isOk())
+                                .andExpect(status().isOk())
                                 .andReturn()
                                 .getResponse()
                                 .getContentAsString();
