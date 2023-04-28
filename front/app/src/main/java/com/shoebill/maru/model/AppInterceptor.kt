@@ -48,7 +48,6 @@ class AppInterceptor @Inject constructor(
                             // 재발급 받은 토큰으로 안되면 로그인 취소
                             prefUtil.clear()
                         }
-
                         return newResponse
                     } else {
                         // 재발급 실패시, 로그인 취소
@@ -58,9 +57,7 @@ class AppInterceptor @Inject constructor(
                 }
             }
             return response
-
         }
-
         return chain.proceed(originRequest)
     }
 }
