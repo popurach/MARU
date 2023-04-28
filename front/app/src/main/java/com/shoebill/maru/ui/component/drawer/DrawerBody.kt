@@ -1,6 +1,5 @@
 package com.shoebill.maru.ui.component.drawer
 
-import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -31,7 +30,6 @@ fun DrawerBody(
         Text(text = "로그아웃", color = Color.Gray, modifier = Modifier.clickable {
             memberViewModel.logout()
             navigateViewModel.navigator?.navigate("login")
-            Log.d("LOGOUT", "로그아웃 완료")
         })
     }
 }

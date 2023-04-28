@@ -27,16 +27,11 @@ class LoginViewModel @Inject constructor(
             val accessToken = response.headers()["access-token"]
             val refreshToken = response.headers()["refresh-token"]
 
-            Log.d(TAG, "retrofit 통신 성공 -> accessToken :$accessToken")
-            Log.d(TAG, "retrofit 통신 성공 -> refreshToken :$refreshToken")
-
             prefUtil.setString("accessToken", accessToken!!)
             prefUtil.setString("refreshToken", refreshToken!!)
 
             true
         } else {
-            Log.d(TAG, "retrofit 로그인 실패 -> " + response.errorBody())
-
             false
         }
     }
