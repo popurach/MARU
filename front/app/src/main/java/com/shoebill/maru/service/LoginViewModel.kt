@@ -2,6 +2,7 @@ package com.shoebill.maru.service
 
 import android.content.Context
 import android.util.Log
+import android.widget.Toast
 import androidx.lifecycle.ViewModel
 import androidx.navigation.NavHostController
 import com.kakao.sdk.auth.model.OAuthToken
@@ -100,7 +101,11 @@ class LoginViewModel @Inject constructor(
             override fun onFailure(httpStatus: Int, message: String) {
                 val errorCode = NaverIdLoginSDK.getLastErrorCode().code
                 val errorDescription = NaverIdLoginSDK.getLastErrorDescription()
-//                Toast.makeText(context,"errorCode:$errorCode, errorDesc:$errorDescription",Toast.LENGTH_SHORT).show()
+                Toast.makeText(
+                    context,
+                    "errorCode:$errorCode, errorDesc:$errorDescription",
+                    Toast.LENGTH_SHORT
+                ).show()
             }
 
             override fun onError(errorCode: Int, message: String) {
