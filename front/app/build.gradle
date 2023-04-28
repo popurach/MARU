@@ -124,4 +124,7 @@ dependencies {
 
     // Naver Login
     implementation 'com.navercorp.nid:oauth-jdk8:5.5.0'
+
+    // Goggle Login
+    implementation 'com.google.android.gms:play-services-auth:20.5.0'
 }
