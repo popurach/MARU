@@ -28,7 +28,7 @@ import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.rememberLottieComposition
 import com.shoebill.maru.R
-import com.shoebill.maru.service.LoginViewModel
+import com.shoebill.maru.viewmodel.LoginViewModel
 import com.shoebill.maru.viewmodel.NavigateViewModel
 
 @Composable
