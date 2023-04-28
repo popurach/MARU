@@ -2,8 +2,10 @@ package com.shoebill.maru.model.module
 
 import com.shoebill.maru.BuildConfig
 import com.shoebill.maru.model.AppInterceptor
+import com.shoebill.maru.model.interfaces.AuctionApi
 import com.shoebill.maru.model.interfaces.MemberApi
 import com.shoebill.maru.model.interfaces.NoticeApi
+import com.shoebill.maru.model.repository.AuctionRepository
 import com.shoebill.maru.model.repository.MemberRepository
 import com.shoebill.maru.model.repository.NoticeRepository
 import com.shoebill.maru.util.PreferenceUtil
@@ -51,8 +53,17 @@ class ApiModule {
 
     @Singleton
     @Provides
+    fun provideAuctionApi(retrofit: Retrofit): AuctionApi = retrofit.create(AuctionApi::class.java)
+
+    @Singleton
+    @Provides
     fun provideMemberRepository(memberApi: MemberApi, prefUtil: PreferenceUtil): MemberRepository =
         MemberRepository(memberApi, prefUtil)
+
+    @Singleton
+    @Provides
+    fun provideAuctionRepository(auctionApi: AuctionApi): AuctionRepository =
+        AuctionRepository(auctionApi)
 
     @Singleton
     @Provides

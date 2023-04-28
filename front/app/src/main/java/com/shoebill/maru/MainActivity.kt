@@ -23,6 +23,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.shoebill.maru.ui.page.AuctionPage
 import com.shoebill.maru.ui.page.LoginPage
 import com.shoebill.maru.ui.page.MainPage
 import com.shoebill.maru.ui.page.NoticePage
@@ -105,6 +106,12 @@ fun MyApp(
         composable("notice") {
             CompositionLocalProvider(LocalViewModelStoreOwner provides viewModelStoreOwner) {
                 NoticePage(navController = navController)
+            }
+        }
+
+        composable("auction") {
+            CompositionLocalProvider(LocalViewModelStoreOwner provides viewModelStoreOwner) {
+                AuctionPage()
             }
         }
     }

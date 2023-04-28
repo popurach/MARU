@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -23,19 +22,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.airbnb.lottie.compose.LottieAnimation
-import com.airbnb.lottie.compose.LottieCompositionSpec
-import com.airbnb.lottie.compose.LottieConstants
-import com.airbnb.lottie.compose.rememberLottieComposition
 import com.shoebill.maru.R
+import com.shoebill.maru.service.LoginViewModel
+import com.shoebill.maru.ui.component.LottieOwl
 import com.shoebill.maru.viewmodel.LoginViewModel
 import com.shoebill.maru.viewmodel.NavigateViewModel
 
-@Composable
-fun LottieOwl() {
-    val composition by rememberLottieComposition(spec = LottieCompositionSpec.Url("https://assets1.lottiefiles.com/packages/lf20_g9gACcXlja.json"))
-    LottieAnimation(composition = composition, iterations = LottieConstants.IterateForever)
-}
 
 @Composable
 fun LoginPage(
@@ -66,34 +58,63 @@ fun LoginPage(
             Column(
                 modifier = Modifier.padding(top = 259.dp, bottom = 50.dp)
             ) {
-                Image(
-                    modifier = Modifier
-                        .clickable {
-                            loginViewModel.kakaoLogin(
-                                context,
-                                navigateViewModel.navigator
-                            )
-                        }
-                        .padding(start = 40.dp, end = 40.dp, top = 4.dp, bottom = 4.dp),
-                    painter = painterResource(id = R.drawable.kakao_login),
-                    contentDescription = "카카오 로그인"
-                )
-                Image(
-                    modifier = Modifier
-                        .clickable { /*TODO*/ }
-                        .padding(start = 40.dp, end = 40.dp, top = 4.dp, bottom = 4.dp),
-                    painter = painterResource(id = R.drawable.naver_login),
-                    contentDescription = "네이버 로그인"
-                )
-                Image(
-                    modifier = Modifier
-                        .clickable { /*TODO*/ }
-                        .padding(start = 40.dp, end = 40.dp, top = 4.dp, bottom = 4.dp)
-                        .background(color = Color.White)
-                        .border(width = 0.5.dp, color = Color(0xFFEAEDEF)),
-                    painter = painterResource(id = R.drawable.google_login),
-                    contentDescription = "구글 로그인"
-                )
+                Box(
+                    modifier = Modifier.padding(
+                        start = 40.dp,
+                        end = 40.dp,
+                        top = 4.dp,
+                        bottom = 4.dp
+                    )
+                ) {
+                    Image(
+                        modifier = Modifier
+                            .clickable {
+                                loginViewModel.kakaoLogin(
+                                    context,
+                                    navigateViewModel.navigator
+                                )
+                            },
+                        painter = painterResource(id = R.drawable.kakao_login),
+                        contentDescription = "카카오 로그인"
+                    )
+                }
+                Box(
+                    modifier = Modifier.padding(
+                        start = 40.dp,
+                        end = 40.dp,
+                        top = 4.dp,
+                        bottom = 4.dp
+                    )
+                ) {
+                    Image(
+                        modifier = Modifier
+                            .clickable {
+                                loginViewModel.naverLogin(
+                                    context,
+                                    navigateViewModel.navigator!!
+                                )
+                            },
+                        painter = painterResource(id = R.drawable.naver_login),
+                        contentDescription = "네이버 로그인"
+                    )
+                }
+                Box(
+                    modifier = Modifier.padding(
+                        start = 40.dp,
+                        end = 40.dp,
+                        top = 4.dp,
+                        bottom = 4.dp
+                    )
+                ) {
+                    Image(
+                        modifier = Modifier
+                            .clickable { /*TODO*/ }
+                            .background(color = Color.White)
+                            .border(width = 0.5.dp, color = Color(0xFFEAEDEF)),
+                        painter = painterResource(id = R.drawable.google_login),
+                        contentDescription = "구글 로그인"
+                    )
+                }
             }
         }
         Text(

@@ -138,7 +138,7 @@ fun DrawerHeader(
             verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
             Icon(
-                painterResource(R.drawable.scrap_icon),
+                painterResource(R.drawable.unscrap_icon),
                 "scrap",
                 Modifier.size(iconSize)
             )

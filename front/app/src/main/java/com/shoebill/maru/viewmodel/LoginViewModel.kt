@@ -2,12 +2,15 @@ package com.shoebill.maru.viewmodel
 
 import android.content.Context
 import android.util.Log
+import android.widget.Toast
 import androidx.lifecycle.ViewModel
 import androidx.navigation.NavHostController
 import com.kakao.sdk.auth.model.OAuthToken
 import com.kakao.sdk.common.model.ClientError
 import com.kakao.sdk.common.model.ClientErrorCause
 import com.kakao.sdk.user.UserApiClient
+import com.navercorp.nid.NaverIdLoginSDK
+import com.navercorp.nid.oauth.OAuthLoginCallback
 import com.shoebill.maru.model.repository.MemberRepository
 import com.shoebill.maru.util.PreferenceUtil
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -51,6 +54,7 @@ class LoginViewModel @Inject constructor(
 
                 // back end 로그인 API 호출부분
                 isSuccess = kakaoApiLogin(token)
+                Log.d(TAG, "kakaoLogin: $isSuccess")
                 if (isSuccess)
                     navigator?.navigate("main")
             }
@@ -80,6 +84,52 @@ class LoginViewModel @Inject constructor(
             }
         } else {
             UserApiClient.instance.loginWithKakaoAccount(context, callback = callback)
+        }
+    }
+
+    fun naverLogin(context: Context, navigator: NavHostController) {
+        val oauthLoginCallback = object : OAuthLoginCallback {
+            override fun onSuccess() {
+                // 네이버 로그인 인증이 성공했을 때 수행할 코드 추가
+                val accessToken = NaverIdLoginSDK.getAccessToken()
+                val isSuccess = naverApiLogin(accessToken)
+                if (isSuccess) {
+                    navigator.navigate("main")
+                }
+            }
+
+            override fun onFailure(httpStatus: Int, message: String) {
+                val errorCode = NaverIdLoginSDK.getLastErrorCode().code
+                val errorDescription = NaverIdLoginSDK.getLastErrorDescription()
+                Toast.makeText(
+                    context,
+                    "errorCode:$errorCode, errorDesc:$errorDescription",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+
+            override fun onError(errorCode: Int, message: String) {
+                onFailure(errorCode, message)
+            }
+        }
+        NaverIdLoginSDK.authenticate(context, oauthLoginCallback)
+    }
+
+    private fun naverApiLogin(token: String?) = runBlocking {
+        val response: retrofit2.Response<Unit> =
+            memberRepository.login("NAVER $token")
+        if (response.isSuccessful) {
+            val accessToken = response.headers()["access-token"]
+            val refreshToken = response.headers()["refresh-token"]
+
+            prefUtil.setString("accessToken", accessToken!!)
+            Log.d("LOGIN", "accessToken -> $accessToken") // backend 테스트 용으로 남겨둠
+            prefUtil.setString("refreshToken", refreshToken!!)
+            Log.d("LOGIN", "refreshToken -> $refreshToken")
+
+            true
+        } else {
+            false
         }
     }
 }

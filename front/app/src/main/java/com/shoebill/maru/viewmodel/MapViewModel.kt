@@ -8,6 +8,8 @@ import androidx.appcompat.content.res.AppCompatResources.getDrawable
 import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.mapbox.android.gestures.MoveGestureDetector
 import com.mapbox.geojson.Point
@@ -30,6 +32,7 @@ import com.mapbox.maps.plugin.viewport.data.FollowPuckViewportStateBearing
 import com.mapbox.maps.plugin.viewport.data.FollowPuckViewportStateOptions
 import com.mapbox.maps.plugin.viewport.state.FollowPuckViewportState
 import com.mapbox.maps.plugin.viewport.viewport
+import com.shoebill.maru.model.data.Spot
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 
@@ -40,6 +43,30 @@ class MapViewModel @Inject constructor() : ViewModel() {
     private lateinit var mapBoxMap: MapboxMap
     private var isTracking = false
     private lateinit var _focusManager: FocusManager
+
+    private val _spotList = MutableLiveData<List<Spot>>(
+        listOf(
+            Spot(
+                0,
+                "https://picsum.photos/id/237/200/300",
+                false,
+                listOf("#도로", "#길거리", "#감성", "#인생샷스팟")
+            ),
+            Spot(
+                1,
+                "https://picsum.photos/id/237/200/300",
+                false,
+                listOf("#도로", "#길거리", "#감성", "#인생샷스팟")
+            ),
+            Spot(
+                2,
+                "https://picsum.photos/id/237/200/300",
+                false,
+                listOf("#도로", "#길거리", "#감성", "#인생샷스팟")
+            ),
+        )
+    )
+    val spotList: LiveData<List<Spot>> get() = _spotList
 
     val myLocationColor: Brush
         get() {
