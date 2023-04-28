@@ -13,7 +13,10 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.shoebill.maru.ui.component.bottomsheet.BottomSheetFrame
+import com.shoebill.maru.ui.component.bottomsheet.landmark.LandMarkPicture
 import com.shoebill.maru.ui.component.bottomsheet.landmark.LandmarkFirstVisit
+import com.shoebill.maru.ui.component.bottomsheet.landmark.LandmarkMain
+import com.shoebill.maru.ui.component.bottomsheet.landmark.LandmarkPictureList
 import com.shoebill.maru.ui.component.bottomsheet.spotlist.SpotDetail
 import com.shoebill.maru.ui.component.bottomsheet.spotlist.SpotList
 import com.shoebill.maru.ui.theme.MaruBackground
@@ -26,15 +29,14 @@ fun BottomSheetPage(
 ) {
     bottomSheetNavigatorViewModel.init(navController)
     Column(
-//        horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
             .heightIn(min = 40.dp, max = 670.dp)
     ) {
         val viewModelStoreOwner = checkNotNull(LocalViewModelStoreOwner.current) {
             "No ViewModelStoreOwner was provided via LocalViewModelStoreOwner"
         }
-        NavHost(navController = navController, startDestination = "spot-list") {
-            composable("spot-list") {
+        NavHost(navController = navController, startDestination = "landmark/first") {
+            composable("spot/list") {
                 CompositionLocalProvider(
                     LocalViewModelStoreOwner provides viewModelStoreOwner
                 ) {
@@ -44,8 +46,12 @@ fun BottomSheetPage(
                 }
             }
             composable("landmark/first") {
-                BottomSheetFrame(hasFabCamera = true, backgroundColor = MaruBackground) {
-                    LandmarkFirstVisit()
+                CompositionLocalProvider(
+                    LocalViewModelStoreOwner provides viewModelStoreOwner
+                ) {
+                    BottomSheetFrame(hasFabCamera = true, backgroundColor = MaruBackground) {
+                        LandmarkFirstVisit()
+                    }
                 }
             }
             composable("spot/detail/{id}") {
@@ -56,9 +62,34 @@ fun BottomSheetPage(
                         SpotDetail(it.arguments?.getString("id")!!.toLong())
                     }
                 }
-
             }
-
+            composable("landmark/main") {
+                CompositionLocalProvider(
+                    LocalViewModelStoreOwner provides viewModelStoreOwner
+                ) {
+                    BottomSheetFrame(hasFabCamera = true, backgroundColor = MaruBackground) {
+                        LandmarkMain()
+                    }
+                }
+            }
+            composable("landmark/picture") {
+                CompositionLocalProvider(
+                    LocalViewModelStoreOwner provides viewModelStoreOwner
+                ) {
+                    BottomSheetFrame(hasFabCamera = true, backgroundColor = MaruBackground) {
+                        LandMarkPicture()
+                    }
+                }
+            }
+            composable("landmark/picture/list") {
+                CompositionLocalProvider(
+                    LocalViewModelStoreOwner provides viewModelStoreOwner
+                ) {
+                    BottomSheetFrame(hasFabCamera = true, backgroundColor = MaruBackground) {
+                        LandmarkPictureList()
+                    }
+                }
+            }
         }
     }
 //    Column(

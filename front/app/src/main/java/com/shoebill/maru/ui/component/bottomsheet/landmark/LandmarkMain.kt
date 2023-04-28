@@ -2,6 +2,7 @@ package com.shoebill.maru.ui.component.bottomsheet.landmark
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -17,6 +18,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -25,21 +27,24 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import com.shoebill.maru.R
+import com.shoebill.maru.viewmodel.BottomSheetNavigatorViewModel
 import com.shoebill.maru.viewmodel.LandmarkLandingViewModel
 
 @Composable
 fun LandmarkMain(
-    viewModel: LandmarkLandingViewModel = hiltViewModel()
+    landmarkLandingViewModel: LandmarkLandingViewModel = hiltViewModel(),
+    bottomSheetNavigatorViewModel: BottomSheetNavigatorViewModel = hiltViewModel()
 ) {
     Column(
         Modifier
             .fillMaxSize()
-            .padding(top = 50.dp),
+            .padding(top = 50.dp)
+            .clickable { bottomSheetNavigatorViewModel.navController!!.navigate("landmark/picture") },
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(50.dp)
     ) {
         Text(
-            text = viewModel.coloredLandmarkName,
+            text = landmarkLandingViewModel.coloredLandmarkName,
             fontSize = 32.sp,
             fontWeight = FontWeight.SemiBold
         )
@@ -49,11 +54,12 @@ fun LandmarkMain(
         ) {
             Box(Modifier.height(267.dp)) {
                 AsyncImage(
-                    model = viewModel.landmark.occupantProfileImageUrl,
+                    model = landmarkLandingViewModel.landmark.occupantProfileImageUrl,
                     contentDescription = "occupant profile",
+                    contentScale = ContentScale.Crop,
                     modifier = Modifier
-                        .border(4.dp, Color.White, CircleShape)
                         .padding(1.dp)
+                        .border(4.dp, Color.White, CircleShape)
                         .size(200.dp)
                         .clip(CircleShape)
                         .align(Alignment.BottomCenter)
@@ -68,13 +74,13 @@ fun LandmarkMain(
                 )
             }
             Text(
-                text = viewModel.landmark.occupantNickname,
+                text = landmarkLandingViewModel.landmark.occupantNickname,
                 fontSize = 25.sp,
                 fontWeight = FontWeight.Bold
             )
         }
         Text(
-            text = viewModel.landmark.sentence,
+            text = landmarkLandingViewModel.landmark.sentence,
             Modifier.padding(horizontal = 50.dp),
             textAlign = TextAlign.Center
         )

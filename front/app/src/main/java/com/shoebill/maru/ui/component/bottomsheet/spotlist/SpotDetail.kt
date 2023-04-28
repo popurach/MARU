@@ -36,7 +36,7 @@ fun SpotDetail(
     Box(Modifier.fillMaxSize()) {
         Box {
             AsyncImage(
-                model = "https://picsum.photos/seed/picsum/500/800",
+                model = "https://picsum.photos/id/$spotId/1000/2000",
                 contentScale = ContentScale.Crop,
                 modifier = Modifier.fillMaxSize(),
                 contentDescription = "image"
