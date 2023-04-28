@@ -39,7 +39,7 @@ import com.patrykandpatrick.vico.compose.component.shape.shader.verticalGradient
 import com.patrykandpatrick.vico.core.chart.values.AxisValuesOverrider
 import com.patrykandpatrick.vico.core.entry.entryModelOf
 import com.shoebill.maru.R
-import com.shoebill.maru.ui.theme.pretendard
+import com.shoebill.maru.ui.theme.Pretendard
 import com.shoebill.maru.viewmodel.AuctionViewModel
 import java.text.DecimalFormat
 
@@ -66,7 +66,7 @@ fun GradientButton(
             Text(
                 text = text,
                 color = Color.White,
-                fontFamily = pretendard,
+                fontFamily = Pretendard,
                 fontWeight = FontWeight.Bold,
                 style = TextStyle(letterSpacing = (-0.2).sp),
                 fontSize = 15.sp
@@ -210,7 +210,7 @@ fun AuctionPage(auctionViewModel: AuctionViewModel = viewModel()) {
                         ),
                         fontSize = 15.sp,
                         fontWeight = FontWeight.Light,
-                        fontFamily = pretendard,
+                        fontFamily = Pretendard,
                         style = TextStyle(letterSpacing = (-0.2).sp),
                     )
                     Text(
@@ -233,7 +233,7 @@ fun AuctionPage(auctionViewModel: AuctionViewModel = viewModel()) {
                         text = "$ ${dec.format(auctionViewModel.downPrice)}",
                         fontSize = 20.sp,
                         fontWeight = FontWeight.Bold,
-                        fontFamily = pretendard,
+                        fontFamily = Pretendard,
                         style = TextStyle(letterSpacing = (-0.2).sp),
                     )
                 }
@@ -268,7 +268,7 @@ fun AuctionPage(auctionViewModel: AuctionViewModel = viewModel()) {
                         color = Color(0xFF424242),
                         fontSize = 15.sp,
                         fontWeight = FontWeight.Light,
-                        fontFamily = pretendard,
+                        fontFamily = Pretendard,
                         style = TextStyle(letterSpacing = (-0.2).sp),
                     )
                     Text(
@@ -291,7 +291,7 @@ fun AuctionPage(auctionViewModel: AuctionViewModel = viewModel()) {
                         text = "$ ${dec.format(auctionViewModel.upPrice)}",
                         fontSize = 20.sp,
                         fontWeight = FontWeight.Bold,
-                        fontFamily = pretendard,
+                        fontFamily = Pretendard,
                         style = TextStyle(letterSpacing = (-0.2).sp),
                     )
                 }
@@ -311,7 +311,7 @@ fun AuctionPage(auctionViewModel: AuctionViewModel = viewModel()) {
                 Text(
                     text = "입찰 포기하기",
                     color = Color.White,
-                    fontFamily = pretendard,
+                    fontFamily = Pretendard,
                     fontWeight = FontWeight.Bold,
                     style = TextStyle(letterSpacing = (-0.2).sp),
                     fontSize = 15.sp

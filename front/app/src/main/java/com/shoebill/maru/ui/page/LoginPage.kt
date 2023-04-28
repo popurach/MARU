@@ -22,12 +22,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.airbnb.lottie.compose.LottieAnimation
-import com.airbnb.lottie.compose.LottieCompositionSpec
-import com.airbnb.lottie.compose.LottieConstants
-import com.airbnb.lottie.compose.rememberLottieComposition
 import com.shoebill.maru.R
 import com.shoebill.maru.service.LoginViewModel
+import com.shoebill.maru.ui.component.LottieOwl
 import com.shoebill.maru.viewmodel.NavigateViewModel
 
 
