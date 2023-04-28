@@ -1,7 +1,11 @@
 package com.bird.maru.domain.model.type;
 
+import com.bird.maru.domain.converter.UrlConverter;
+import java.io.UncheckedIOException;
+import java.net.MalformedURLException;
 import java.net.URL;
 import javax.persistence.Column;
+import javax.persistence.Convert;
 import javax.persistence.Embeddable;
 import javax.validation.constraints.NotNull;
 import lombok.AccessLevel;
@@ -21,12 +25,24 @@ import lombok.ToString;
 @EqualsAndHashCode
 public class Image {
 
-    @Column(name = "saved_path")
+    @Column(name = "image_saved_path")
     @NotNull
     private String savedPath;
 
     @Column(name = "image_url")
     @NotNull
-    private URL imageUrl;
+    @Convert(converter = UrlConverter.class)
+    private URL url;
+
+    public static Image getDefaultMemberProfile() {
+        try {
+            return Image.builder()
+                        .savedPath("images/members/default_profile.png")
+                        .url(new URL("https://maruofbucket.s3.ap-northeast-2.amazonaws.com/images/members/default_profile.png"))
+                        .build();
+        } catch (MalformedURLException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
 
 }

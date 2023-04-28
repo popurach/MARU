@@ -4,9 +4,21 @@ spring:
     group:
       local:
         - s3-local
+        - db-local
+        - global-dev
+        - security-dev
       dev:
         - s3-server
+        - db-dev
+        - global-dev
+        - security-dev
       prod:
         - s3-server
+        - db-prod
+        - global-prod
+        - security-prod
     include:
       - s3
+      - db
+      - global
+      - security
