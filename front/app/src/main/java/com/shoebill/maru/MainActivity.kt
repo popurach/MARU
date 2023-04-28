@@ -1,8 +1,5 @@
 package com.shoebill.maru
 
-import android.content.BroadcastReceiver
-import android.content.Context
-import android.content.Intent
 import android.content.IntentFilter
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -22,7 +19,6 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -31,6 +27,7 @@ import com.shoebill.maru.ui.page.LoginPage
 import com.shoebill.maru.ui.page.MainPage
 import com.shoebill.maru.ui.page.NoticePage
 import com.shoebill.maru.ui.theme.MaruTheme
+import com.shoebill.maru.util.FcmMessageReceiver
 import com.shoebill.maru.util.PreferenceUtil
 import com.shoebill.maru.viewmodel.MapViewModel
 import com.shoebill.maru.viewmodel.NavigateViewModel
@@ -44,29 +41,19 @@ class MainActivity : ComponentActivity() {
     @Inject
     lateinit var prefUtil: PreferenceUtil
     var noticeViewModel: NoticeViewModel? = null
+    var fcmMessageReceiver: FcmMessageReceiver? = null
 
-    private val noticeReceiver = object : BroadcastReceiver() {
-        override fun onReceive(context: Context?, intent: Intent?) {
-            intent?.let {
-                noticeViewModel?.newNoticeArrived()
-            }
-        }
-    }
-
-    override fun onStart() {
-        super.onStart()
-        LocalBroadcastManager.getInstance(this)
-            .registerReceiver(noticeReceiver, IntentFilter("FCM_MESSAGE_EVENT"))
-    }
-
-    override fun onStop() {
-        super.onStop()
-        LocalBroadcastManager.getInstance(this).unregisterReceiver(noticeReceiver)
+    override fun onDestroy() {
+        super.onDestroy()
+        unregisterReceiver(fcmMessageReceiver)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         noticeViewModel = ViewModelProvider(this)[NoticeViewModel::class.java]
+        fcmMessageReceiver = FcmMessageReceiver(noticeViewModel!!)
+        registerReceiver(fcmMessageReceiver, IntentFilter("android.intent.action.FCM_MESSAGE"))
+
         WindowCompat.setDecorFitsSystemWindows(window, false)
 
         setContent {
@@ -89,7 +76,6 @@ class MainActivity : ComponentActivity() {
 fun MyApp(
     navController: NavHostController = rememberNavController(),
     startDestination: String = "main",
-    noticeViewModel: NoticeViewModel = hiltViewModel()
 ) {
     val viewModelStoreOwner = checkNotNull(LocalViewModelStoreOwner.current) {
         "No ViewModelStoreOwner was provided via LocalViewModelStoreOwner"
@@ -117,7 +103,9 @@ fun MyApp(
         }
 
         composable("notice") {
-            NoticePage(navController = navController)
+            CompositionLocalProvider(LocalViewModelStoreOwner provides viewModelStoreOwner) {
+                NoticePage(navController = navController)
+            }
         }
     }
 }

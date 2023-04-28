@@ -23,7 +23,7 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
         // TODO(developer): Handle FCM messages here.
         // Not getting messages here? See why this may be: https://goo.gl/39bRNJ
         Log.d(TAG, "From: ${remoteMessage.from}")
-        sendBroadcast(Intent("FCM_MESSAGE_EVENT"))
+        sendBroadcast(Intent("android.intent.action.FCM_MESSAGE"))
 
         // Check if message contains a data payload.
         if (remoteMessage.data.isNotEmpty()) {
@@ -96,8 +96,8 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
         val channelId = "maru_channel"
         val defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
         val notificationBuilder = NotificationCompat.Builder(this, channelId)
-            .setContentTitle("My notification")
-            .setContentText("Hello World!")
+            .setContentTitle("MARU 에서 알립니다!")
+            .setContentText(messageBody)
             .setAutoCancel(true)
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
             .setSound(defaultSoundUri)
