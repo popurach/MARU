@@ -52,6 +52,9 @@ android {
             excludes += '/META-INF/{AL2.0,LGPL2.1}'
         }
     }
+    kapt {
+        correctErrorTypes true
+    }
 }
 
 dependencies {
@@ -116,8 +119,4 @@ dependencies {
     implementation "com.patrykandpatrick.vico:views:1.6.5"
     implementation "com.patrykandpatrick.vico:compose-m2:1.6.5"
     implementation "com.patrykandpatrick.vico:compose-m3:1.6.5"
-}
-
-kapt {
-    correctErrorTypes true
 }

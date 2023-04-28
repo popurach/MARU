@@ -22,7 +22,6 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.shoebill.maru.R
 import com.shoebill.maru.ui.component.MapboxScreen
 import com.shoebill.maru.ui.component.common.FabCamera
 import com.shoebill.maru.ui.component.searchbar.SearchBar
@@ -40,7 +39,7 @@ fun MainPage(
 ) {
     memberViewModel.getMemberInfo()
 
-    val scaffoldState = rememberScaffoldState()
+    val scaffoldState = rememberBottomSheetScaffoldState()
     val isDrawerOpen = drawerViewModel.isOpen.observeAsState(initial = false)
     LaunchedEffect(isDrawerOpen.value) {
         if (isDrawerOpen.value) {
