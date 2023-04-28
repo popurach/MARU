@@ -20,12 +20,15 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.shoebill.maru.R
 import com.shoebill.maru.ui.component.MapboxScreen
 import com.shoebill.maru.ui.component.common.FabCamera
 import com.shoebill.maru.ui.component.searchbar.SearchBar
 import com.shoebill.maru.viewmodel.DrawerViewModel
 import com.shoebill.maru.viewmodel.MapViewModel
+import com.shoebill.maru.viewmodel.MemberViewModel
 
 @OptIn(ExperimentalMaterialApi::class)
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
@@ -33,9 +36,11 @@ import com.shoebill.maru.viewmodel.MapViewModel
 fun MainPage(
     mapViewModel: MapViewModel = viewModel(),
     drawerViewModel: DrawerViewModel = viewModel(),
+    memberViewModel: MemberViewModel = hiltViewModel()
 ) {
-    val scaffoldState = rememberBottomSheetScaffoldState()
-//    val scaffoldState = rememberScaffoldState()
+    memberViewModel.getMemberInfo()
+
+    val scaffoldState = rememberScaffoldState()
     val isDrawerOpen = drawerViewModel.isOpen.observeAsState(initial = false)
     LaunchedEffect(isDrawerOpen.value) {
         if (isDrawerOpen.value) {

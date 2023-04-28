@@ -25,6 +25,7 @@ android {
         }
 
         buildConfigField "String", "KAKAO_NATIVE_APP_KEY", properties['KAKAO_NATIVE_APP_KEY']
+        buildConfigField "String", "BASE_URL", properties['BASE_URL']
     }
 
     buildTypes {
@@ -109,6 +110,12 @@ dependencies {
 
     // lottie
     implementation "com.airbnb.android:lottie-compose:4.2.0"
+
+    // vico chart
+    implementation "com.patrykandpatrick.vico:compose:1.6.5"
+    implementation "com.patrykandpatrick.vico:views:1.6.5"
+    implementation "com.patrykandpatrick.vico:compose-m2:1.6.5"
+    implementation "com.patrykandpatrick.vico:compose-m3:1.6.5"
 }
 
 kapt {

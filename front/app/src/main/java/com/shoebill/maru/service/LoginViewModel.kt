@@ -2,20 +2,47 @@ package com.shoebill.maru.service
 
 import android.content.Context
 import android.util.Log
+import androidx.lifecycle.ViewModel
+import androidx.navigation.NavHostController
 import com.kakao.sdk.auth.model.OAuthToken
 import com.kakao.sdk.common.model.ClientError
 import com.kakao.sdk.common.model.ClientErrorCause
 import com.kakao.sdk.user.UserApiClient
-import com.shoebill.maru.model.ApiInstance
+import com.shoebill.maru.model.repository.MemberRepository
+import com.shoebill.maru.util.PreferenceUtil
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.runBlocking
+import javax.inject.Inject
 
-class Login {
-    val TAG = "LOGIN"
+@HiltViewModel
+class LoginViewModel @Inject constructor(
+    private val prefUtil: PreferenceUtil,
+    private val memberRepository: MemberRepository,
+) : ViewModel() {
+    private val TAG = "LOGIN"
+    private fun kakaoApiLogin(token: OAuthToken) = runBlocking {
+        val response: retrofit2.Response<Unit> =
+            memberRepository.login("KAKAO ${token.accessToken}")
+        if (response.isSuccessful) {
+            val accessToken = response.headers()["access-token"]
+            val refreshToken = response.headers()["refresh-token"]
 
-    fun kakaoLogin(context: Context) {
+            prefUtil.setString("accessToken", accessToken!!)
+            Log.d("LOGIN", "accessToken -> $accessToken") // backend 테스트 용으로 남겨둠
+            prefUtil.setString("refreshToken", refreshToken!!)
+            Log.d("LOGIN", "refreshToken -> $refreshToken")
+
+            true
+        } else {
+            false
+        }
+    }
+
+    fun kakaoLogin(context: Context, navigator: NavHostController?) {
 
         // 카카오계정으로 로그인 공통 callback 구성
         // 카카오톡으로 로그인 할 수 없어 카카오계정으로 로그인할 경우 사용됨
+        var isSuccess: Boolean
         val callback: (OAuthToken?, Throwable?) -> Unit = { token, error ->
             if (error != null) {
                 Log.e(TAG, "카카오 계정으로 로그인 실패", error)
@@ -23,19 +50,9 @@ class Login {
                 Log.i(TAG, "카카오 계정으로 로그인 성공 ${token.accessToken}")
 
                 // back end 로그인 API 호출부분
-                runBlocking {
-                    val response: retrofit2.Response<Unit> =
-                        ApiInstance.authApi.login("KAKAO ${token.accessToken}")
-                    if (response.isSuccessful) {
-                        val accessToken = response.headers().get("access-token")
-                        val refreshToken = response.headers().get("refresh-token")
-
-                        Log.d(TAG, "retrofit 통신 성공 -> accessToken :$accessToken")
-                        Log.d(TAG, "retrofit 통신 성공 -> refreshToken :$refreshToken")
-                    } else {
-                        Log.d(TAG, "retrofit 로그인 실패 -> " + response.errorBody())
-                    }
-                }
+                isSuccess = kakaoApiLogin(token)
+                if (isSuccess)
+                    navigator?.navigate("main")
             }
         }
 
@@ -56,6 +73,9 @@ class Login {
                     Log.i(TAG, "카카오톡으로 로그인 성공 ${token.accessToken}")
 
                     //back end 로그인 API 호출 부분
+                    isSuccess = kakaoApiLogin(token)
+                    if (isSuccess)
+                        navigator?.navigate("main")
                 }
             }
         } else {
