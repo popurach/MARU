@@ -16,6 +16,7 @@ import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.Icon
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -30,6 +31,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.patrykandpatrick.vico.compose.chart.Chart
 import com.patrykandpatrick.vico.compose.chart.line.lineChart
 import com.patrykandpatrick.vico.compose.chart.line.lineSpec
@@ -38,6 +40,8 @@ import com.patrykandpatrick.vico.core.chart.values.AxisValuesOverrider
 import com.patrykandpatrick.vico.core.entry.entryModelOf
 import com.shoebill.maru.R
 import com.shoebill.maru.ui.theme.pretendard
+import com.shoebill.maru.viewmodel.AuctionViewModel
+import java.text.DecimalFormat
 
 @Composable
 fun GradientButton(
@@ -72,9 +76,11 @@ fun GradientButton(
 }
 
 @Composable
-fun AuctionPage() {
+fun AuctionPage(auctionViewModel: AuctionViewModel = viewModel()) {
     val chartEntryModel = entryModelOf(1f, 3f, 4f, 7f, 8f, 11f)
     val gradient = Brush.horizontalGradient(listOf(Color(0xFF6039DF), Color(0xFFA14AB7)))
+    val bid = auctionViewModel.bid.observeAsState()
+    val dec = DecimalFormat("#,###")
 
     Column(
         modifier = Modifier
@@ -103,7 +109,7 @@ fun AuctionPage() {
         }
         Text(
             modifier = Modifier
-                .padding(top = 40.dp)
+                .padding(top = 30.dp)
                 .graphicsLayer(alpha = 0.99f)
                 .drawWithCache {
                     onDrawWithContent {
@@ -160,7 +166,7 @@ fun AuctionPage() {
         )
         Text(
             modifier = Modifier.padding(bottom = 15.dp),
-            text = "$ 23,000",
+            text = "$ ${dec.format(bid.value)}",
             fontSize = 22.sp,
             fontWeight = FontWeight.Bold
         )
@@ -168,10 +174,11 @@ fun AuctionPage() {
             horizontalArrangement = Arrangement.spacedBy(20.dp)
         ) {
             Button(
-                onClick = { /*TODO*/ },
+                onClick = { auctionViewModel.decreaseBid() },
+                enabled = auctionViewModel.downPrice != 22000,
                 modifier = Modifier
                     .shadow(
-                        elevation = 10.dp,
+                        elevation = if (auctionViewModel.downPrice != 22000) 10.dp else 0.1.dp,
                         shape = RoundedCornerShape(28.dp),
                     )
                     .size(140.dp),
@@ -182,7 +189,11 @@ fun AuctionPage() {
                         modifier = Modifier
                             .padding(bottom = 7.dp)
                             .clip(RoundedCornerShape(999.dp))
-                            .background(Color(0xFFE8E6FE))
+                            .background(
+                                if (auctionViewModel.downPrice != 22000) Color(0xFFE8E6FE) else Color(
+                                    0xFFE9E9E9
+                                )
+                            )
                             .size(38.dp),
                         contentAlignment = Alignment.Center
                     ) {
@@ -193,15 +204,17 @@ fun AuctionPage() {
                         )
                     }
                     Text(
-                        text = "1,000",
-                        color = Color(0xFF424242),
+                        text = dec.format(auctionViewModel.unit),
+                        color = if (auctionViewModel.downPrice != 22000) Color(0xFF424242) else Color(
+                            0xFF949494
+                        ),
                         fontSize = 15.sp,
                         fontWeight = FontWeight.Light,
                         fontFamily = pretendard,
                         style = TextStyle(letterSpacing = (-0.2).sp),
                     )
                     Text(
-                        modifier = Modifier
+                        modifier = if (auctionViewModel.downPrice != 22000) Modifier
                             .graphicsLayer(alpha = 0.99f)
                             .drawWithCache {
                                 onDrawWithContent {
@@ -216,8 +229,8 @@ fun AuctionPage() {
                                         blendMode = BlendMode.SrcAtop
                                     )
                                 }
-                            },
-                        text = "$ 22,000",
+                            } else Modifier,
+                        text = "$ ${dec.format(auctionViewModel.downPrice)}",
                         fontSize = 20.sp,
                         fontWeight = FontWeight.Bold,
                         fontFamily = pretendard,
@@ -226,7 +239,7 @@ fun AuctionPage() {
                 }
             }
             Button(
-                onClick = { /*TODO*/ },
+                onClick = { auctionViewModel.increaseBid() },
                 modifier = Modifier
                     .shadow(
                         elevation = 10.dp,
@@ -251,7 +264,7 @@ fun AuctionPage() {
                         )
                     }
                     Text(
-                        text = "1,000",
+                        text = dec.format(auctionViewModel.unit),
                         color = Color(0xFF424242),
                         fontSize = 15.sp,
                         fontWeight = FontWeight.Light,
@@ -275,7 +288,7 @@ fun AuctionPage() {
                                     )
                                 }
                             },
-                        text = "$ 24,000",
+                        text = "$ ${dec.format(auctionViewModel.upPrice)}",
                         fontSize = 20.sp,
                         fontWeight = FontWeight.Bold,
                         fontFamily = pretendard,
@@ -285,7 +298,7 @@ fun AuctionPage() {
             }
         }
         Row(
-            modifier = Modifier.padding(top = 25.dp, start = 20.dp, end = 20.dp),
+            modifier = Modifier.padding(top = 25.dp, start = 25.dp, end = 25.dp),
             horizontalArrangement = Arrangement.spacedBy(10.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
