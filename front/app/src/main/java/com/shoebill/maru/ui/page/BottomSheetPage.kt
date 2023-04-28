@@ -35,7 +35,7 @@ fun BottomSheetPage(
         val viewModelStoreOwner = checkNotNull(LocalViewModelStoreOwner.current) {
             "No ViewModelStoreOwner was provided via LocalViewModelStoreOwner"
         }
-        NavHost(navController = navController, startDestination = "landmark/first") {
+        NavHost(navController = navController, startDestination = "spot/list") {
             composable("spot/list") {
                 CompositionLocalProvider(
                     LocalViewModelStoreOwner provides viewModelStoreOwner
