@@ -13,14 +13,14 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @Slf4j
-@RequestMapping("/api/notice")
+@RequestMapping("/api/notices")
 @RequiredArgsConstructor
 public class NoticeController {
 
     private final NoticeService noticeService;
 
     @GetMapping
-    public Slice<Notice> findNotice(@PageableDefault(size = 15) Pageable pageable) {
+    public Slice<Notice> findNotices(@PageableDefault(size = 15) Pageable pageable) {
         return noticeService.findByMemberId(1L, pageable);
     }
 
