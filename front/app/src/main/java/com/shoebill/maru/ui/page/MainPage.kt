@@ -4,12 +4,10 @@ import android.annotation.SuppressLint
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Button
 import androidx.compose.material.FabPosition
 import androidx.compose.material.FloatingActionButton
 import androidx.compose.material.Icon
 import androidx.compose.material.Scaffold
-import androidx.compose.material.Text
 import androidx.compose.material.rememberScaffoldState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -28,22 +26,24 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
 import com.shoebill.maru.R
 import com.shoebill.maru.ui.component.MapboxScreen
 import com.shoebill.maru.ui.component.searchbar.SearchBar
 import com.shoebill.maru.viewmodel.DrawerViewModel
 import com.shoebill.maru.viewmodel.MapViewModel
+import com.shoebill.maru.viewmodel.MemberViewModel
 
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @Composable
 fun MainPage(
     mapViewModel: MapViewModel = viewModel(),
     drawerViewModel: DrawerViewModel = viewModel(),
-    navController: NavHostController = rememberNavController(),
+    memberViewModel: MemberViewModel = hiltViewModel()
 ) {
+    memberViewModel.getMemberInfo()
+
     val scaffoldState = rememberScaffoldState()
     val isDrawerOpen = drawerViewModel.isOpen.observeAsState(initial = false)
     LaunchedEffect(isDrawerOpen.value) {

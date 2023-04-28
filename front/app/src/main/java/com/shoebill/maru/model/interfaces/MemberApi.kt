@@ -1,8 +1,8 @@
 package com.shoebill.maru.model.interfaces
 
+import com.shoebill.maru.model.data.Member
 import retrofit2.http.GET
 import retrofit2.http.Header
-import retrofit2.http.Query
 
 interface MemberApi {
 
@@ -11,13 +11,6 @@ interface MemberApi {
         @Header("Access-Token") token: String,
     ): retrofit2.Response<Unit>
 
-    @GET("api/auth/access-token")
-    fun refresh(
-        @Header("Authorization") token: String
-    ): retrofit2.Response<Unit>
-
-    @GET("api/notices")
-    suspend fun getNotices(
-        @Query("page") page: Int
-    ): retrofit2.Response<String?>
+    @GET("api/members/my")
+    suspend fun getMemberInfo(): retrofit2.Response<Member>
 }

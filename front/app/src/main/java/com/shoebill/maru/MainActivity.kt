@@ -38,7 +38,7 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        prefUtil.clear()
+        
         WindowCompat.setDecorFitsSystemWindows(window, false)
         setContent {
             MaruTheme {
@@ -75,7 +75,7 @@ fun MyApp(
             CompositionLocalProvider(LocalViewModelStoreOwner provides viewModelStoreOwner) {
                 val viewModel = hiltViewModel<MapViewModel>()
                 viewModel.initFocusManager(LocalFocusManager.current)
-                MainPage(mapViewModel = viewModel, navController = navigateViewModel.navigator!!)
+                MainPage(mapViewModel = viewModel)
             }
         }
         /** 이곳에 화면 추가 **/

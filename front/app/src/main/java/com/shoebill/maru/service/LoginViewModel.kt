@@ -28,7 +28,9 @@ class LoginViewModel @Inject constructor(
             val refreshToken = response.headers()["refresh-token"]
 
             prefUtil.setString("accessToken", accessToken!!)
+            Log.d("LOGIN", "accessToken -> $accessToken") // backend 테스트 용으로 남겨둠
             prefUtil.setString("refreshToken", refreshToken!!)
+            Log.d("LOGIN", "refreshToken -> $refreshToken")
 
             true
         } else {

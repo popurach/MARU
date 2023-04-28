@@ -10,7 +10,7 @@ class MemberRepository @Inject constructor(
 ) {
     suspend fun login(accessToken: String) = memberApi.login(accessToken)
 
-    suspend fun getNotices(page: Int = 0) = memberApi.getNotices(page)
+    suspend fun getMemberInfo() = memberApi.getMemberInfo()
 
     fun logout() {
         prefUtil.clear()
