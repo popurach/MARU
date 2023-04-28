@@ -57,34 +57,63 @@ fun LoginPage(
             Column(
                 modifier = Modifier.padding(top = 259.dp, bottom = 50.dp)
             ) {
-                Image(
-                    modifier = Modifier
-                        .clickable {
-                            loginViewModel.kakaoLogin(
-                                context,
-                                navigateViewModel.navigator
-                            )
-                        }
-                        .padding(start = 40.dp, end = 40.dp, top = 4.dp, bottom = 4.dp),
-                    painter = painterResource(id = R.drawable.kakao_login),
-                    contentDescription = "카카오 로그인"
-                )
-                Image(
-                    modifier = Modifier
-                        .clickable { /*TODO*/ }
-                        .padding(start = 40.dp, end = 40.dp, top = 4.dp, bottom = 4.dp),
-                    painter = painterResource(id = R.drawable.naver_login),
-                    contentDescription = "네이버 로그인"
-                )
-                Image(
-                    modifier = Modifier
-                        .clickable { /*TODO*/ }
-                        .padding(start = 40.dp, end = 40.dp, top = 4.dp, bottom = 4.dp)
-                        .background(color = Color.White)
-                        .border(width = 0.5.dp, color = Color(0xFFEAEDEF)),
-                    painter = painterResource(id = R.drawable.google_login),
-                    contentDescription = "구글 로그인"
-                )
+                Box(
+                    modifier = Modifier.padding(
+                        start = 40.dp,
+                        end = 40.dp,
+                        top = 4.dp,
+                        bottom = 4.dp
+                    )
+                ) {
+                    Image(
+                        modifier = Modifier
+                            .clickable {
+                                loginViewModel.kakaoLogin(
+                                    context,
+                                    navigateViewModel.navigator
+                                )
+                            },
+                        painter = painterResource(id = R.drawable.kakao_login),
+                        contentDescription = "카카오 로그인"
+                    )
+                }
+                Box(
+                    modifier = Modifier.padding(
+                        start = 40.dp,
+                        end = 40.dp,
+                        top = 4.dp,
+                        bottom = 4.dp
+                    )
+                ) {
+                    Image(
+                        modifier = Modifier
+                            .clickable {
+                                loginViewModel.naverLogin(
+                                    context,
+                                    navigateViewModel.navigator!!
+                                )
+                            },
+                        painter = painterResource(id = R.drawable.naver_login),
+                        contentDescription = "네이버 로그인"
+                    )
+                }
+                Box(
+                    modifier = Modifier.padding(
+                        start = 40.dp,
+                        end = 40.dp,
+                        top = 4.dp,
+                        bottom = 4.dp
+                    )
+                ) {
+                    Image(
+                        modifier = Modifier
+                            .clickable { /*TODO*/ }
+                            .background(color = Color.White)
+                            .border(width = 0.5.dp, color = Color(0xFFEAEDEF)),
+                        painter = painterResource(id = R.drawable.google_login),
+                        contentDescription = "구글 로그인"
+                    )
+                }
             }
         }
         Text(
