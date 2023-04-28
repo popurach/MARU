@@ -23,6 +23,7 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
         // TODO(developer): Handle FCM messages here.
         // Not getting messages here? See why this may be: https://goo.gl/39bRNJ
         Log.d(TAG, "From: ${remoteMessage.from}")
+        sendBroadcast(Intent("FCM_MESSAGE_EVENT"))
 
         // Check if message contains a data payload.
         if (remoteMessage.data.isNotEmpty()) {

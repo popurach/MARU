@@ -1,5 +1,7 @@
 package com.shoebill.maru.viewmodel
 
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
@@ -15,7 +17,17 @@ import javax.inject.Inject
 class NoticeViewModel @Inject constructor(
     private val noticeRepository: NoticeRepository
 ) : ViewModel() {
-    // 전역적으로 관리 되어야 하는거?
+    private val _isNew = MutableLiveData<Boolean>()
+    val isNew: LiveData<Boolean> get() = _isNew
+
+    fun newNoticeArrived() {
+        _isNew.value = true
+    }
+
+    fun readNotice() {
+        _isNew.value = false
+    }
+
     fun getNoticePagination(): Flow<PagingData<Notice>> {
         return Pager(PagingConfig(pageSize = 15)) {
             NoticeSource(noticeRepository)

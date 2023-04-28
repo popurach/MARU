@@ -21,8 +21,11 @@ fun NoticeHeader(
     navController: NavHostController
 ) {
     val image = painterResource(R.drawable.arrow_back)
-    Box (
-        modifier = Modifier.padding(horizontal = 15.dp, vertical = 15.dp).fillMaxWidth(),
+    Box(
+        modifier = Modifier
+            .padding(horizontal = 15.dp, vertical = 15.dp)
+            .fillMaxWidth()
+            .padding(top = 20.dp),
     ) {
 
         Text(
@@ -34,7 +37,8 @@ fun NoticeHeader(
         Image(
             painter = image,
             contentDescription = null,
-            modifier = Modifier.clickable { navController.navigateUp() }
+            modifier = Modifier
+                .clickable { navController.navigateUp() }
                 .align(Alignment.CenterStart)
         )
     }

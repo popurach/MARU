@@ -33,15 +33,18 @@ import com.shoebill.maru.R
 import com.shoebill.maru.model.data.Member
 import com.shoebill.maru.viewmodel.MemberViewModel
 import com.shoebill.maru.viewmodel.NavigateViewModel
+import com.shoebill.maru.viewmodel.NoticeViewModel
 
 @Composable
 fun DrawerHeader(
     memberViewModel: MemberViewModel = hiltViewModel(),
-    navigateViewModel: NavigateViewModel = viewModel()
+    navigateViewModel: NavigateViewModel = viewModel(),
+    noticeViewModel: NoticeViewModel = hiltViewModel()
 ) {
     val iconSize = 18.dp
     val fontSize = 12.sp
     val memberInfo = memberViewModel.memberInfo.observeAsState(initial = Member())
+    val isNewMessage = noticeViewModel.isNew.observeAsState(false)
 
     Box(
         Modifier
@@ -49,7 +52,7 @@ fun DrawerHeader(
             .padding(end = 20.dp), contentAlignment = Alignment.TopEnd
     ) {
         Icon(
-            painterResource(id = R.drawable.alert),
+            painterResource(id = if (isNewMessage.value) R.drawable.alert else R.drawable.notice_point_icon),
             "",
             modifier = Modifier
                 .size(iconSize)

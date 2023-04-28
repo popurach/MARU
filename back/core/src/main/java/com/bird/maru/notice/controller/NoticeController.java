@@ -26,7 +26,7 @@ public class NoticeController {
 
     @GetMapping
     public List<NoticeResponseDto> findNotice(@PageableDefault(size = 15) Pageable pageable, @AuthenticationPrincipal CustomUserDetails member) {
-        final Slice<Notice> notices = noticeService.findByMemberId(1L, pageable);
+        final Slice<Notice> notices = noticeService.findByMemberId(2L, pageable);
 
         return notices.stream().map(NoticeResponseDto::new).collect(Collectors.toList());
     }
