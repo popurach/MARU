@@ -25,6 +25,7 @@ android {
         }
 
         buildConfigField "String", "KAKAO_NATIVE_APP_KEY", properties['KAKAO_NATIVE_APP_KEY']
+        buildConfigField "String", "BASE_URL", properties['BASE_URL']
     }
 
     buildTypes {

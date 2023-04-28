@@ -72,7 +72,7 @@ public class SecurityConfig {
 
         // 인증/인가 설정 추가
         http.authorizeRequests(
-                request -> request.antMatchers("/health").permitAll()
+                request -> request.antMatchers("/api/health").permitAll()
                                   .anyRequest().authenticated()
         );
 

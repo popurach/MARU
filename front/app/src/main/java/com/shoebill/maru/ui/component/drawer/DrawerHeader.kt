@@ -11,6 +11,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.Icon
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -24,13 +25,20 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import com.shoebill.maru.R
+import com.shoebill.maru.model.data.Member
+import com.shoebill.maru.viewmodel.MemberViewModel
 
 @Composable
-fun DrawerHeader() {
+fun DrawerHeader(
+    memberViewModel: MemberViewModel = hiltViewModel()
+) {
     val iconSize = 18.dp
     val fontSize = 12.sp
+    val memberInfo = memberViewModel.memberInfo.observeAsState(initial = Member())
+
     Box(
         Modifier
             .fillMaxWidth()
@@ -50,7 +58,7 @@ fun DrawerHeader() {
 
     ) {
         AsyncImage(
-            model = "https://picsum.photos/id/237/200/300",
+            model = memberInfo.value.imageUrl,
             contentDescription = "Translated description of what the image contains",
             contentScale = ContentScale.Crop,
             modifier = Modifier
@@ -58,7 +66,7 @@ fun DrawerHeader() {
                 .clip(CircleShape)
         )
         // nickname
-        Text(text = "Shoebill", fontSize = 18.sp, fontWeight = FontWeight.Bold)
+        Text(text = memberInfo.value.nickname, fontSize = 18.sp, fontWeight = FontWeight.Bold)
         Row(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(5.dp)
@@ -68,7 +76,7 @@ fun DrawerHeader() {
                 contentDescription = "point",
                 tint = Color.Unspecified
             )
-            Text(text = "1,000,000,000", modifier = Modifier
+            Text(text = "${memberInfo.value.point}", modifier = Modifier
                 .graphicsLayer(alpha = 0.99f)
                 .drawWithCache {
                     onDrawWithContent {

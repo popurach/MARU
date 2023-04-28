@@ -25,20 +25,20 @@ import lombok.ToString;
 @EqualsAndHashCode
 public class Image {
 
-    @Column(name = "saved_path")
+    @Column(name = "image_saved_path")
     @NotNull
     private String savedPath;
 
     @Column(name = "image_url")
     @NotNull
     @Convert(converter = UrlConverter.class)
-    private URL imageUrl;
+    private URL url;
 
     public static Image getDefaultMemberProfile() {
         try {
             return Image.builder()
                         .savedPath("images/members/default_profile.png")
-                        .imageUrl(new URL("https://maruofbucket.s3.ap-northeast-2.amazonaws.com/images/members/default_profile.png"))
+                        .url(new URL("https://maruofbucket.s3.ap-northeast-2.amazonaws.com/images/members/default_profile.png"))
                         .build();
         } catch (MalformedURLException e) {
             throw new UncheckedIOException(e);
