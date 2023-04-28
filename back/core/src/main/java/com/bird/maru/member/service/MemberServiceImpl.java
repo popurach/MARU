@@ -8,6 +8,7 @@ import java.util.NoSuchElementException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 @Service
@@ -23,11 +24,11 @@ public class MemberServiceImpl implements MemberService {
         Member member = memberQueryRepository.findById(memberId)
                                              .orElseThrow(() -> new NoSuchElementException("회원을 찾을 수 없습니다."));
 
-        if (nickname != null) {
+        if (!StringUtils.hasText(nickname)) {
             member.updateNickname(nickname);
         }
 
-        if (image != null) {
+        if (image != null && !image.isEmpty()) {
             Image updatedImage = updateS3Image(image, member);
             member.updateImage(updatedImage);
         }
