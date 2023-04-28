@@ -30,6 +30,7 @@ public interface AuctionLogRepository extends JpaRepository<AuctionLog, Long> {
     @Query("SELECT al FROM AuctionLog al WHERE al.member.id = :memberId AND al.auction.landmark.id = :landmarkId")
     Optional<AuctionLog> findByLandmarkAndMember(@Param("memberId") Long memberId, @Param("landmarkId") Long landmarkId);
 
-    @Query("SELECT al FROM AuctionLog al WHERE al.auction.landmark.id = :landmarkId AND al.price = (SELECT MAX(price) FROM AuctionLog WHERE AuctionLog.auction.landmark.id = :landmarkId)")
+    @Query("SELECT al FROM AuctionLog al WHERE al.auction.landmark.id = :landmarkId AND al.price = (SELECT MAX(al2.price) FROM AuctionLog al2 WHERE al2.auction.landmark.id = :landmarkId)")
     Optional<AuctionLog> findFirstNByLandmarkId(@Param("landmarkId") Long landmarkId);
+
 }
