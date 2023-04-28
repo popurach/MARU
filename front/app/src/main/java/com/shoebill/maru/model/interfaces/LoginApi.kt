@@ -1,4 +1,4 @@
-package com.shoebill.maru.model.`interface`
+package com.shoebill.maru.model.interfaces
 
 import com.shoebill.maru.model.data.UserInfo
 import kotlinx.coroutines.flow.Flow

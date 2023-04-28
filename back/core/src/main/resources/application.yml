@@ -4,22 +4,21 @@ spring:
     group:
       local:
         - s3-local
-        - db-dev
+        - db-local
         - global-dev
-        - jwt-dev
+        - security-dev
       dev:
         - s3-server
         - db-dev
         - global-dev
-        - jwt-dev
+        - security-dev
       prod:
         - s3-server
         - db-prod
         - global-prod
-        - jwt-prod
+        - security-prod
     include:
       - s3
       - db
       - global
-      - jwt
       - security
