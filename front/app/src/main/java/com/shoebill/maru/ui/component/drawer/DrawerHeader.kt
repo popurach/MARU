@@ -39,7 +39,7 @@ import com.shoebill.maru.viewmodel.NoticeViewModel
 fun DrawerHeader(
     memberViewModel: MemberViewModel = hiltViewModel(),
     navigateViewModel: NavigateViewModel = viewModel(),
-    noticeViewModel: NoticeViewModel = hiltViewModel()
+    noticeViewModel: NoticeViewModel = hiltViewModel(),
 ) {
     val iconSize = 18.dp
     val fontSize = 12.sp
@@ -52,11 +52,14 @@ fun DrawerHeader(
             .padding(end = 20.dp), contentAlignment = Alignment.TopEnd
     ) {
         Icon(
-            painterResource(id = if (isNewMessage.value) R.drawable.alert else R.drawable.notice_point_icon),
+            painterResource(id = if (isNewMessage.value) R.drawable.alert_new else R.drawable.alert),
             "",
             modifier = Modifier
                 .size(iconSize)
-                .clickable { navigateViewModel.navigator?.navigate("notice") }
+                .clickable {
+                    noticeViewModel.readNotice()
+                    navigateViewModel.navigator?.navigate("notice")
+                }
         )
     }
     Column(
