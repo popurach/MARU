@@ -31,6 +31,14 @@ public class MemberController {
         );
     }
 
+    @PostMapping("/notice-token")
+    public void registerNoticeToken(
+            @AuthenticationPrincipal CustomUserDetails member,
+            @RequestBody String noticeToken
+    ) {
+        memberService.registerNoticeToken(member.getId(), noticeToken);
+    }
+
     @PostMapping("/my")
     public MemberInfoDto modifyMemberInfo(
             @AuthenticationPrincipal CustomUserDetails member,
