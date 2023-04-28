@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 
+import com.bird.maru.cloud.aws.s3.service.AwsS3Service;
 import com.bird.maru.common.config.MockMvcConfig;
 import com.bird.maru.common.util.JwtUtil;
 import com.bird.maru.domain.model.entity.Member;
@@ -50,6 +51,9 @@ class MemberControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
+
+    @Autowired
+    private AwsS3Service awsS3Service;
 
     @BeforeEach
     void beforeEach() {
@@ -133,6 +137,7 @@ class MemberControllerTest {
         MemberInfoDto actual = objectMapper.readValue(content, MemberInfoDto.class);
         testMember = memberQueryRepository.findAll().get(0);
         assertThat(actual).isEqualTo(mapper.toMemberInfoDto(testMember));
+        awsS3Service.deleteFile(testMember.getImage().getSavedPath());
     }
 
 }
