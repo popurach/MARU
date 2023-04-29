@@ -1,6 +1,8 @@
 package com.bird.maru.auction_log.service;
 
 import com.bird.maru.auction.repository.AuctionRepository;
+import com.bird.maru.auction_log.controller.dto.AuctionLogResponseDto;
+import com.bird.maru.auction_log.mapper.AuctionLogMapper;
 import com.bird.maru.auction_log.repository.AuctionLogRepository;
 import com.bird.maru.auction_log.repository.query.AuctionLogCustomQueryRepository;
 import com.bird.maru.common.exception.NotEnoughMoney;
@@ -11,8 +13,11 @@ import com.bird.maru.domain.model.entity.Landmark;
 import com.bird.maru.domain.model.entity.Member;
 import com.bird.maru.landmark.repository.LandmarkRepository;
 import com.bird.maru.member.repository.MemberRepository;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -144,6 +149,22 @@ public class AuctionLogServiceImpl implements AuctionLogService {
             int price = auctionLog.getPrice(); // 유찰자의 입찰 가격
             member.gainPoint(price);
         }
+    }
+
+    /**
+     * 해당 랜드마크 관련 최신 낙찰 데이터 10개 반환
+     *
+     * @Param 랜드마크 PK
+     */
+    @Override
+    public List<AuctionLogResponseDto> auctionRecord(Long landmarkId) {
+        List<AuctionLog> auctionLogList = auctionLogRepository.auctionRecord(landmarkId, PageRequest.of(0, 10));
+        List<AuctionLogResponseDto> auctionLogResponseDtoList = new ArrayList<>();
+
+        for (AuctionLog auctionLog : auctionLogList) {
+            auctionLogResponseDtoList.add(AuctionLogMapper.toAuctionResponseDto(auctionLog));
+        }
+        return auctionLogResponseDtoList;
     }
 
     private void biddingWithAuction(Auction auction, Member member, int price) {
