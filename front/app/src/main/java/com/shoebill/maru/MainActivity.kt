@@ -26,6 +26,7 @@ import androidx.navigation.compose.rememberNavController
 import com.shoebill.maru.ui.page.AuctionPage
 import com.shoebill.maru.ui.page.LoginPage
 import com.shoebill.maru.ui.page.MainPage
+import com.shoebill.maru.ui.page.MyPage
 import com.shoebill.maru.ui.page.NoticePage
 import com.shoebill.maru.ui.theme.MaruTheme
 import com.shoebill.maru.util.FcmMessageReceiver
@@ -112,6 +113,12 @@ fun MyApp(
         composable("auction") {
             CompositionLocalProvider(LocalViewModelStoreOwner provides viewModelStoreOwner) {
                 AuctionPage()
+            }
+        }
+
+        composable("mypage") {
+            CompositionLocalProvider(LocalViewModelStoreOwner provides viewModelStoreOwner) {
+                MyPage()
             }
         }
     }
