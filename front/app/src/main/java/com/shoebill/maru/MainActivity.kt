@@ -1,6 +1,7 @@
 package com.shoebill.maru
 
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.fillMaxSize
@@ -95,7 +96,13 @@ fun MyApp(
         }
         composable("camera") { backStackEntry ->
             CompositionLocalProvider(LocalViewModelStoreOwner provides viewModelStoreOwner) {
-                CameraPage()
+                CameraPage(onImageCaptured = { uri, fromGallery ->
+                    Log.d("CAMERA", "Image Uri Captured from Camera View")
+                    //Todo : use the uri as needed
+
+                }, onError = { imageCaptureException ->
+                    Log.d("CAMERA", "Image Capture Fail: $imageCaptureException ")
+                })
             }
         }
     }
