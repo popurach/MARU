@@ -13,7 +13,11 @@ node {
 
     stage('Copy Setting Files For Build') {
         print("yml, json 등의 설정 파일을 git에서 받아온 소스 코드에 복사")
-        sh "cp -rp /app/data/spring/conf ${srcPath}/${backSrcPath}/conf"
+        sh """
+            rm -rf ${srcPath}/${backSrcPath}/conf
+            mkdir -p ${srcPath}/${backSrcPath}/conf
+            cp -r /app/data/spring/conf/* ${srcPath}/${backSrcPath}/conf
+        """
     }
 
     stage('Find Deployed File') {
@@ -40,6 +44,7 @@ node {
         ).trim().toInteger()
 
         if (!isHealthy("${deployPath}/${greenPath}", greenCnt)) {
+            sh """docker-compose -f ${deployPath}/${greenPath}/docker-compose.yml down"""
             error('Spring Server의 Health Check 결과가 Unhealthy이므로 Pipeline을 종료합니다.')
         }
     }
