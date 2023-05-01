@@ -2,7 +2,10 @@ package com.bird.maru.common.util;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.DisplayName;
@@ -58,6 +61,23 @@ class TimeUtilTest {
         log.debug("startDate : {}\tendDate : {}", previousAuctionStartDate, previousAuctionEndDate);
         assertThat(previousAuctionStartDate).isBefore(previousAuctionEndDate);
         assertThat(ChronoUnit.DAYS.between(previousAuctionStartDate.toLocalDate(), previousAuctionEndDate.toLocalDate())).isEqualTo(6);
+    }
+
+    @Test
+    @DisplayName("다음날 자정 시간 테스트")
+    void nextMidNightTest() {
+        // given
+        LocalDateTime midnight = LocalDate.now().plusDays(1).atTime(LocalTime.MIDNIGHT);
+        long expirationInSecs = midnight.toEpochSecond(ZoneOffset.UTC) - LocalDateTime.now().toEpochSecond(ZoneOffset.UTC);
+
+        // when
+        log.debug("{} {}", midnight, expirationInSecs);
+
+        // then
+        assertThat(midnight).isAfter(LocalDateTime.now());
+        assertThat(LocalDateTime.now().plusSeconds(expirationInSecs).getHour()).isEqualTo(midnight.getHour());
+        assertThat(LocalDateTime.now().plusSeconds(expirationInSecs).getMinute()).isEqualTo(midnight.getMinute());
+        assertThat(LocalDateTime.now().plusSeconds(expirationInSecs).getSecond()).isEqualTo(midnight.getSecond());
     }
 
 }
