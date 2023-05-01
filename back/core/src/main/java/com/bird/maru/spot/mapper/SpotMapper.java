@@ -15,6 +15,7 @@ public interface SpotMapper {
                             .id(spot.getId())
                             .landmarkId(spot.getLandmark() != null ? spot.getLandmark().getId() : null)
                             .imageUrl(spot.getImage().getUrl().toString())
+                            .likeCount(spot.getLikeCount())
                             .tags(
                                     spot.getTags()
                                         .stream()

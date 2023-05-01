@@ -24,6 +24,8 @@ public class SpotSimpleDto {
 
     private String imageUrl;
 
+    private Integer likeCount;
+
     private List<Tag> tags;
 
     @Builder.Default
