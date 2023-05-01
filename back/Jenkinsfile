@@ -44,7 +44,7 @@ node {
         ).trim().toInteger()
 
         if (!isHealthy("${deployPath}/${greenPath}", greenCnt)) {
-            sh """docker-compose -f ${deployPath}/${greenPath}/docker-compose.yml down"""
+            sh "docker-compose -f ${deployPath}/${greenPath}/docker-compose.yml down"
             error('Spring Server의 Health Check 결과가 Unhealthy이므로 Pipeline을 종료합니다.')
         }
     }
