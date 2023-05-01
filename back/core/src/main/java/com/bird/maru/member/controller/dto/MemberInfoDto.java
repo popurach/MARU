@@ -16,6 +16,8 @@ import lombok.ToString;
 @EqualsAndHashCode
 public class MemberInfoDto {
 
+    private Long id;
+
     private String nickname;
 
     private Integer point;

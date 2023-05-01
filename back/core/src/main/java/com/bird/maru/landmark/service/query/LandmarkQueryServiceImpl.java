@@ -5,9 +5,11 @@ import com.bird.maru.domain.model.entity.Landmark;
 import com.bird.maru.landmark.repository.query.LandmarkQueryRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class LandmarkQueryServiceImpl implements LandmarkQueryService {
 
     private final LandmarkQueryRepository landmarkQueryRepository;
