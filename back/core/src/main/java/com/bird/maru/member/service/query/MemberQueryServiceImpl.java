@@ -15,7 +15,7 @@ public class MemberQueryServiceImpl implements MemberQueryService {
     private final MemberQueryRepository memberQueryRepository;
 
     @Override
-    public Member findMember(Long memberId) {
+    public Member findMember(Long memberId) throws ResourceNotFoundException {
         return memberQueryRepository.findById(memberId)
                                     .orElseThrow(() -> new ResourceNotFoundException("DB에서 데이터를 찾을 수 없습니다"));
     }
