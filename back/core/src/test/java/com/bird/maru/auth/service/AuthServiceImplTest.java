@@ -3,6 +3,7 @@ package com.bird.maru.auth.service;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import com.bird.maru.common.redis.RedisCacheKey;
 import com.bird.maru.auth.service.dto.CustomUserDetails;
 import java.util.Map;
 import org.junit.jupiter.api.DisplayName;
@@ -75,7 +76,9 @@ class AuthServiceImplTest {
     }
 
     private String createRedisKey(Long id) {
-        return AuthServiceImpl.REFRESH_TOKEN_PREFIX + id;
+        return RedisCacheKey.createKey(
+                RedisCacheKey.REFRESH_TOKEN_KEY, id
+        );
     }
 
 }
