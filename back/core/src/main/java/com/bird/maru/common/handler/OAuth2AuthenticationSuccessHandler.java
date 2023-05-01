@@ -47,7 +47,7 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
         redisTemplate.opsForValue()
                      .set(
                              RedisCacheKey.createKey(
-                                     RedisCacheKey.REFRESH_TOKEN_KEY, refreshToken
+                                     RedisCacheKey.REFRESH_TOKEN_KEY, member.getId()
                              ),
                              refreshToken,
                              jwtUtil.getRefreshTokenExpirationTime()
