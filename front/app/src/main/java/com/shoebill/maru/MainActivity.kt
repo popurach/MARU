@@ -28,6 +28,7 @@ import com.shoebill.maru.ui.page.LoginPage
 import com.shoebill.maru.ui.page.MainPage
 import com.shoebill.maru.ui.theme.MaruTheme
 import com.shoebill.maru.util.PreferenceUtil
+import com.shoebill.maru.viewmodel.CameraViewModel
 import com.shoebill.maru.viewmodel.MapViewModel
 import com.shoebill.maru.viewmodel.NavigateViewModel
 import dagger.hilt.android.AndroidEntryPoint
@@ -94,7 +95,9 @@ fun MyApp(
                 AuctionPage()
             }
         }
+
         composable("camera") { backStackEntry ->
+            val cameraViewModel: CameraViewModel = hiltViewModel()
             CompositionLocalProvider(LocalViewModelStoreOwner provides viewModelStoreOwner) {
                 CameraPage(onImageCaptured = { uri, fromGallery ->
                     Log.d("CAMERA", "Image Uri Captured from Camera View")
@@ -105,6 +108,11 @@ fun MyApp(
                 })
             }
         }
+//        composable("camera/capture") {
+//            CompositionLocalProvider(LocalViewModelStoreOwner provides viewModelStoreOwner) {
+//                CameraCapturedImage()
+//            }
+//        }
     }
 }
 

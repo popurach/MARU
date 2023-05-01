@@ -31,7 +31,7 @@ import kotlin.coroutines.suspendCoroutine
 fun CameraPreview(
     imageCapture: ImageCapture,
     lensFacing: Int = CameraSelector.LENS_FACING_BACK,
-    cameraUIAction: (CameraUIAction) -> Unit
+    cameraUIAction: () -> Unit
 ) {
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
@@ -60,7 +60,7 @@ fun CameraPreview(
 
         }
         IconButton(
-            onClick = { cameraUIAction(CameraUIAction.OnCameraClick) },
+            onClick = { cameraUIAction() },
             modifier = Modifier.align(Alignment.BottomCenter)
         ) {
             Icon(

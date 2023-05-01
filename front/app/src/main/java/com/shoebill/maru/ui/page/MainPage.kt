@@ -94,7 +94,10 @@ fun MainPage(
                     onClick = {
                         checkAndRequestPermissions(
                             context,
-                            arrayOf(Manifest.permission.CAMERA),
+                            arrayOf(
+                                Manifest.permission.CAMERA,
+                                Manifest.permission.ACCESS_FINE_LOCATION
+                            ),
                             launcherMultiplePermissions
                         )
                         navigateViewModel.navigator!!.navigate("camera")

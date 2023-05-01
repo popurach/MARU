@@ -1,4 +1,4 @@
-package com.shoebill.maru.ui.component.camera
+package com.shoebill.maru.util
 
 sealed class CameraUIAction {
     object OnCameraClick : CameraUIAction()
