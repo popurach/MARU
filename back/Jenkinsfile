@@ -16,7 +16,7 @@ node {
         sh """
             rm -rf ${srcPath}/${backSrcPath}/conf
             mkdir -p ${srcPath}/${backSrcPath}/conf
-            cp -r /app/data/spring/conf/* ${srcPath}/${backSrcPath}/conf
+            cp -rp /app/data/spring/conf/* ${srcPath}/${backSrcPath}/conf
         """
     }
 
