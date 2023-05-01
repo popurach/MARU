@@ -1,17 +1,17 @@
 package com.bird.maru.spot.repository.query;
 
-import static com.bird.maru.domain.model.entity.QScrap.*;
-import static com.bird.maru.domain.model.entity.QSpot.*;
-import static com.bird.maru.domain.model.entity.QSpotHasTag.*;
-import static com.bird.maru.domain.model.entity.QTag.*;
+import static com.bird.maru.domain.model.entity.QScrap.scrap;
+import static com.bird.maru.domain.model.entity.QSpot.spot;
+import static com.bird.maru.domain.model.entity.QSpotHasTag.spotHasTag;
+import static com.bird.maru.domain.model.entity.QTag.tag;
 
 import com.bird.maru.domain.model.entity.Spot;
 import com.bird.maru.spot.controller.dto.SpotSearchCondition;
+import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import java.util.List;
-import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
@@ -26,13 +26,30 @@ public class SpotCustomQueryRepository {
                            .from(spot)
                            .where(
                                    spot.deleted.eq(Boolean.FALSE),
-                                   spot.id.lt(condition.getLastOffset()),
+                                   ltOffset(condition.getLastOffset()),
                                    isMine(condition.getMine(), memberId),
                                    isScraped(condition.getScraped(), memberId)
                            )
-                           .orderBy(spot.id.desc())
+                           .orderBy(offsetOrder())
                            .limit(condition.getSize())
                            .fetch();
+    }
+
+    public List<Spot> findAllWithTagsByIdIn(List<Long> spotIds) {
+        return queryFactory.selectFrom(spot)
+                           .leftJoin(spot.tags, spotHasTag).fetchJoin()
+                           .leftJoin(spotHasTag.tag, tag).fetchJoin()
+                           .where(spot.id.in(spotIds))
+                           .orderBy(offsetOrder())
+                           .fetch();
+    }
+
+    private BooleanExpression ltOffset(Long lastOffset) {
+        if (lastOffset == null) {
+            return null;
+        }
+
+        return spot.id.lt(lastOffset);
     }
 
     private BooleanExpression isMine(Boolean myId, Long memberId) {
@@ -56,19 +73,11 @@ public class SpotCustomQueryRepository {
         );
     }
 
-    public List<Spot> findAllWithTagsByIdIn(List<Long> spotIds) {
-        return queryFactory.selectFrom(spot)
-                           .join(spot.tags, spotHasTag).fetchJoin()
-                           .join(spotHasTag.tag, tag).fetchJoin()
-                           .where(spot.id.in(spotIds))
-                           .fetch();
-    }
-
-    public Set<Long> findScrapedIdsByIdIn(List<Long> spotIds) {
-        return queryFactory.select(spot.id)
-                           .from(scrap)
-                           .where(scrap.spot.id.in(spotIds))
-                           .fetch();
+    private OrderSpecifier<?>[] offsetOrder() {
+        return List.of(
+                spot.id.desc()
+//                spot.createdDateTime.desc()
+        ).toArray(new OrderSpecifier<?>[0]);
     }
 
 }
