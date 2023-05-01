@@ -1,7 +1,7 @@
 package com.bird.maru.auth.controller;
 
 import com.bird.maru.auth.service.AuthService;
-import com.bird.maru.domain.model.type.CustomUserDetails;
+import com.bird.maru.auth.service.dto.CustomUserDetails;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;

@@ -1,6 +1,6 @@
 package com.bird.maru.common.util;
 
-import com.bird.maru.domain.model.type.CustomUserDetails;
+import com.bird.maru.auth.service.dto.CustomUserDetails;
 import com.bird.maru.domain.model.type.Provider;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;

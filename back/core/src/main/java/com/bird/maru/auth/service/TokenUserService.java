@@ -1,7 +1,8 @@
 package com.bird.maru.auth.service;
 
+import com.bird.maru.common.util.RestUtil;
 import com.bird.maru.domain.model.entity.Member;
-import com.bird.maru.domain.model.type.CustomUserDetails;
+import com.bird.maru.auth.service.dto.CustomUserDetails;
 import com.bird.maru.domain.model.type.Provider;
 import com.bird.maru.member.repository.MemberRepository;
 import com.bird.maru.member.repository.query.MemberQueryRepository;
@@ -59,17 +60,17 @@ public class TokenUserService {
     }
 
     private OAuth2User loadUserByGoogle(String accessToken) {
-        Map<String, Object> attributes = getUserInfo(googleUserInfoUri, accessToken);
+        Map<String, Object> attributes = RestUtil.getUserInfo(googleUserInfoUri, accessToken);
         return createUserDetails(attributes, Provider.GOOGLE);
     }
 
     private OAuth2User loadUserByNaver(String accessToken) {
-        Map<String, Object> attributes = getUserInfo(naverUserInfoUri, accessToken);
+        Map<String, Object> attributes = RestUtil.getUserInfo(naverUserInfoUri, accessToken);
         return createUserDetails(attributes, Provider.NAVER);
     }
 
     private OAuth2User loadUserByKakao(String accessToken) {
-        Map<String, Object> attributes = getUserInfo(kakaoUserInfoUri, accessToken);
+        Map<String, Object> attributes = RestUtil.getUserInfo(kakaoUserInfoUri, accessToken);
         return createUserDetails(attributes, Provider.KAKAO);
     }
 

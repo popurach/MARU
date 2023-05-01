@@ -1,7 +1,7 @@
 package com.bird.maru.auth.service;
 
 import com.bird.maru.common.util.JwtUtil;
-import com.bird.maru.domain.model.type.CustomUserDetails;
+import com.bird.maru.auth.service.dto.CustomUserDetails;
 import java.time.Duration;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;

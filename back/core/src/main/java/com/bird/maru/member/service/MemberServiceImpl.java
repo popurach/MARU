@@ -26,7 +26,7 @@ public class MemberServiceImpl implements MemberService {
         Member member = memberQueryRepository.findById(memberId)
                                              .orElseThrow(() -> new ResourceNotFoundException("회원을 찾을 수 없습니다."));
 
-        if (!StringUtils.hasText(nickname)) {
+        if (StringUtils.hasText(nickname)) {
             member.updateNickname(nickname);
         }
 

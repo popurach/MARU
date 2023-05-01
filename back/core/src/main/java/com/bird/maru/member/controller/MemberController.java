@@ -1,6 +1,6 @@
 package com.bird.maru.member.controller;
 
-import com.bird.maru.domain.model.type.CustomUserDetails;
+import com.bird.maru.auth.service.dto.CustomUserDetails;
 import com.bird.maru.member.controller.dto.MemberInfoDto;
 import com.bird.maru.member.mapper.MemberMapper;
 import com.bird.maru.member.service.MemberService;
