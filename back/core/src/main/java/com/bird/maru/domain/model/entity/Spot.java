@@ -5,7 +5,6 @@ import com.bird.maru.domain.model.type.Coordinate;
 import com.bird.maru.domain.model.type.Image;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Embedded;
@@ -77,11 +76,7 @@ public class Spot extends BaseDateTime {
     private List<SpotHasTag> tags = new ArrayList<>();
 
     public boolean isLandmark() {
-        return landmark != null;
-    }
-
-    public Landmark getLandmark() {
-        return Objects.requireNonNull(this.landmark);
+        return this.landmark != null;
     }
 
 }
