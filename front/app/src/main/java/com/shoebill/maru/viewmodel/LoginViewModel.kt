@@ -55,8 +55,11 @@ class LoginViewModel @Inject constructor(
                 // back end 로그인 API 호출부분
                 isSuccess = kakaoApiLogin(token)
                 Log.d(TAG, "kakaoLogin: $isSuccess")
-                if (isSuccess)
-                    navigator?.navigate("main")
+                if (isSuccess) {
+                    navigator?.navigate("main") {
+                        popUpTo(0)
+                    }
+                }
             }
         }
 
@@ -78,8 +81,11 @@ class LoginViewModel @Inject constructor(
 
                     //back end 로그인 API 호출 부분
                     isSuccess = kakaoApiLogin(token)
-                    if (isSuccess)
-                        navigator?.navigate("main")
+                    if (isSuccess) {
+                        navigator?.navigate("main") {
+                            popUpTo(0)
+                        }
+                    }
                 }
             }
         } else {
@@ -94,7 +100,9 @@ class LoginViewModel @Inject constructor(
                 val accessToken = NaverIdLoginSDK.getAccessToken()
                 val isSuccess = naverApiLogin(accessToken)
                 if (isSuccess) {
-                    navigator.navigate("main")
+                    navigator.navigate("main") {
+                        popUpTo(0)
+                    }
                 }
             }
 
