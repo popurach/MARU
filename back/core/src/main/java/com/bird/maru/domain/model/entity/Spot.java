@@ -79,4 +79,13 @@ public class Spot extends BaseDateTime {
         return this.landmark != null;
     }
 
+    public void addTag(Tag tag) {
+        this.tags.add(
+                SpotHasTag.builder()
+                          .spot(this)
+                          .tag(tag)
+                          .build()
+        );
+    }
+
 }
