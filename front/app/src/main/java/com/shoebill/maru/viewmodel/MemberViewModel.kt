@@ -8,6 +8,7 @@ import com.google.android.gms.tasks.OnCompleteListener
 import com.google.firebase.messaging.FirebaseMessaging
 import com.shoebill.maru.model.data.Member
 import com.shoebill.maru.model.repository.MemberRepository
+import com.shoebill.maru.util.PreferenceUtil
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -18,6 +19,7 @@ import javax.inject.Inject
 @HiltViewModel
 class MemberViewModel @Inject constructor(
     private val memberRepository: MemberRepository,
+    private val preferenceUtil: PreferenceUtil,
 ) : ViewModel() {
     private val _memberInfo = MutableLiveData<Member>()
     val memberInfo: LiveData<Member> get() = _memberInfo
@@ -52,7 +54,7 @@ class MemberViewModel @Inject constructor(
         })
     }
 
-    fun getMemberInfo() {
+    fun getMemberInfo(navigateViewModel: NavigateViewModel) {
         runBlocking {
             launch {
                 val response = memberRepository.getMemberInfo()
@@ -62,6 +64,8 @@ class MemberViewModel @Inject constructor(
                     updateNoticeToken()
                 } else {
                     Log.d("MEMBER", "회원 정보 조회 실패")
+                    preferenceUtil.clear()
+                    navigateViewModel.navigator?.navigate("login")
                 }
             }
         }
