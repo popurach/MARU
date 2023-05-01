@@ -28,6 +28,7 @@ import com.shoebill.maru.ui.component.searchbar.SearchBar
 import com.shoebill.maru.viewmodel.DrawerViewModel
 import com.shoebill.maru.viewmodel.MapViewModel
 import com.shoebill.maru.viewmodel.MemberViewModel
+import com.shoebill.maru.viewmodel.NavigateViewModel
 
 @OptIn(ExperimentalMaterialApi::class)
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
@@ -35,9 +36,10 @@ import com.shoebill.maru.viewmodel.MemberViewModel
 fun MainPage(
     mapViewModel: MapViewModel = viewModel(),
     drawerViewModel: DrawerViewModel = viewModel(),
-    memberViewModel: MemberViewModel = hiltViewModel()
+    memberViewModel: MemberViewModel = hiltViewModel(),
+    navigateViewModel: NavigateViewModel = viewModel(),
 ) {
-    memberViewModel.getMemberInfo()
+    memberViewModel.getMemberInfo(navigateViewModel)
 
     val scaffoldState = rememberBottomSheetScaffoldState()
     val isDrawerOpen = drawerViewModel.isOpen.observeAsState(initial = false)

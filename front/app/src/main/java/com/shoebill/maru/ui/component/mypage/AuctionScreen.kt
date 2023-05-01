@@ -7,19 +7,20 @@ import androidx.compose.material.TabRowDefaults
 import androidx.compose.material.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
+import com.shoebill.maru.viewmodel.AuctionViewModel
 
 
 @Composable
-fun AuctionScreen() {
-    var tabIndex by remember { mutableStateOf(0) }
+fun AuctionScreen(
+    auctionViewModel: AuctionViewModel = hiltViewModel()
+) {
+    val tabIndex = auctionViewModel.tabIndex.observeAsState(0).value
     val tabs = listOf("참여 중인 경매", "참여 가능한 경매")
 
     TabRow(
@@ -43,7 +44,7 @@ fun AuctionScreen() {
                     )
                 },
                 selected = tabIndex == index,
-                onClick = { tabIndex = index },
+                onClick = { auctionViewModel.switchTab(index) },
             )
         }
     }

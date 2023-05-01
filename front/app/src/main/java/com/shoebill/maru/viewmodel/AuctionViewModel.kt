@@ -1,5 +1,6 @@
 package com.shoebill.maru.viewmodel
 
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.shoebill.maru.model.repository.AuctionRepository
@@ -13,6 +14,9 @@ class AuctionViewModel @Inject constructor(private val auctionRepository: Auctio
     ViewModel() {
     private val _bid = MutableLiveData<Int>(23000)
     val bid get() = _bid
+
+    private val _tabIndex = MutableLiveData(0)
+    val tabIndex: LiveData<Int> get() = _tabIndex
 
     val unit: Int
         get() {
@@ -36,5 +40,9 @@ class AuctionViewModel @Inject constructor(private val auctionRepository: Auctio
 
     fun decreaseBid() {
         _bid.value = _bid.value!!.minus(unit)
+    }
+
+    fun switchTab(newIndex: Int) {
+        _tabIndex.value = newIndex
     }
 }
