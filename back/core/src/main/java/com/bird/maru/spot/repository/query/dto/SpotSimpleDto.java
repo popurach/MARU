@@ -26,8 +26,18 @@ public class SpotSimpleDto {
 
     private List<Tag> tags;
 
-    private Boolean liked;
+    @Builder.Default
+    private Boolean liked = Boolean.FALSE;
 
-    private Boolean scraped;
+    @Builder.Default
+    private Boolean scraped = Boolean.FALSE;
+
+    public void checkLiked() {
+        this.liked = Boolean.TRUE;
+    }
+
+    public void checkScraped() {
+        this.scraped = Boolean.TRUE;
+    }
 
 }
