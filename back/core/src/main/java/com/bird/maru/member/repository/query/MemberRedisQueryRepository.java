@@ -15,14 +15,13 @@ public class MemberRedisQueryRepository {
 
     private final RedisTemplate<String, Object> redisTemplate;
 
-    public List<Long> findVisitedLandmarks(Long memberId) {
+    public Set<Long> findVisitedLandmarks(Long memberId) {
         Set<Object> members = redisTemplate.opsForSet().members(
                 RedisCacheKey.createKey(RedisCacheKey.MEMBER_VISITED, memberId)
         );
-        return members == null || members.isEmpty() ? new ArrayList<>()
-                : members.stream()
-                         .map(m -> Long.parseLong(m.toString()))
-                         .collect(Collectors.toList());
+        return members == null || members.isEmpty() ? new HashSet<>()
+                : members.stream().map(m -> Long.parseLong(m.toString()))
+                         .collect(Collectors.toSet());
     }
 
 }
