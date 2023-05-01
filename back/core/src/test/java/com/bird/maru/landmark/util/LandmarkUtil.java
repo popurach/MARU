@@ -34,6 +34,7 @@ public class LandmarkUtil {
             double latitude = Math.toDegrees(lat2);
             double longitude = Math.toDegrees(lon2);
             Landmark marker = Landmark.builder()
+                                      .id((long) i)
                                       .visitCount(0)
                                       .name("랜드마크다!!" + i)
                                       .coordinate(Coordinate.builder()
