@@ -10,7 +10,7 @@ import com.bird.maru.cloud.aws.s3.service.AwsS3Service;
 import com.bird.maru.common.config.MockMvcConfig;
 import com.bird.maru.common.util.JwtUtil;
 import com.bird.maru.domain.model.entity.Member;
-import com.bird.maru.domain.model.type.CustomUserDetails;
+import com.bird.maru.auth.service.dto.CustomUserDetails;
 import com.bird.maru.domain.model.type.Provider;
 import com.bird.maru.member.controller.dto.MemberInfoDto;
 import com.bird.maru.member.mapper.MemberMapper;
