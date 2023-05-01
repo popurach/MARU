@@ -88,6 +88,9 @@ node {
             
           echo "사용하지 않는 이미지 삭제"
           docker image prune -a -f
+          
+          echo "사용하지 않는 네트워크 삭제"
+          docker network prune -a -f
         '''
     }
 }
