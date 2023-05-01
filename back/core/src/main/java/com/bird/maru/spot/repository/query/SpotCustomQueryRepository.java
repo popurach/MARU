@@ -10,7 +10,10 @@ import com.bird.maru.spot.controller.dto.SpotSearchCondition;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.JPAExpressions;
+import com.querydsl.jpa.JPQLQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
@@ -21,16 +24,15 @@ public class SpotCustomQueryRepository {
 
     private final JPAQueryFactory queryFactory;
 
-    public List<Long> findIdsByCondition(Long memberId, SpotSearchCondition condition) {
+    public List<Long> findIdsByMemberAndMineCondition(Long memberId, SpotSearchCondition condition) {
         return queryFactory.select(spot.id)
                            .from(spot)
                            .where(
-                                   spot.deleted.eq(Boolean.FALSE),
-                                   ltOffset(condition.getLastOffset()),
-                                   isMine(condition.getMine(), memberId),
-                                   isScraped(condition.getScraped(), memberId)
+                                   spot.deleted.isFalse(),
+                                   spot.member.id.eq(memberId),
+                                   ltOffset(memberId, condition)
                            )
-                           .orderBy(offsetOrder())
+                           .orderBy(spot.id.desc())
                            .limit(condition.getSize())
                            .fetch();
     }
@@ -40,44 +42,69 @@ public class SpotCustomQueryRepository {
                            .join(spot.tags, spotHasTag).fetchJoin()
                            .join(spotHasTag.tag, tag).fetchJoin()
                            .where(spot.id.in(spotIds))
-                           .orderBy(offsetOrder())
+                           .orderBy(spot.id.desc())
                            .fetch();
     }
 
-    private BooleanExpression ltOffset(Long lastOffset) {
-        if (lastOffset == null) {
+    public List<Spot> findAllByMemberAndScrapCondition(Long memberId, SpotSearchCondition condition) {
+        return queryFactory.select(scrap.spot)
+                           .from(scrap)
+                           .join(scrap.spot, spot)
+                           .where(
+                                   scrap.deleted.isFalse(),
+                                   spot.deleted.isFalse(),
+                                   scrap.member.id.eq(memberId),
+                                   ltOffset(memberId, condition)
+                           )
+                           .orderBy(offsetOrder(condition))
+                           .limit(condition.getSize())
+                           .fetch();
+    }
+
+    private BooleanExpression ltOffset(Long memberId, SpotSearchCondition condition) {
+        if (condition.getLastOffset() == null) {
             return null;
         }
 
+        if (Boolean.TRUE.equals(condition.getMine())) {
+            return ltMineOffset(condition.getLastOffset());
+        }
+
+        if (Boolean.TRUE.equals(condition.getScraped())) {
+            return ltScrapOffset(memberId, condition.getLastOffset());
+        }
+
+        return null;
+    }
+
+    private BooleanExpression ltMineOffset(Long lastOffset) {
         return spot.id.lt(lastOffset);
     }
 
-    private BooleanExpression isMine(Boolean myId, Long memberId) {
-        if (myId == null || myId.equals(Boolean.FALSE)) {
-            return null;
-        }
-
-        return spot.member.id.eq(memberId);
+    private BooleanExpression ltScrapOffset(Long memberId, Long lastOffset) {
+        return scrap.modifiedDateTime.before(queryModifiedDateTimeByMemberAndSpot(memberId, lastOffset))
+                                     .or(
+                                             scrap.modifiedDateTime.eq(queryModifiedDateTimeByMemberAndSpot(memberId, lastOffset))
+                                                                   .and(scrap.spot.id.lt(lastOffset))
+                                     );
     }
 
-    private BooleanExpression isScraped(Boolean scraped, Long memberId) {
-        if (scraped == null || scraped.equals(Boolean.FALSE)) {
-            return null;
-        }
-
-        return spot.id.in(
-                JPAExpressions.select(scrap.spot.id)
-                              .from(scrap)
-                              .where(scrap.deleted.eq(Boolean.FALSE),
-                                     scrap.member.id.eq(memberId))
-        );
+    private JPQLQuery<LocalDateTime> queryModifiedDateTimeByMemberAndSpot(Long memberId, Long lastOffset) {
+        return JPAExpressions.select(scrap.modifiedDateTime)
+                             .from(scrap)
+                             .where(scrap.member.id.eq(memberId),
+                                    scrap.spot.id.eq(lastOffset));
     }
 
-    private OrderSpecifier<?>[] offsetOrder() {
-        return List.of(
-                spot.id.desc()
-//                spot.createdDateTime.desc()
-        ).toArray(new OrderSpecifier<?>[0]);
+    private OrderSpecifier<?>[] offsetOrder(SpotSearchCondition condition) {
+        List<OrderSpecifier<?>> orderSpecifiers = new ArrayList<>();
+
+        if (Boolean.TRUE.equals(condition.getScraped())) {
+            orderSpecifiers.add(scrap.modifiedDateTime.desc());
+        }
+
+        orderSpecifiers.add(spot.id.desc());
+        return orderSpecifiers.toArray(new OrderSpecifier<?>[0]);
     }
 
 }

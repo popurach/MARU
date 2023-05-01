@@ -2,15 +2,17 @@ package com.bird.maru.spot.mapper;
 
 import com.bird.maru.domain.model.entity.Spot;
 import com.bird.maru.domain.model.entity.SpotHasTag;
+import com.bird.maru.domain.model.entity.Tag;
 import com.bird.maru.spot.repository.query.dto.SpotSimpleDto;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import org.mapstruct.Mapper;
 
 @Mapper(componentModel = "spring")
 public interface SpotMapper {
 
-    default SpotSimpleDto toSpotSimpleDto(Spot spot, Boolean scraped) {
+    default SpotSimpleDto toSpotSimpleDto(Spot spot) {
         return SpotSimpleDto.builder()
                             .id(spot.getId())
                             .landmarkId(spot.getLandmark() != null ? spot.getLandmark().getId() : null)
@@ -22,17 +24,30 @@ public interface SpotMapper {
                                         .map(SpotHasTag::getTag)
                                         .collect(Collectors.toList())
                             )
-                            .scraped(scraped)
+                            .scraped(Boolean.FALSE)
                             .build();
     }
 
     default List<SpotSimpleDto> toSpotSimpleDto(List<Spot> spots) {
-        return toSpotSimpleDto(spots, Boolean.FALSE);
+        return spots.stream()
+                    .map(this::toSpotSimpleDto)
+                    .collect(Collectors.toList());
     }
 
-    default List<SpotSimpleDto> toSpotSimpleDto(List<Spot> spots, Boolean scraped) {
+    default SpotSimpleDto toSpotSimpleDto(Spot spot, Map<Long, List<Tag>> tagMap) {
+        return SpotSimpleDto.builder()
+                            .id(spot.getId())
+                            .landmarkId(spot.getLandmark() != null ? spot.getLandmark().getId() : null)
+                            .imageUrl(spot.getImage().getUrl().toString())
+                            .likeCount(spot.getLikeCount())
+                            .tags(tagMap.get(spot.getId()))
+                            .scraped(Boolean.TRUE)
+                            .build();
+    }
+
+    default List<SpotSimpleDto> toSpotSimpleDto(List<Spot> spots, Map<Long, List<Tag>> tagMap) {
         return spots.stream()
-                    .map(spot -> toSpotSimpleDto(spot, scraped))
+                    .map(spot -> toSpotSimpleDto(spot, tagMap))
                     .collect(Collectors.toList());
     }
 

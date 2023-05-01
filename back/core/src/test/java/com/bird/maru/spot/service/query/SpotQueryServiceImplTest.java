@@ -1,4 +1,4 @@
-package com.bird.maru.spot.repository.query;
+package com.bird.maru.spot.service.query;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -6,6 +6,7 @@ import com.bird.maru.common.util.RandomUtil;
 import com.bird.maru.domain.model.entity.Member;
 import com.bird.maru.domain.model.entity.Scrap;
 import com.bird.maru.domain.model.entity.Spot;
+import com.bird.maru.domain.model.entity.SpotHasTag;
 import com.bird.maru.domain.model.entity.Tag;
 import com.bird.maru.domain.model.type.Coordinate;
 import com.bird.maru.domain.model.type.Image;
@@ -14,28 +15,23 @@ import com.bird.maru.member.repository.MemberRepository;
 import com.bird.maru.scrap.repository.ScrapRepository;
 import com.bird.maru.scrap.repository.query.ScrapQueryRepository;
 import com.bird.maru.spot.controller.dto.SpotSearchCondition;
+import com.bird.maru.tag.repository.SpotHasTagRepository;
 import com.bird.maru.spot.repository.SpotRepository;
+import com.bird.maru.spot.repository.query.dto.SpotSimpleDto;
 import com.bird.maru.tag.repository.TagRepository;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
-import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.orm.jpa.AutoConfigureTestEntityManager;
-import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.transaction.annotation.Transactional;
 
 @SpringBootTest
-@Transactional
-@AutoConfigureTestEntityManager
-@Slf4j
-class SpotCustomQueryRepositoryTest {
+class SpotQueryServiceImplTest {
 
     @Autowired
     private MemberRepository memberRepository;
@@ -53,10 +49,10 @@ class SpotCustomQueryRepositoryTest {
     private ScrapQueryRepository scrapQueryRepository;
 
     @Autowired
-    private SpotCustomQueryRepository spotCustomQueryRepository;
+    private SpotQueryService spotQueryService;
 
     @Autowired
-    private TestEntityManager entityManager;
+    private SpotHasTagRepository spotHasTagRepository;
 
     @BeforeEach
     void beforeEach() {
@@ -94,11 +90,18 @@ class SpotCustomQueryRepositoryTest {
                         .build()
             );
         }
-
-        for (Spot cur : spots) {
-            cur.addTag(RandomUtil.randomElement(tags));
-        }
         spotRepository.saveAll(spots);
+
+        List<SpotHasTag> spotHasTags = new ArrayList<>();
+        for (Spot cur : spots) {
+            spotHasTags.add(
+                    SpotHasTag.builder()
+                              .spot(cur)
+                              .tag(RandomUtil.randomElement(tags))
+                              .build()
+            );
+        }
+        spotHasTagRepository.saveAll(spotHasTags);
 
         List<Scrap> scraps = new ArrayList<>();
         for (Spot cur : spots) {
@@ -110,36 +113,15 @@ class SpotCustomQueryRepositoryTest {
             );
         }
         scrapRepository.saveAll(scraps);
-        entityManager.flush();
-        entityManager.clear();
     }
 
-    @Test
-    @DisplayName("내 스팟 목록 조회 테스트")
-    void findMySpotsTest() {
-        // given
-        Member testMember = memberRepository.findAll().get(0);
-        long lastOffset = spotRepository.findAll().get(40).getId();
-        int pageSize = 18;
-
-        // when
-        List<Long> spotIds = spotCustomQueryRepository.findIdsByMemberAndMineCondition(
-                testMember.getId(), SpotSearchCondition.builder()
-                                                       .lastOffset(lastOffset)
-                                                       .size(pageSize)
-                                                       .mine(Boolean.TRUE)
-                                                       .scraped(Boolean.FALSE)
-                                                       .build()
-        );
-        List<Spot> spots = spotCustomQueryRepository.findAllWithTagsByIdIn(spotIds);
-
-        // then
-        assertThat(
-                spots.stream()
-                     .filter(Predicate.not(Spot::getDeleted))
-                     .filter(spot -> spot.getId() < lastOffset && testMember.getId().equals(spot.getMember().getId()))
-                     .collect(Collectors.toList())
-        ).hasSize(pageSize);
+    @AfterEach
+    void afterEach() {
+        scrapRepository.deleteAllInBatch();
+        spotHasTagRepository.deleteAllInBatch();
+        spotRepository.deleteAllInBatch();
+        tagRepository.deleteAllInBatch();
+        memberRepository.deleteAllInBatch();
     }
 
     @Test
@@ -151,7 +133,7 @@ class SpotCustomQueryRepositoryTest {
         int pageSize = 20;
 
         // when
-        List<Spot> scrapedSpots = spotCustomQueryRepository.findAllByMemberAndScrapCondition(
+        List<SpotSimpleDto> spotDtos = spotQueryService.findMyScraps(
                 testMember.getId(), SpotSearchCondition.builder()
                                                        .lastOffset(lastOffset)
                                                        .size(pageSize)
@@ -161,14 +143,13 @@ class SpotCustomQueryRepositoryTest {
         );
 
         // then
-        Set<Long> scraped = scrapQueryRepository.findSpotIdsByMemberAndSpotIn(testMember.getId(), scrapedSpots.stream()
-                                                                                                              .map(Spot::getId)
-                                                                                                              .collect(Collectors.toList()));
+        Set<Long> scraped = scrapQueryRepository.findSpotIdsByMemberAndSpotIn(testMember.getId(), spotDtos.stream()
+                                                                                                          .map(SpotSimpleDto::getId)
+                                                                                                          .collect(Collectors.toList()));
         assertThat(
-                scrapedSpots.stream()
-                            .filter(Predicate.not(Spot::getDeleted))
-                            .filter(spot -> scraped.contains(spot.getId()))
-                            .collect(Collectors.toList())
+                spotDtos.stream()
+                        .filter(spot -> scraped.contains(spot.getId()))
+                        .collect(Collectors.toList())
         ).hasSize(pageSize);
     }
 

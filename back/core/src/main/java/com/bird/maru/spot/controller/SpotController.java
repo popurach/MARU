@@ -24,7 +24,7 @@ public class SpotController {
      *
      * @param member    현재 로그인 한 회원
      * @param condition 내 스팟 목록을 조회하기 위한 조건 (last offset, page size)
-     * @return 페이징 처리된 스팟 목록
+     * @return 페이징 처리된 내 스팟 목록
      */
     @GetMapping("/my")
     public List<SpotSimpleDto> findMySpots(
@@ -35,6 +35,13 @@ public class SpotController {
         return spotQueryService.findMySpots(member.getId(), condition);
     }
 
+    /**
+     * 내 스크랩 목록 조회에 성공할 경우 스크랩 목록과 상태 코드 200을 반환합니다.
+     *
+     * @param member    현재 로그인 한 회원
+     * @param condition 내 스크랩 목록을 조회하기 위한 조건(last offset, page size)
+     * @return 페이징 처리된 스크랩 목록
+     */
     @GetMapping("/my/scraps")
     public List<SpotSimpleDto> findMyScraps(
             @AuthenticationPrincipal CustomUserDetails member,
