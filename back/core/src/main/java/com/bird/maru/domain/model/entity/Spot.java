@@ -3,7 +3,10 @@ package com.bird.maru.domain.model.entity;
 import com.bird.maru.domain.model.type.BaseDateTime;
 import com.bird.maru.domain.model.type.Coordinate;
 import com.bird.maru.domain.model.type.Image;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
@@ -14,6 +17,7 @@ import javax.persistence.Id;
 import javax.persistence.Index;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import lombok.AccessLevel;
@@ -62,6 +66,15 @@ public class Spot extends BaseDateTime {
     @NotNull
     @Builder.Default
     private Boolean deleted = Boolean.FALSE;
+
+    @OneToMany(
+            mappedBy = "spot",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true,
+            fetch = FetchType.LAZY
+    )
+    @Builder.Default
+    private List<SpotHasTag> tags = new ArrayList<>();
 
     public boolean isLandmark() {
         return landmark != null;
