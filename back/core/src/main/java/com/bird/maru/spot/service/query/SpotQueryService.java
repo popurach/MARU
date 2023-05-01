@@ -8,6 +8,8 @@ public interface SpotQueryService {
 
     List<SpotSimpleDto> findMySpots(Long memberId, SpotSearchCondition condition);
 
+    List<SpotSimpleDto> findMyScraps(Long memberId, SpotSearchCondition condition);
+
     String findOwnerSpot(Long memberId, Long landmarkId);
 
 }

@@ -35,4 +35,13 @@ public class SpotController {
         return spotQueryService.findMySpots(member.getId(), condition);
     }
 
+    @GetMapping("/my/scraps")
+    public List<SpotSimpleDto> findMyScraps(
+            @AuthenticationPrincipal CustomUserDetails member,
+            @ModelAttribute SpotSearchCondition condition
+    ) {
+        condition.setMyScrapCondition();
+        return spotQueryService.findMyScraps(member.getId(), condition);
+    }
+
 }

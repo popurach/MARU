@@ -47,6 +47,17 @@ public class SpotQueryServiceImpl implements SpotQueryService {
     }
 
     @Override
+    public List<SpotSimpleDto> findMyScraps(Long memberId, SpotSearchCondition condition) {
+        List<Long> spotIds = spotCustomQueryRepository.findIdsByCondition(memberId, condition);
+        List<SpotSimpleDto> spotDtos = mapper.toSpotSimpleDto(
+                spotCustomQueryRepository.findAllWithTagsByIdIn(spotIds), condition.getScraped()
+        );
+
+        likeQueryService.checkLiked(memberId, spotIds, spotDtos);
+        return spotDtos;
+    }
+
+    @Override
     public String findOwnerSpot(Long memberId, Long landmarkId) {
         LocalDateTime previousAuctionStartDate = TimeUtil.getPreviousAuctionStartDate();
         List<String> ownerSpots = spotQueryRepository.findOwnerSpots(memberId, landmarkId, previousAuctionStartDate,
