@@ -32,6 +32,7 @@ import coil.compose.AsyncImage
 import com.shoebill.maru.R
 import com.shoebill.maru.model.data.Member
 import com.shoebill.maru.viewmodel.MemberViewModel
+import com.shoebill.maru.viewmodel.MyPageViewModel
 import com.shoebill.maru.viewmodel.NavigateViewModel
 import com.shoebill.maru.viewmodel.NoticeViewModel
 
@@ -40,6 +41,7 @@ fun DrawerHeader(
     memberViewModel: MemberViewModel = hiltViewModel(),
     navigateViewModel: NavigateViewModel = viewModel(),
     noticeViewModel: NoticeViewModel = hiltViewModel(),
+    myPageViewModel: MyPageViewModel = viewModel(),
 ) {
     val iconSize = 18.dp
     val fontSize = 12.sp
@@ -113,7 +115,10 @@ fun DrawerHeader(
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(10.dp)
+            verticalArrangement = Arrangement.spacedBy(10.dp),
+            modifier = Modifier.clickable {
+                navigateToMyPage(0, myPageViewModel, navigateViewModel)
+            }
         ) {
             Icon(
                 painterResource(R.drawable.photo_album_icon),
@@ -124,7 +129,10 @@ fun DrawerHeader(
         }
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(10.dp)
+            verticalArrangement = Arrangement.spacedBy(10.dp),
+            modifier = Modifier.clickable {
+                navigateToMyPage(1, myPageViewModel, navigateViewModel)
+            }
         ) {
             Icon(
                 painterResource(R.drawable.stamp_icon),
@@ -135,7 +143,10 @@ fun DrawerHeader(
         }
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(10.dp)
+            verticalArrangement = Arrangement.spacedBy(10.dp),
+            modifier = Modifier.clickable {
+                navigateToMyPage(2, myPageViewModel, navigateViewModel)
+            }
         ) {
             Icon(
                 painterResource(R.drawable.unscrap_icon),
@@ -146,7 +157,10 @@ fun DrawerHeader(
         }
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(10.dp)
+            verticalArrangement = Arrangement.spacedBy(10.dp),
+            modifier = Modifier.clickable {
+                navigateToMyPage(3, myPageViewModel, navigateViewModel)
+            }
         ) {
             Icon(
                 painterResource(R.drawable.auction_icon),
@@ -156,4 +170,15 @@ fun DrawerHeader(
             Text("경매", fontSize = fontSize)
         }
     }
+}
+
+fun navigateToMyPage(
+    tabIndex: Int,
+    myPageViewModel: MyPageViewModel,
+    navigateViewModel: NavigateViewModel,
+) {
+    myPageViewModel.switchTab(
+        tabIndex
+    )
+    navigateViewModel.navigator!!.navigate("mypage")
 }
