@@ -8,7 +8,9 @@ class MemberRepository @Inject constructor(
     private val memberApi: MemberApi,
     private val prefUtil: PreferenceUtil,
 ) {
-    suspend fun login(accessToken: String) = memberApi.login(accessToken)
+    suspend fun kakaoNaverLogin(accessToken: String) = memberApi.kakaoNaverLogin(accessToken)
+
+    suspend fun googleLogin(code: String) = memberApi.googleLogin(code)
 
     suspend fun getMemberInfo() = memberApi.getMemberInfo()
 

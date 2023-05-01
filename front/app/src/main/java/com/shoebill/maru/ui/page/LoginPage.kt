@@ -1,15 +1,20 @@
 package com.shoebill.maru.ui.page
 
+import android.content.Intent
+import android.util.Log
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -20,10 +25,11 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.viewinterop.AndroidView
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.google.android.gms.common.SignInButton
+import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount
+import com.google.android.gms.tasks.Task
 import com.shoebill.maru.R
 import com.shoebill.maru.service.LoginViewModel
 import com.shoebill.maru.ui.component.LottieOwl
@@ -36,6 +42,20 @@ fun LoginPage(
     navigateViewModel: NavigateViewModel = viewModel()
 ) {
     val context = LocalContext.current // composable 이 실행되고 있는 Context 반환
+
+    val resultLauncher =
+        rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            Log.d("LoginPage", "LoginPage: ${result.resultCode}")
+            if (result.resultCode == 0) {
+                val data: Intent? = result.data
+                Log.d("LoginPage", "LoginPage: $data")
+                if (data !== null) {
+                    val task: Task<GoogleSignInAccount> =
+                        GoogleSignIn.getSignedInAccountFromIntent(data)
+                    loginViewModel.handleSignInResult(task, navigateViewModel.navigator!!)
+                }
+            }
+        }
 
     Column(
         modifier = Modifier
@@ -100,26 +120,36 @@ fun LoginPage(
                     )
                 }
                 Box(
-                    modifier = Modifier.padding(
-                        start = 40.dp,
-                        end = 40.dp,
-                        top = 4.dp,
-                        bottom = 4.dp
-                    )
+                    modifier = Modifier
+                        .padding(
+                            start = 40.dp,
+                            end = 40.dp,
+                            top = 4.dp,
+                            bottom = 4.dp
+                        )
+                        .clickable {
+                            loginViewModel.googleLogin(
+                                context,
+                                navigateViewModel.navigator!!,
+                                resultLauncher
+                            )
+                        }
                 ) {
-                    AndroidView(
-                        modifier = Modifier.fillMaxWidth(),
-                        factory = { context ->
-                            SignInButton(context)
-                        })
-//                    Image(
-//                        modifier = Modifier
-//                            .clickable { /*TODO*/ }
-//                            .background(color = Color.White)
-//                            .border(width = 0.5.dp, color = Color(0xFFEAEDEF)),
-//                        painter = painterResource(id = R.drawable.google_login),
-//                        contentDescription = "구글 로그인"
-//                    )
+                    Image(
+                        modifier = Modifier
+                            .background(Color.White)
+                            .border(width = 0.5.dp, color = Color(0xFFEAEDEF)),
+                        painter = painterResource(id = R.drawable.google_login),
+                        contentDescription = "구글 로그인"
+                    )
+                    Image(
+                        modifier = Modifier
+                            .align(Alignment.CenterStart)
+                            .padding(start = 23.dp)
+                            .size(22.dp),
+                        painter = painterResource(id = R.drawable.google_logo),
+                        contentDescription = "구글 로고"
+                    )
                 }
             }
         }
