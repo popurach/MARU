@@ -10,7 +10,7 @@ import org.mapstruct.Mapper;
 @Mapper(componentModel = "spring")
 public interface SpotMapper {
 
-    default SpotSimpleDto toSpotSimpleDto(Spot spot) {
+    default SpotSimpleDto toSpotSimpleDto(Spot spot, Boolean scraped) {
         return SpotSimpleDto.builder()
                             .id(spot.getId())
                             .landmarkId(spot.getLandmark() != null ? spot.getLandmark().getId() : null)
@@ -21,13 +21,18 @@ public interface SpotMapper {
                                         .map(SpotHasTag::getTag)
                                         .collect(Collectors.toList())
                             )
+                            .scraped(scraped)
                             .build();
     }
 
-    default List<SpotSimpleDto> toSpotSimpleDto(List<Spot> spot) {
-        return spot.stream()
-                   .map(this::toSpotSimpleDto)
-                   .collect(Collectors.toList());
+    default List<SpotSimpleDto> toSpotSimpleDto(List<Spot> spots) {
+        return toSpotSimpleDto(spots, Boolean.FALSE);
+    }
+
+    default List<SpotSimpleDto> toSpotSimpleDto(List<Spot> spots, Boolean scraped) {
+        return spots.stream()
+                    .map(spot -> toSpotSimpleDto(spot, scraped))
+                    .collect(Collectors.toList());
     }
 
 }
