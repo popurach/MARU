@@ -5,10 +5,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.ToString;
 
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Getter
 @Builder
@@ -18,10 +16,21 @@ public class SpotSearchCondition {
 
     private Long lastOffset;
 
-    private Integer size;
+    @Builder.Default
+    private Integer size = 20;
 
     private Boolean mine;
 
     private Boolean scraped;
+
+    public void setMySpotCondition() {
+        this.mine = Boolean.TRUE;
+        this.scraped = Boolean.FALSE;
+    }
+
+    public void setMyScrapCondition() {
+        this.mine = Boolean.FALSE;
+        this.scraped = Boolean.TRUE;
+    }
 
 }
