@@ -1,7 +1,9 @@
 package com.bird.maru.common.util;
 
 import java.time.DayOfWeek;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.temporal.TemporalAdjusters;
 
 public class TimeUtil {
@@ -22,6 +24,10 @@ public class TimeUtil {
                                            .withMinute(59)
                                            .withSecond(59)
                                            .withNano(999999999);
+    }
+
+    public static LocalDateTime getMidnightDate() {
+        return LocalDate.now().plusDays(1).atTime(LocalTime.MIDNIGHT);
     }
 
 }

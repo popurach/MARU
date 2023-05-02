@@ -1,6 +1,7 @@
 package com.bird.maru.member.repository.query;
 
 import com.bird.maru.common.redis.RedisCacheKey;
+import com.bird.maru.common.util.TimeUtil;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -31,7 +32,7 @@ public class MemberRedisQueryRepository {
 
     public Long insertVisitLandmark(Long memberId, Long landmarkId) {
         SetOperations<String, Object> ops = redisTemplate.opsForSet();
-        LocalDateTime midnight = LocalDate.now().plusDays(1).atTime(LocalTime.MIDNIGHT);
+        LocalDateTime midnight = TimeUtil.getMidnightDate();
         long expirationInSecs = midnight.toEpochSecond(ZoneOffset.UTC) - LocalDateTime.now().toEpochSecond(ZoneOffset.UTC);
         String key = RedisCacheKey.createKey(RedisCacheKey.MEMBER_VISITED, memberId);
         Long result = ops.add(key, landmarkId.toString());
