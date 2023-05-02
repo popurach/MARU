@@ -23,17 +23,35 @@ class CameraViewModel() : ViewModel() {
     private val PHOTO_EXTENSION = ".png"
 
     private val _imageUrl = MutableLiveData("")
-    private val _isCapture = MutableLiveData(false)
     val imageUrl get() = _imageUrl
+
+    private val _isCapture = MutableLiveData(false)
     val isCapture get() = _isCapture
 
-    fun updateImageUrl(value: String) {
-        _imageUrl.value = value
-        _isCapture.value = true
+    private val _inputTag = MutableLiveData("")
+    val inputTag get() = _inputTag
+
+    private val listOfTag: MutableList<String> = mutableListOf()
+    private val _tagList = MutableLiveData<List<String>>(listOf())
+    val tagList get() = _tagList
+
+    fun updateInputTag(value: String) {
+        _inputTag.value = value
     }
 
-    fun updateIsCapture(value: Boolean) {
+    fun addTag() {
+        if (_inputTag.value.isNullOrEmpty()) return
+        listOfTag.add(_inputTag.value!!)
+        _tagList.value = listOfTag
+        _inputTag.value = ""
+    }
+
+    fun backToCameraScreen(value: Boolean) {
         _isCapture.value = value
+        _imageUrl.value = null
+        _inputTag.value = ""
+        listOfTag.clear()
+        _tagList.value = listOfTag
     }
 
     fun takePhoto(
@@ -56,7 +74,7 @@ class CameraViewModel() : ViewModel() {
     ) {
         val outputDirectory = context.getOutputDirectory()
         // Create output file to hold the image
-        val photoFile = createFile(outputDirectory, FILENAME, PHOTO_EXTENSION)
+        val photoFile = createFile(outputDirectory)
         val outputFileOptions = getOutputFileOptions(lensFacing, photoFile)
 
         this.takePicture(
@@ -106,10 +124,10 @@ class CameraViewModel() : ViewModel() {
             .build()
     }
 
-    private fun createFile(baseFolder: File, format: String, extension: String) =
+    private fun createFile(baseFolder: File) =
         File(
-            baseFolder, SimpleDateFormat(format, Locale.KOREA)
-                .format(System.currentTimeMillis()) + extension
+            baseFolder, SimpleDateFormat(FILENAME, Locale.KOREA)
+                .format(System.currentTimeMillis()) + PHOTO_EXTENSION
         )
 
 

@@ -39,41 +39,10 @@ import com.patrykandpatrick.vico.compose.component.shape.shader.verticalGradient
 import com.patrykandpatrick.vico.core.chart.values.AxisValuesOverrider
 import com.patrykandpatrick.vico.core.entry.entryModelOf
 import com.shoebill.maru.R
+import com.shoebill.maru.ui.component.common.GradientButton
 import com.shoebill.maru.ui.theme.Pretendard
 import com.shoebill.maru.viewmodel.AuctionViewModel
 import java.text.DecimalFormat
-
-@Composable
-fun GradientButton(
-    text: String,
-    gradient: Brush,
-    modifier: Modifier = Modifier,
-    onClick: () -> Unit = { },
-) {
-    Button(
-        modifier = modifier.padding(top = 0.dp),
-        colors = ButtonDefaults.buttonColors(backgroundColor = Color.Transparent),
-        contentPadding = PaddingValues(),
-        onClick = { onClick() },
-        shape = RoundedCornerShape(10.dp)
-    ) {
-        Box(
-            modifier = Modifier
-                .background(gradient)
-                .then(modifier),
-            contentAlignment = Alignment.Center,
-        ) {
-            Text(
-                text = text,
-                color = Color.White,
-                fontFamily = Pretendard,
-                fontWeight = FontWeight.Bold,
-                style = TextStyle(letterSpacing = (-0.2).sp),
-                fontSize = 15.sp
-            )
-        }
-    }
-}
 
 @Composable
 fun AuctionPage(auctionViewModel: AuctionViewModel = viewModel()) {

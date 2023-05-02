@@ -41,12 +41,11 @@ fun CameraCapturedImage(
         BottomSheetScaffold(
             scaffoldState = bottomSheetState,
             sheetContent = {
-                ImageUploadForm()
+                ImageUploadForm(bitmap)
             },
             sheetGesturesEnabled = false,
         ) {
             Image(bitmap, null, Modifier.fillMaxHeight(), contentScale = ContentScale.Crop)
         }
-
     }
 }
