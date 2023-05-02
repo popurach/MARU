@@ -3,10 +3,12 @@ package com.shoebill.maru.model.module
 import com.shoebill.maru.BuildConfig
 import com.shoebill.maru.model.AppInterceptor
 import com.shoebill.maru.model.interfaces.AuctionApi
+import com.shoebill.maru.model.interfaces.LandmarkApi
 import com.shoebill.maru.model.interfaces.MemberApi
 import com.shoebill.maru.model.interfaces.NoticeApi
 import com.shoebill.maru.model.interfaces.SpotApi
 import com.shoebill.maru.model.repository.AuctionRepository
+import com.shoebill.maru.model.repository.LandmarkRepository
 import com.shoebill.maru.model.repository.MemberRepository
 import com.shoebill.maru.model.repository.NoticeRepository
 import com.shoebill.maru.model.repository.SpotRepository
@@ -86,5 +88,13 @@ class ApiModule {
     @Provides
     fun provideSpotRepository(spotApi: SpotApi): SpotRepository = SpotRepository(spotApi)
 
+    @Singleton
+    @Provides
+    fun provideLandmarkApi(retrofit: Retrofit): LandmarkApi =
+        retrofit.create(LandmarkApi::class.java)
 
+    @Singleton
+    @Provides
+    fun provideLandmarkRepository(landmarkApi: LandmarkApi): LandmarkRepository =
+        LandmarkRepository(landmarkApi)
 }
