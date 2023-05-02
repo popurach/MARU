@@ -16,9 +16,9 @@ class KeyGeneratorTest {
         String state = "state";
 
         // when
-        String rtkkey = RedisCacheKey.createKey(RedisCacheKey.REFRESH_TOKEN_KEY, memberId);
-        String visitedKey = RedisCacheKey.createKey(RedisCacheKey.MEMBER_VISITED, memberId);
-        String authKey = RedisCacheKey.createKey(RedisCacheKey.AUTHORIZATION_REQUEST_KEY, state);
+        String rtkkey = RedisCacheKey.REFRESH_TOKEN.getKey(memberId);
+        String visitedKey = RedisCacheKey.MEMBER_VISITED.getKey(memberId);
+        String authKey = RedisCacheKey.AUTHORIZATION_REQUEST.getKey(state);
 
         // then
         Assertions.assertThat(rtkkey).isEqualTo("member_refresh:1");

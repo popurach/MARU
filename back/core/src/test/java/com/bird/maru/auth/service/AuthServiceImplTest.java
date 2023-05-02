@@ -76,9 +76,7 @@ class AuthServiceImplTest {
     }
 
     private String createRedisKey(Long id) {
-        return RedisCacheKey.createKey(
-                RedisCacheKey.REFRESH_TOKEN_KEY, id
-        );
+        return RedisCacheKey.REFRESH_TOKEN.getKey(id);
     }
 
 }

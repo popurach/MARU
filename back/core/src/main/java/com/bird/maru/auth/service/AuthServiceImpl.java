@@ -58,9 +58,7 @@ public class AuthServiceImpl implements AuthService {
     }
 
     private String createRedisKey(Long memberId) {
-        return RedisCacheKey.createKey(
-                RedisCacheKey.REFRESH_TOKEN_KEY, memberId
-        );
+        return RedisCacheKey.REFRESH_TOKEN.getKey(memberId);
     }
 
 }
