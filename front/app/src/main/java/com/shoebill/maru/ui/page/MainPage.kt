@@ -15,6 +15,7 @@ import androidx.compose.material.rememberBottomSheetScaffoldState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Rect
@@ -35,15 +36,16 @@ import com.shoebill.maru.viewmodel.DrawerViewModel
 import com.shoebill.maru.viewmodel.MapViewModel
 import com.shoebill.maru.viewmodel.MemberViewModel
 import com.shoebill.maru.viewmodel.NavigateViewModel
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterialApi::class)
-@SuppressLint("UnusedMaterialScaffoldPaddingParameter")
+@SuppressLint("UnusedMaterialScaffoldPaddingParameter", "CoroutineCreationDuringComposition")
 @Composable
 fun MainPage(
     mapViewModel: MapViewModel = viewModel(),
     drawerViewModel: DrawerViewModel = viewModel(),
     memberViewModel: MemberViewModel = hiltViewModel(),
-    navigateViewModel: NavigateViewModel = hiltViewModel()
+    navigateViewModel: NavigateViewModel = hiltViewModel(),
 ) {
     memberViewModel.getMemberInfo(navigateViewModel)
 
@@ -51,6 +53,16 @@ fun MainPage(
     val scaffoldState = rememberBottomSheetScaffoldState()
     val isDrawerOpen = drawerViewModel.isOpen.observeAsState(initial = false)
 
+    val spotId: Long? =
+        navigateViewModel.navigator?.previousBackStackEntry?.savedStateHandle?.get("spotId")
+
+    val coroutineContext = rememberCoroutineScope()
+
+    coroutineContext.launch {
+        if (spotId != null && !isDrawerOpen.value) {
+            scaffoldState.bottomSheetState.expand()
+        }
+    }
     val launcherMultiplePermissions = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
     ) { permissionsMap ->
@@ -112,7 +124,7 @@ fun MainPage(
         drawerGesturesEnabled = scaffoldState.drawerState.isOpen,
         sheetShape = RoundedCornerShape(topEnd = 16.dp, topStart = 16.dp),
         sheetContent = {
-            BottomSheetPage()
+            BottomSheetPage(startDestination = if (spotId != null) "spot/detail/{id}" else "spot/list")
         },
         sheetPeekHeight = 25.dp,
         floatingActionButton = null
@@ -123,7 +135,7 @@ fun customShape() = object : Shape {
     override fun createOutline(
         size: Size,
         layoutDirection: LayoutDirection,
-        density: Density
+        density: Density,
     ): Outline {
         return Outline.Rectangle(
             Rect(
