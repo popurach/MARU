@@ -2,6 +2,7 @@ package com.shoebill.maru
 
 import android.content.IntentFilter
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.fillMaxSize
@@ -24,6 +25,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.shoebill.maru.ui.page.AuctionPage
+import com.shoebill.maru.ui.page.CameraPage
 import com.shoebill.maru.ui.page.LoginPage
 import com.shoebill.maru.ui.page.MainPage
 import com.shoebill.maru.ui.page.MyPage
@@ -31,6 +33,7 @@ import com.shoebill.maru.ui.page.NoticePage
 import com.shoebill.maru.ui.theme.MaruTheme
 import com.shoebill.maru.util.FcmMessageReceiver
 import com.shoebill.maru.util.PreferenceUtil
+import com.shoebill.maru.viewmodel.CameraViewModel
 import com.shoebill.maru.viewmodel.MapViewModel
 import com.shoebill.maru.viewmodel.NavigateViewModel
 import com.shoebill.maru.viewmodel.NoticeViewModel
@@ -113,6 +116,19 @@ fun MyApp(
         composable("auction") {
             CompositionLocalProvider(LocalViewModelStoreOwner provides viewModelStoreOwner) {
                 AuctionPage()
+            }
+        }
+
+        composable("camera") { backStackEntry ->
+            val cameraViewModel: CameraViewModel = hiltViewModel()
+            CompositionLocalProvider(LocalViewModelStoreOwner provides viewModelStoreOwner) {
+                CameraPage(onImageCaptured = { uri, fromGallery ->
+                    Log.d("CAMERA", "Image Uri Captured from Camera View")
+                    //Todo : use the uri as needed
+
+                }, onError = { imageCaptureException ->
+                    Log.d("CAMERA", "Image Capture Fail: $imageCaptureException ")
+                })
             }
         }
 

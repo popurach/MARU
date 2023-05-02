@@ -5,12 +5,17 @@ import android.util.Log
 import android.widget.Toast
 import androidx.lifecycle.ViewModel
 import androidx.navigation.NavHostController
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount
+import com.google.android.gms.common.api.ApiException
+import com.google.android.gms.tasks.Task
 import com.kakao.sdk.auth.model.OAuthToken
 import com.kakao.sdk.common.model.ClientError
 import com.kakao.sdk.common.model.ClientErrorCause
 import com.kakao.sdk.user.UserApiClient
 import com.navercorp.nid.NaverIdLoginSDK
 import com.navercorp.nid.oauth.OAuthLoginCallback
+import com.shoebill.maru.BuildConfig
+import com.shoebill.maru.model.data.LoginGoogleRequestModel
 import com.shoebill.maru.model.repository.MemberRepository
 import com.shoebill.maru.util.PreferenceUtil
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -25,7 +30,7 @@ class LoginViewModel @Inject constructor(
     private val TAG = "LOGIN"
     private fun kakaoApiLogin(token: OAuthToken) = runBlocking {
         val response: retrofit2.Response<Unit> =
-            memberRepository.login("KAKAO ${token.accessToken}")
+            memberRepository.kakaoNaverLogin("KAKAO ${token.accessToken}")
         if (response.isSuccessful) {
             val accessToken = response.headers()["access-token"]
             val refreshToken = response.headers()["refresh-token"]
@@ -42,7 +47,6 @@ class LoginViewModel @Inject constructor(
     }
 
     fun kakaoLogin(context: Context, navigator: NavHostController?) {
-
         // 카카오계정으로 로그인 공통 callback 구성
         // 카카오톡으로 로그인 할 수 없어 카카오계정으로 로그인할 경우 사용됨
         var isSuccess: Boolean
@@ -125,7 +129,7 @@ class LoginViewModel @Inject constructor(
 
     private fun naverApiLogin(token: String?) = runBlocking {
         val response: retrofit2.Response<Unit> =
-            memberRepository.login("NAVER $token")
+            memberRepository.kakaoNaverLogin("NAVER $token")
         if (response.isSuccessful) {
             val accessToken = response.headers()["access-token"]
             val refreshToken = response.headers()["refresh-token"]
@@ -136,6 +140,54 @@ class LoginViewModel @Inject constructor(
             Log.d("LOGIN", "refreshToken -> $refreshToken")
 
             true
+        } else {
+            false
+        }
+    }
+
+    fun handleSignInResult(completedTask: Task<GoogleSignInAccount>, navigator: NavHostController) {
+        try {
+            val authCode: String? =
+                completedTask.getResult(ApiException::class.java)?.serverAuthCode
+            val isSuccess = authCode != null && googleApiLogin(authCode)
+            if (isSuccess) {
+                navigator.navigate("main")
+            }
+        } catch (e: ApiException) {
+            Log.w(TAG, "handleSignInResult: error" + e.statusCode)
+        }
+    }
+
+    private fun googleApiLogin(authCode: String) = runBlocking {
+        val response = memberRepository.googleLogin(
+            LoginGoogleRequestModel(
+                grant_type = "authorization_code",
+                client_id = BuildConfig.GOOGLE_CLIENT_ID,
+                client_secret = BuildConfig.GOOGLE_CLIENT_SECRET,
+                code = authCode
+            )
+        )
+        if (response.isSuccessful) {
+            Log.d("LOGIN", "GOOGLE ACCESS TOKEN : ${response.body()?.accessToken}")
+            val accessToken = response.body()?.accessToken
+            val myResponse = memberRepository.kakaoNaverLogin("GOOGLE $accessToken")
+
+            if (myResponse.isSuccessful) {
+                val backAccessToken = myResponse.headers()["access-token"]
+                val backRefreshToken = myResponse.headers()["refresh-token"]
+
+                prefUtil.setString("accessToken", backAccessToken!!)
+                Log.d("LOGIN", "accessToken -> $backAccessToken") // backend 테스트 용으로 남겨둠
+                prefUtil.setString("refreshToken", backRefreshToken!!)
+                Log.d("LOGIN", "refreshToken -> $backRefreshToken")
+
+                true
+            } else {
+                Log.d("LOGIN", "GOOGLE Login FAILED")
+
+                false
+            }
+
         } else {
             false
         }
