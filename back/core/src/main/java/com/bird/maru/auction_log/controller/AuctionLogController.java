@@ -55,9 +55,11 @@ public class AuctionLogController {
 
     /**
      * 해당 랜드마크 경매 정보 조회
+     *
+     * @Param id : landmarkId
      */
     @GetMapping("/{id}")
-    public void searchLandmarkById(@AuthenticationPrincipal CustomUserDetails member, @PathVariable Long id) {
+    public void searchLandmarkById(@PathVariable Long id) {
         auctionLogService.auctionRecord(id);
     }
 
