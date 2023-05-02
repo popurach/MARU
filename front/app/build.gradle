@@ -143,8 +143,8 @@ dependencies {
     implementation "androidx.camera:camera-video:$cameraxVersion"
     implementation "androidx.camera:camera-view:$cameraxVersion"
     implementation "androidx.camera:camera-extensions:$cameraxVersion"
-    implementation "com.google.accompanist:accompanist-permissions:0.30.0
-    
+    implementation "com.google.accompanist:accompanist-permissions:0.30.0"
+
     // Naver Login
     implementation 'com.navercorp.nid:oauth-jdk8:5.5.0'
 }
