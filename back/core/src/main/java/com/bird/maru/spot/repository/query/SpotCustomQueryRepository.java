@@ -88,7 +88,7 @@ public class SpotCustomQueryRepository {
         }
 
         if (Boolean.TRUE.equals(condition.getMine())) {
-            return ltMineOffset(condition.getLastOffset());
+            return ltOffset(condition.getLastOffset());
         }
 
         if (Boolean.TRUE.equals(condition.getScraped())) {
@@ -98,8 +98,8 @@ public class SpotCustomQueryRepository {
         return null;
     }
 
-    private BooleanExpression ltMineOffset(Long lastOffset) {
-        return spot.id.lt(lastOffset);
+    private BooleanExpression ltOffset(Long lastOffset) {
+        return lastOffset == null ? null : spot.id.lt(lastOffset);
     }
 
     private BooleanExpression ltScrapOffset(Long memberId, Long lastOffset) {
