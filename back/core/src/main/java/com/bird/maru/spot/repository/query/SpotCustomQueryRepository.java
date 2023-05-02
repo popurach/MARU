@@ -82,6 +82,16 @@ public class SpotCustomQueryRepository {
                            .fetch();
     }
 
+    public List<Spot> findSpotByLandmark(Long landmarkId, Long lastOffset, Integer size) {
+        return queryFactory.selectFrom(spot)
+                .where(spot.landmark.id.eq(landmarkId),
+                       spot.deleted.isFalse(),
+                       ltOffset(lastOffset))
+                .orderBy(spot.id.desc())
+                .limit(size)
+                .fetch();
+    }
+
     private BooleanExpression ltOffset(Long memberId, SpotSearchCondition condition) {
         if (condition.getLastOffset() == null) {
             return null;
