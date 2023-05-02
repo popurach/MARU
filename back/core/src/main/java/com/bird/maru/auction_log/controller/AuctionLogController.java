@@ -1,10 +1,13 @@
 package com.bird.maru.auction_log.controller;
 
 import com.bird.maru.auction_log.controller.dto.AuctionLogRequestDto;
+import com.bird.maru.auction_log.controller.dto.AuctionLogResponseDto;
 import com.bird.maru.auction_log.service.AuctionLogService;
 import com.bird.maru.auth.service.dto.CustomUserDetails;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -59,8 +62,14 @@ public class AuctionLogController {
      * @Param id : landmarkId
      */
     @GetMapping("/{id}")
-    public void searchLandmarkById(@PathVariable Long id) {
-        auctionLogService.auctionRecord(id);
+    public ResponseEntity<List<AuctionLogResponseDto>> searchLandmarkById(@PathVariable Long id) {
+
+        List<AuctionLogResponseDto> auctionLogMap = auctionLogService.auctionRecord(id);
+        if(auctionLogMap.isEmpty()) {
+            return ResponseEntity.noContent().build();
+        } else {
+            return ResponseEntity.ok(auctionLogMap);
+        }
     }
 
 }
