@@ -7,8 +7,11 @@ import static com.bird.maru.domain.model.entity.QTag.tag;
 
 import com.bird.maru.domain.model.entity.Spot;
 import com.bird.maru.spot.controller.dto.SpotSearchCondition;
+import com.bird.maru.spot.repository.query.dto.SpotSimpleDto;
 import com.querydsl.core.types.OrderSpecifier;
+import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.JPQLQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -58,6 +61,24 @@ public class SpotCustomQueryRepository {
                            )
                            .orderBy(offsetOrder(condition))
                            .limit(condition.getSize())
+                           .fetch();
+    }
+
+    public List<SpotSimpleDto> findSpotByMyVisitedLandmark(Long memberId) {
+        return queryFactory.select(Projections.constructor(SpotSimpleDto.class,
+                                                           spot.id.as("id"),
+                                                           spot.landmark.id.as("landmarkId"),
+                                                           Expressions.asString(spot.image.url.toString()).as("imageUrl")
+                           ))
+                           .from(spot)
+                           .where(spot.id.in(
+                                   JPAExpressions.select(spot.id.max())
+                                                 .from(spot)
+                                                 .where(spot.landmark.id.isNotNull(),
+                                                        spot.deleted.isFalse(),
+                                                        spot.member.id.eq(memberId))
+                                                 .groupBy(spot.landmark.id)
+                           ))
                            .fetch();
     }
 
