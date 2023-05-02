@@ -34,7 +34,7 @@ fun ScrapScreen(
 fun ScrapItem(spot: Spot) {
     AsyncImage(
         model = spot.imageUrl,
-        contentDescription = "landmark picture",
+        contentDescription = "scrap image",
         modifier = Modifier
             .size(120.dp)
             .clickable { },

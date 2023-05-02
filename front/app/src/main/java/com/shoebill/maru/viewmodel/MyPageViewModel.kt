@@ -8,6 +8,7 @@ import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import com.shoebill.maru.model.data.Spot
 import com.shoebill.maru.model.data.Stamp
+import com.shoebill.maru.model.repository.GallerySource
 import com.shoebill.maru.model.repository.ScrapedSpotSource
 import com.shoebill.maru.model.repository.SpotRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -19,14 +20,19 @@ class MyPageViewModel @Inject constructor(
     private val spotRepository: SpotRepository
 ) : ViewModel() {
     private val _tabIndex = MutableLiveData<Int>(0)
-
-    val galleryList = ArrayList<Spot>()
+    
     val stampList = ArrayList<Stamp>()
     val tabIndex: LiveData<Int> get() = _tabIndex
 
     fun getScrapedSpotsPagination(): Flow<PagingData<Spot>> {
         return Pager(PagingConfig(pageSize = 20)) {
             ScrapedSpotSource(spotRepository)
+        }.flow
+    }
+
+    fun getGalleryPagination(): Flow<PagingData<Spot>> {
+        return Pager(PagingConfig(pageSize = 20)) {
+            GallerySource(spotRepository)
         }.flow
     }
 
