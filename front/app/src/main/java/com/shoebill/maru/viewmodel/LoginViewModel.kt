@@ -145,7 +145,6 @@ class LoginViewModel @Inject constructor(
         }
     }
 
-
     fun handleSignInResult(completedTask: Task<GoogleSignInAccount>, navigator: NavHostController) {
         try {
             val authCode: String? =
@@ -160,7 +159,6 @@ class LoginViewModel @Inject constructor(
     }
 
     private fun googleApiLogin(authCode: String) = runBlocking {
-
         val response = memberRepository.googleLogin(
             LoginGoogleRequestModel(
                 grant_type = "authorization_code",
@@ -186,6 +184,7 @@ class LoginViewModel @Inject constructor(
                 true
             } else {
                 Log.d("LOGIN", "GOOGLE Login FAILED")
+
                 false
             }
 

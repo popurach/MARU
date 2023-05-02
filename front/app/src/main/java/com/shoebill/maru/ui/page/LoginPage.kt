@@ -39,15 +39,13 @@ import com.shoebill.maru.ui.component.LottieOwl
 import com.shoebill.maru.viewmodel.LoginViewModel
 import com.shoebill.maru.viewmodel.NavigateViewModel
 
-
 @Composable
 fun LoginPage(
     loginViewModel: LoginViewModel = hiltViewModel(),
     navigateViewModel: NavigateViewModel = viewModel(),
 ) {
-    val context = LocalContext.current // composable 이 실행되고 있는 Context 반환\
-
-
+    val context = LocalContext.current
+    
     val startForResult =
         rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { result: ActivityResult ->
             if (result.resultCode == Activity.RESULT_OK) {
