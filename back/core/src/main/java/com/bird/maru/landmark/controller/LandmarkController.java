@@ -3,8 +3,10 @@ package com.bird.maru.landmark.controller;
 import com.bird.maru.auth.service.dto.CustomUserDetails;
 import com.bird.maru.common.exception.ResourceNotFoundException;
 import com.bird.maru.domain.model.entity.Member;
+import com.bird.maru.domain.model.entity.Spot;
 import com.bird.maru.landmark.controller.dto.LandmarkMapResponseDto;
 import com.bird.maru.landmark.controller.dto.LandmarkResponseDto;
+import com.bird.maru.landmark.controller.dto.LandmarkSpotResponseDto;
 import com.bird.maru.landmark.controller.dto.LandmarkStampResponseDto;
 import com.bird.maru.landmark.controller.dto.OwnerResponseDto;
 import com.bird.maru.landmark.mapper.LandmarkMapper;
@@ -12,8 +14,10 @@ import com.bird.maru.landmark.service.query.LandmarkQueryService;
 import com.bird.maru.member.mapper.MemberMapper;
 import com.bird.maru.member.service.MemberService;
 import com.bird.maru.member.service.query.MemberQueryService;
+import com.bird.maru.spot.mapper.SpotMapper;
 import com.bird.maru.spot.service.query.SpotQueryService;
 import java.util.List;
+import javax.annotation.Nullable;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -135,6 +139,26 @@ public class LandmarkController {
     public List<LandmarkStampResponseDto> findLandmarkStamps(
             @AuthenticationPrincipal CustomUserDetails member) {
         return landmarkQueryService.findLandmarkStamps(member.getId());
+    }
+
+    /**
+     * 랜드마크에 등록된 Spot 사진 조회 <br/> 필요한 데이터 : spotId, imageUrl <br/> 페이지네이션 - 정렬 기준 최신순, pageSize = 20
+     *
+     * @param landmarkId : 랜드마크 id
+     * @param size       : 페이지 내에 포함된 아이템 수
+     * @param lastOffset : 이전 페이지의 마지막 아이템의 id
+     * @return 랜드마크에 속한 스팟의 사진과 id
+     */
+    @GetMapping("/landmarks/{landmarkId}/spots")
+    public ResponseEntity<List<LandmarkSpotResponseDto>> findLandmarkSpots(
+            @PathVariable Long landmarkId, @RequestParam(defaultValue = "20") Integer size, @RequestParam @Nullable Long lastOffset
+    ) {
+        List<Spot> spots = spotQueryService.findLandmarkSpots(landmarkId, lastOffset, size);
+        if (spots.isEmpty()) {
+            return ResponseEntity.noContent().build();
+        } else {
+            return ResponseEntity.ok(SpotMapper.toLandmarkSpotResponseDtos(spots));
+        }
     }
 
 }
