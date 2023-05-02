@@ -121,7 +121,7 @@ public class AuctionLogServiceImpl implements AuctionLogService {
         auctionLogRepository.findFirstByLandmarkId(auction.getLandmark().getId())
                             .ifPresentOrElse(
                                     log -> auction.setLastLogId(log.getId()),
-                                    () -> auction.setLastLogId(null)
+                                    () -> auction.changeLastLogId(null)
                             );
 
         // websocket 통신
@@ -157,12 +157,13 @@ public class AuctionLogServiceImpl implements AuctionLogService {
     @Override
     public List<AuctionLogResponseDto> auctionRecord(Long landmarkId) {
         List<AuctionLog> auctionLogList = auctionLogRepository.auctionRecord(landmarkId, PageRequest.of(0, 10));
-        List<AuctionLogResponseDto> auctionLogResponseDtoList = new ArrayList<>();
-
-        for (AuctionLog auctionLog : auctionLogList) {
-            auctionLogResponseDtoList.add(AuctionLogMapper.toAuctionResponseDto(auctionLog));
-        }
-        return auctionLogResponseDtoList;
+//        List<AuctionLogResponseDto> auctionLogResponseDtoList = new ArrayList<>();
+//
+//        for (AuctionLog auctionLog : auctionLogList) {
+//            auctionLogResponseDtoList.add(AuctionLogMapper.toAuctionResponseDto(auctionLog));
+//        }
+//        return auctionLogResponseDtoList;
+        return AuctionLogMapper.toAuctionResponseDto(auctionLogList);
     }
 
     private void biddingWithAuction(Auction auction, Member member, int price) {
