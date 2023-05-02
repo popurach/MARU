@@ -1,5 +1,6 @@
 package com.shoebill.maru.ui.theme
 
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 
@@ -14,5 +15,7 @@ val MaruBrush = Brush.linearGradient(
     listOf(
         Color(0xFF6039DF),
         Color(0xFFA14AB7)
-    )
+    ),
+    Offset.Zero,
+    Offset.Infinite
 )

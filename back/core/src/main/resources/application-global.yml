@@ -7,18 +7,12 @@ spring:
       max-file-size: 10MB # 요청한 파일 한 개의 최대 크기
       max-request-size: 10MB # 요청한 파일 전체의 최대 크기
 
-  jpa:
-    open-in-view: false
-    properties:
-      hibernate:
-        dialect: org.hibernate.dialect.MySQL8Dialect
-        default_batch_fetch_size: 500
-
   batch:
     job:
       names: ${job.name:NONE}
       enabled: false # batch 자동 실행 막음
 
+# Server Health Check
 management:
   endpoints:
     web:
@@ -40,25 +34,25 @@ cluster:
   crs: MERCATOR
 
 --- #local, dev
+spring:
+  config:
+    activate:
+      on-profile: global-dev
+  devtools:
+    livereload:
+      enabled: true
+
 logging:
   level:
     com: debug
     org.hibernate.type: off # 바인딩 할 값을 찍는 로그
 
+--- #prod
 spring:
   config:
     activate:
-      on-profile: "global-dev"
-  devtools:
-    livereload:
-      enabled: true
+      on-profile: global-prod
 
---- #prod
 logging:
   level:
     com: info
-
-spring:
-  config:
-    activate:
-      on-profile: "global-prod"

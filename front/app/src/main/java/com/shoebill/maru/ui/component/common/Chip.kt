@@ -23,7 +23,7 @@ fun Chip(
         shape = RoundedCornerShape(16.dp),
         border = border,
         elevation = 2.dp,
-        modifier = Modifier.padding(top = 12.dp)
+        modifier = Modifier.padding(top = 7.dp)
     ) {
         Text(
             text = text,

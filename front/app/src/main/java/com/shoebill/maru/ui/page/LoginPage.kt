@@ -35,15 +35,15 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.tasks.Task
 import com.shoebill.maru.BuildConfig
 import com.shoebill.maru.R
-import com.shoebill.maru.service.LoginViewModel
 import com.shoebill.maru.ui.component.LottieOwl
+import com.shoebill.maru.viewmodel.LoginViewModel
 import com.shoebill.maru.viewmodel.NavigateViewModel
 
 
 @Composable
 fun LoginPage(
     loginViewModel: LoginViewModel = hiltViewModel(),
-    navigateViewModel: NavigateViewModel = viewModel()
+    navigateViewModel: NavigateViewModel = viewModel(),
 ) {
     val context = LocalContext.current // composable 이 실행되고 있는 Context 반환\
 

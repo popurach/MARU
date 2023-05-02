@@ -18,11 +18,13 @@ import com.shoebill.maru.viewmodel.MapViewModel
 @Composable
 fun FabCamera(
     modifier: Modifier = Modifier,
-    mapViewModel: MapViewModel = hiltViewModel()
+    mapViewModel: MapViewModel = hiltViewModel(),
+    onClick: () -> Unit = {}
 ) {
     IconButton(
         onClick = {
             mapViewModel.clearFocus()
+            onClick()
             // TODO: 카메라 화면으로 이동
         },
         modifier = modifier
