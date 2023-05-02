@@ -42,8 +42,8 @@ public class SpotCustomQueryRepository {
 
     public List<Spot> findAllWithTagsByIdIn(List<Long> spotIds) {
         return queryFactory.selectFrom(spot)
-                           .join(spot.tags, spotHasTag).fetchJoin()
-                           .join(spotHasTag.tag, tag).fetchJoin()
+                           .leftJoin(spot.tags, spotHasTag).fetchJoin()
+                           .leftJoin(spotHasTag.tag, tag).fetchJoin()
                            .where(spot.id.in(spotIds))
                            .orderBy(spot.id.desc())
                            .fetch();

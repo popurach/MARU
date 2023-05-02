@@ -1,57 +1,40 @@
 package com.bird.maru.common.util;
 
 import com.bird.maru.common.filter.dto.GoogleRegistration;
-import java.time.Duration;
+import com.fasterxml.jackson.databind.JsonNode;
 import java.util.Map;
-import org.springframework.boot.web.client.RestTemplateBuilder;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
-import org.springframework.http.RequestEntity;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.web.reactive.function.client.WebClient;
 
-public final class RestUtil {
-
-    private static final RestTemplateBuilder restTemplateBuilder = new RestTemplateBuilder();
-
-    private RestUtil() {
-    }
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
+public class RestUtil {
 
     public static String getAccessTokenOfGoogle(GoogleRegistration googleRegistration, String authCode) {
-        Map<String, String> params = googleRegistration.getParams();
-        params.put("code", authCode);
+        JsonNode body = WebClient.create(googleRegistration.getTokenUri())
+                                 .post()
+                                 .contentType(MediaType.APPLICATION_JSON)
+                                 .bodyValue(googleRegistration.getBody(authCode))
+                                 .retrieve()
+                                 .bodyToMono(JsonNode.class)
+                                 .block();
 
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+        if (body == null) {
+            return null;
+        }
 
-        return getRestTemplate()
-                .exchange(
-                        googleRegistration.getTokenUri(),
-                        HttpMethod.POST,
-                        new HttpEntity<>(params, headers),
-                        new ParameterizedTypeReference<Map<String, String>>() {}
-                )
-                .getBody()
-                .get("access_token");
+        return body.get("access_token").asText();
     }
 
     public static Map<String, Object> getUserInfo(String userInfoUri, String accessToken) {
-        return getRestTemplate()
-                .exchange(
-                        RequestEntity.get(userInfoUri)
-                                     .header("Authorization", "Bearer " + accessToken)
-                                     .build(),
-                        new ParameterizedTypeReference<Map<String, Object>>() {}
-                )
-                .getBody();
-    }
-
-    private static RestTemplate getRestTemplate() {
-        return restTemplateBuilder.setConnectTimeout(Duration.ofSeconds(5L))
-                                  .setReadTimeout(Duration.ofSeconds(5L))
-                                  .build();
+        return WebClient.create(userInfoUri)
+                        .get()
+                        .header("Authorization", "Bearer " + accessToken)
+                        .retrieve()
+                        .bodyToMono(new ParameterizedTypeReference<Map<String, Object>>() {})
+                        .block();
     }
 
 }
