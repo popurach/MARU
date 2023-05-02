@@ -31,12 +31,12 @@ public class MemberQueryServiceImpl implements MemberQueryService {
      * @return Long - 추가된 데이터 수
      */
     @Override
-    public Long checkVisitLandmark(Long memberId, Long landmarkId) {
+    public Boolean checkVisitLandmark(Long memberId, Long landmarkId) {
         Set<Long> visitedLandmarks = memberRedisQueryRepository.findVisitedLandmarks(memberId);
         if (visitedLandmarks.contains(landmarkId)) {
-            return 0L;
+            return Boolean.TRUE;
         }
-        return memberRedisQueryRepository.insertVisitLandmark(memberId, landmarkId);
+        return memberRedisQueryRepository.insertVisitLandmark(memberId, landmarkId) != 0 ? Boolean.FALSE : Boolean.TRUE;
     }
 
 }
