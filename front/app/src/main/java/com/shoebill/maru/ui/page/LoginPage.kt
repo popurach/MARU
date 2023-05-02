@@ -1,8 +1,9 @@
 package com.shoebill.maru.ui.page
 
-import android.content.Intent
-import android.util.Log
+import android.app.Activity
+import android.content.Context
 import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -29,7 +30,10 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
+import com.google.android.gms.auth.api.signin.GoogleSignInClient
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.tasks.Task
+import com.shoebill.maru.BuildConfig
 import com.shoebill.maru.R
 import com.shoebill.maru.service.LoginViewModel
 import com.shoebill.maru.ui.component.LottieOwl
@@ -41,21 +45,29 @@ fun LoginPage(
     loginViewModel: LoginViewModel = hiltViewModel(),
     navigateViewModel: NavigateViewModel = viewModel()
 ) {
-    val context = LocalContext.current // composable 이 실행되고 있는 Context 반환
+    val context = LocalContext.current // composable 이 실행되고 있는 Context 반환\
 
-    val resultLauncher =
-        rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-            Log.d("LoginPage", "LoginPage: ${result.resultCode}")
-            if (result.resultCode == 0) {
-                val data: Intent? = result.data
-                Log.d("LoginPage", "LoginPage: $data")
-                if (data !== null) {
+
+    val startForResult =
+        rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { result: ActivityResult ->
+            if (result.resultCode == Activity.RESULT_OK) {
+                val intent = result.data
+                if (result.data != null) {
                     val task: Task<GoogleSignInAccount> =
-                        GoogleSignIn.getSignedInAccountFromIntent(data)
+                        GoogleSignIn.getSignedInAccountFromIntent(intent)
                     loginViewModel.handleSignInResult(task, navigateViewModel.navigator!!)
                 }
             }
         }
+
+    fun getGoogleLoginAuth(context: Context): GoogleSignInClient {
+        val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+            .requestServerAuthCode(BuildConfig.GOOGLE_CLIENT_ID)
+            .requestEmail()
+            .build()
+
+        return GoogleSignIn.getClient(context, gso)
+    }
 
     Column(
         modifier = Modifier
@@ -128,11 +140,7 @@ fun LoginPage(
                             bottom = 4.dp
                         )
                         .clickable {
-                            loginViewModel.googleLogin(
-                                context,
-                                navigateViewModel.navigator!!,
-                                resultLauncher
-                            )
+                            startForResult.launch(getGoogleLoginAuth(context = context).signInIntent)
                         }
                 ) {
                     Image(

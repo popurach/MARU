@@ -1,5 +1,6 @@
 package com.shoebill.maru.model.repository
 
+import com.shoebill.maru.model.data.LoginGoogleRequestModel
 import com.shoebill.maru.model.interfaces.MemberApi
 import com.shoebill.maru.util.PreferenceUtil
 import javax.inject.Inject
@@ -10,7 +11,8 @@ class MemberRepository @Inject constructor(
 ) {
     suspend fun kakaoNaverLogin(accessToken: String) = memberApi.kakaoNaverLogin(accessToken)
 
-    suspend fun googleLogin(code: String) = memberApi.googleLogin(code)
+    suspend fun googleLogin(loginGoogleRequestModel: LoginGoogleRequestModel) =
+        memberApi.googleLogin(loginGoogleRequestModel = loginGoogleRequestModel)
 
     suspend fun getMemberInfo() = memberApi.getMemberInfo()
 

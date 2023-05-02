@@ -1,19 +1,12 @@
 package com.shoebill.maru.service
 
 import android.content.Context
-import android.content.Intent
 import android.util.Log
 import android.widget.Toast
-import androidx.activity.compose.ManagedActivityResultLauncher
-import androidx.activity.result.ActivityResult
 import androidx.lifecycle.ViewModel
 import androidx.navigation.NavHostController
-import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
-import com.google.android.gms.auth.api.signin.GoogleSignInOptions
-import com.google.android.gms.common.Scopes
 import com.google.android.gms.common.api.ApiException
-import com.google.android.gms.common.api.Scope
 import com.google.android.gms.tasks.Task
 import com.kakao.sdk.auth.model.OAuthToken
 import com.kakao.sdk.common.model.ClientError
@@ -22,6 +15,7 @@ import com.kakao.sdk.user.UserApiClient
 import com.navercorp.nid.NaverIdLoginSDK
 import com.navercorp.nid.oauth.OAuthLoginCallback
 import com.shoebill.maru.BuildConfig
+import com.shoebill.maru.model.data.LoginGoogleRequestModel
 import com.shoebill.maru.model.repository.MemberRepository
 import com.shoebill.maru.util.PreferenceUtil
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -144,20 +138,6 @@ class LoginViewModel @Inject constructor(
         }
     }
 
-    fun googleLogin(
-        context: Context,
-        navigator: NavHostController,
-        resultLauncher: ManagedActivityResultLauncher<Intent, ActivityResult>
-    ) {
-        val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-            .requestScopes(Scope(Scopes.DRIVE_APPFOLDER))
-            .requestServerAuthCode(BuildConfig.GOOGLE_CLIENT_ID)
-            .build()
-
-        val mGoogleSignInClient = GoogleSignIn.getClient(context, gso)
-        val signInIntent = mGoogleSignInClient.signInIntent
-        resultLauncher.launch(signInIntent)
-    }
 
     fun handleSignInResult(completedTask: Task<GoogleSignInAccount>, navigator: NavHostController) {
         try {
@@ -173,18 +153,35 @@ class LoginViewModel @Inject constructor(
     }
 
     private fun googleApiLogin(authCode: String) = runBlocking {
-        val response: retrofit2.Response<Unit> =
-            memberRepository.googleLogin(authCode)
+
+        val response = memberRepository.googleLogin(
+            LoginGoogleRequestModel(
+                grant_type = "authorization_code",
+                client_id = BuildConfig.GOOGLE_CLIENT_ID,
+                client_secret = BuildConfig.GOOGLE_CLIENT_SECRET,
+                code = authCode
+            )
+        )
         if (response.isSuccessful) {
-            val accessToken = response.headers()["access-token"]
-            val refreshToken = response.headers()["refresh-token"]
+            Log.d("LOGIN", "GOOGLE ACCESS TOKEN : ${response.body()?.accessToken}")
+            val accessToken = response.body()?.accessToken
+            val myResponse = memberRepository.kakaoNaverLogin("GOOGLE $accessToken")
 
-            prefUtil.setString("accessToken", accessToken!!)
-            Log.d("LOGIN", "accessToken -> $accessToken") // backend 테스트 용으로 남겨둠
-            prefUtil.setString("refreshToken", refreshToken!!)
-            Log.d("LOGIN", "refreshToken -> $refreshToken")
+            if (myResponse.isSuccessful) {
+                val backAccessToken = myResponse.headers()["access-token"]
+                val backRefreshToken = myResponse.headers()["refresh-token"]
 
-            true
+                prefUtil.setString("accessToken", backAccessToken!!)
+                Log.d("LOGIN", "accessToken -> $backAccessToken") // backend 테스트 용으로 남겨둠
+                prefUtil.setString("refreshToken", backRefreshToken!!)
+                Log.d("LOGIN", "refreshToken -> $backRefreshToken")
+
+                true
+            } else {
+                Log.d("LOGIN", "GOOGLE Login FAILED")
+                false
+            }
+
         } else {
             false
         }
