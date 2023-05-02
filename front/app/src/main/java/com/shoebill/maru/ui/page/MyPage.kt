@@ -20,7 +20,7 @@ import com.shoebill.maru.ui.component.mypage.MyPageTabs
 import com.shoebill.maru.viewmodel.NavigateViewModel
 
 @Composable
-@Preview
+@Preview(showBackground = true)
 fun MyPage(
     navigateViewModel: NavigateViewModel = viewModel(),
 ) {

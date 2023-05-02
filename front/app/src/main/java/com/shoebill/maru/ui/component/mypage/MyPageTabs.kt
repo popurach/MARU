@@ -36,7 +36,7 @@ fun MyPageTabs(
         indicator = { tabPositions ->
             TabRowDefaults.Indicator(
                 color = Color(0xFF6039DF),
-                height = 2.dp,
+//                height = 2.dp,
                 modifier = Modifier.tabIndicatorOffset(tabPositions[tabIndex.value])
             )
         }

@@ -1,5 +1,6 @@
 package com.shoebill.maru.ui.component.mypage
 
+import androidx.compose.foundation.layout.Column
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Tab
 import androidx.compose.material.TabRow
@@ -14,6 +15,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.shoebill.maru.viewmodel.AuctionViewModel
+import com.shoebill.maru.viewmodel.CountdownViewModel
 
 
 @Composable
@@ -23,36 +25,40 @@ fun AuctionScreen(
     val tabIndex = auctionViewModel.tabIndex.observeAsState(0).value
     val tabs = listOf("참여 중인 경매", "참여 가능한 경매")
 
-    TabRow(
-        selectedTabIndex = tabIndex,
-        backgroundColor = MaterialTheme.colors.background,
-        indicator = { tabPositions ->
-            TabRowDefaults.Indicator(
-                color = Color(0xFF6039DF),
-                height = 2.dp,
-                modifier = Modifier.tabIndicatorOffset(tabPositions[tabIndex])
-            )
+    Column() {
+        CountdownTimer(viewModel = CountdownViewModel())
+        TabRow(
+            selectedTabIndex = tabIndex,
+            backgroundColor = MaterialTheme.colors.background,
+            indicator = { tabPositions ->
+                TabRowDefaults.Indicator(
+                    color = Color(0xFF6039DF),
+                    height = 2.dp,
+                    modifier = Modifier.tabIndicatorOffset(tabPositions[tabIndex])
+                )
+            }
+        ) {
+            tabs.forEachIndexed { index, title ->
+                Tab(
+                    text = {
+                        Text(
+                            text = title,
+                            color = if (tabIndex == index) Color(0xFF6039DF) else Color.Black,
+                            fontSize = 15.sp
+                        )
+                    },
+                    selected = tabIndex == index,
+                    onClick = { auctionViewModel.switchTab(index) },
+                )
+            }
         }
-    ) {
-        tabs.forEachIndexed { index, title ->
-            Tab(
-                text = {
-                    Text(
-                        text = title,
-                        color = if (tabIndex == index) Color(0xFF6039DF) else Color.Black,
-                        fontSize = 15.sp
-                    )
-                },
-                selected = tabIndex == index,
-                onClick = { auctionViewModel.switchTab(index) },
-            )
+
+        when (tabIndex) {
+            0 -> MyAuction()
+            1 -> OpenAuction()
         }
     }
 
-    when (tabIndex) {
-        0 -> MyAuction()
-        1 -> OpenAuction()
-    }
 }
 
 
