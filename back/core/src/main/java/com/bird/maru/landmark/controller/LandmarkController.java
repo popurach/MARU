@@ -5,6 +5,7 @@ import com.bird.maru.common.exception.ResourceNotFoundException;
 import com.bird.maru.domain.model.entity.Member;
 import com.bird.maru.landmark.controller.dto.LandmarkMapResponseDto;
 import com.bird.maru.landmark.controller.dto.LandmarkResponseDto;
+import com.bird.maru.landmark.controller.dto.LandmarkStampResponseDto;
 import com.bird.maru.landmark.controller.dto.OwnerResponseDto;
 import com.bird.maru.landmark.mapper.LandmarkMapper;
 import com.bird.maru.landmark.service.query.LandmarkQueryService;
@@ -116,12 +117,24 @@ public class LandmarkController {
     @PostMapping("/landmarks/{id}")
     @ResponseStatus(HttpStatus.CREATED)
     public Integer visitLandmark(@PathVariable Long id, @AuthenticationPrincipal CustomUserDetails member) throws ResourceNotFoundException {
-        if (memberQueryService.checkVisitLandmark(member.getId(), id)) {
+        if (Boolean.TRUE.equals(memberQueryService.checkVisitLandmark(member.getId(), id))) {
             return 0;
         }
         // 1. PointService -> PointServiceImpl -> SimplPointServiceImpl(extends PointServiceImpl)
         // 2. MemberService에서 처리 [ 우선 이 방법 적용 ]
         return memberService.gainPoint(member.getId(), id);
+    }
+
+    /**
+     * 모든 랜드마크 with 나의 방문 정보 조회
+     *
+     * @param member : 현재 접근중인 주체
+     * @return LandmarkStampResponseDto : 랜드마크 id, 스팟 id, 최신 스팟 사진, 랜드마크 이름
+     */
+    @GetMapping("/landmarks/my")
+    public List<LandmarkStampResponseDto> findLandmarkStamps(
+            @AuthenticationPrincipal CustomUserDetails member) {
+        return landmarkQueryService.findLandmarkStamps(member.getId());
     }
 
 }
