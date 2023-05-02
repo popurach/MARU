@@ -8,7 +8,6 @@ import java.util.stream.Collectors;
 public class AuctionLogMapper {
     public static AuctionLogResponseDto toAuctionResponseDto(AuctionLog auctionLog) {
         return AuctionLogResponseDto.builder()
-                                    .localDate(auctionLog.getAuction().getCreatedDate())
                                     .price(auctionLog.getPrice())
                                     .build();
     }

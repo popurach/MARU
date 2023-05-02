@@ -16,8 +16,6 @@ import lombok.ToString;
 @Builder
 @ToString
 public class AuctionLogResponseDto {
-
-    private LocalDate localDate;
     private Integer price;
 
 }
