@@ -5,9 +5,11 @@ import com.shoebill.maru.model.AppInterceptor
 import com.shoebill.maru.model.interfaces.AuctionApi
 import com.shoebill.maru.model.interfaces.MemberApi
 import com.shoebill.maru.model.interfaces.NoticeApi
+import com.shoebill.maru.model.interfaces.SpotApi
 import com.shoebill.maru.model.repository.AuctionRepository
 import com.shoebill.maru.model.repository.MemberRepository
 import com.shoebill.maru.model.repository.NoticeRepository
+import com.shoebill.maru.model.repository.SpotRepository
 import com.shoebill.maru.util.PreferenceUtil
 import dagger.Module
 import dagger.Provides
@@ -74,4 +76,15 @@ class ApiModule {
     @Provides
     fun provideNoticeRepository(noticeApi: NoticeApi): NoticeRepository =
         NoticeRepository(noticeApi)
+
+
+    @Singleton
+    @Provides
+    fun provideSpotApi(retrofit: Retrofit): SpotApi = retrofit.create(SpotApi::class.java)
+
+    @Singleton
+    @Provides
+    fun provideSpotRepository(spotApi: SpotApi): SpotRepository = SpotRepository(spotApi)
+
+
 }

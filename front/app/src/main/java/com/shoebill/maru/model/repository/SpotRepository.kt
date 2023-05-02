@@ -7,7 +7,9 @@ import javax.inject.Inject
 class SpotRepository @Inject constructor(
     private val spotApi: SpotApi
 ) {
-    suspend fun getMySpots(lastOffset: Long = 0): List<Spot> =
+    suspend fun getMySpots(lastOffset: Long?): List<Spot> =
         spotApi.getMySpots(lastOffset = lastOffset, size = 20)
 
+    suspend fun getMyScrapedSpots(lastOffset: Long?): List<Spot> =
+        spotApi.getMyScrapedSpots(lastOffset = lastOffset, size = 20)
 }

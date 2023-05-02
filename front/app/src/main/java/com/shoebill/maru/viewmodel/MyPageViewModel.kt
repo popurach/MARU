@@ -3,34 +3,31 @@ package com.shoebill.maru.viewmodel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.paging.Pager
+import androidx.paging.PagingConfig
+import androidx.paging.PagingData
 import com.shoebill.maru.model.data.Spot
 import com.shoebill.maru.model.data.Stamp
+import com.shoebill.maru.model.repository.ScrapedSpotSource
+import com.shoebill.maru.model.repository.SpotRepository
+import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.Flow
+import javax.inject.Inject
 
-class MyPageViewModel : ViewModel() {
+@HiltViewModel
+class MyPageViewModel @Inject constructor(
+    private val spotRepository: SpotRepository
+) : ViewModel() {
     private val _tabIndex = MutableLiveData<Int>(0)
+
     val galleryList = ArrayList<Spot>()
     val stampList = ArrayList<Stamp>()
     val tabIndex: LiveData<Int> get() = _tabIndex
 
-    init {
-        for (i: Int in 1..100) {
-            galleryList.add(
-                Spot(
-                    id = i.toLong(),
-                    landmarkId = null,
-                    imageUrl = "https://picsum.photos/id/$i/200/300",
-                    isScrap = false,
-                    hashTags = listOf("hashA", "hashB", "hashC")
-                )
-            )
-
-            stampList.add(
-                Stamp(
-                    id = i.toLong(),
-                    imageUrl = "https://picsum.photos/id/${i + 10}/200/300"
-                )
-            )
-        }
+    fun getScrapedSpotsPagination(): Flow<PagingData<Spot>> {
+        return Pager(PagingConfig(pageSize = 20)) {
+            ScrapedSpotSource(spotRepository)
+        }.flow
     }
 
     fun switchTab(next: Int) {

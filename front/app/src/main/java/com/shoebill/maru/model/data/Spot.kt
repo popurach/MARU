@@ -4,14 +4,24 @@ data class Spot(
     val id: Long,
     val landmarkId: Long?,
     val imageUrl: String,
-    val isScrap: Boolean,
-    val hashTags: List<String>
+    val likeCount: Int,
+    val tags: List<Tag>?,
+    val liked: Boolean,
+    val scraped: Boolean,
 ) {
-    constructor(id: Long, imageUrl: String, isScrap: Boolean, hashTags: List<String>) : this(
+
+    constructor(id: Long, imageUrl: String, scraped: Boolean) : this(
         id = id,
         landmarkId = null,
         imageUrl = imageUrl,
-        isScrap = isScrap,
-        hashTags = hashTags,
+        likeCount = 0,
+        tags = null,
+        liked = false,
+        scraped = scraped,
     )
 }
+
+data class Tag(
+    val id: Long,
+    val name: String,
+)
