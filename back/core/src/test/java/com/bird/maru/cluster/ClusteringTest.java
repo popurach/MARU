@@ -60,7 +60,7 @@ class ClusteringTest {
 
 
         // when
-        List<Feature> features = cluster.run(boundingBox.getBoundingBox(), boundingBox.getZoomLevel());
+        List<Feature> features = cluster.run(boundingBox);
 
         // then
         features.forEach(f -> log.debug("{}", f));

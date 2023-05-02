@@ -2,6 +2,8 @@ package com.bird.maru.landmark.controller;
 
 import com.bird.maru.common.exception.ResourceNotFoundException;
 import com.bird.maru.domain.model.entity.Member;
+import com.bird.maru.domain.model.type.CustomUserDetails;
+import com.bird.maru.landmark.controller.dto.LandmarkMapResponseDto;
 import com.bird.maru.landmark.controller.dto.LandmarkResponseDto;
 import com.bird.maru.landmark.controller.dto.OwnerResponseDto;
 import com.bird.maru.landmark.mapper.LandmarkMapper;
@@ -9,15 +11,21 @@ import com.bird.maru.landmark.service.query.LandmarkQueryService;
 import com.bird.maru.member.mapper.MemberMapper;
 import com.bird.maru.member.service.query.MemberQueryService;
 import com.bird.maru.spot.service.query.SpotQueryService;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/landmarks")
+@RequestMapping("/api")
+@Slf4j
 public class LandmarkController {
 
     private final LandmarkQueryService landmarkQueryService;
@@ -32,7 +40,7 @@ public class LandmarkController {
      * @return LandmarkResponseDto
      * @throws ResourceNotFoundException : DB에 해당 리소스 존재하지 않음
      */
-    @GetMapping("/{id}")
+    @GetMapping("/landmarks/{id}")
     public LandmarkResponseDto findLandmark(@PathVariable Long id) throws ResourceNotFoundException {
         return LandmarkMapper.toLandmarkResponseDto(landmarkQueryService.findLandmark(id));
     }
@@ -44,7 +52,7 @@ public class LandmarkController {
      * @return OwnerResponseDto
      * @throws ResourceNotFoundException : DB에 해당 리소스 존재하지 않음
      */
-    @GetMapping("/{id}/owner")
+    @GetMapping("/landmarks/{id}/owner")
     public OwnerResponseDto findOwner(@PathVariable Long id) throws ResourceNotFoundException {
         Long memberId = landmarkQueryService.findLandmark(id).getMemberId();
         Member member = memberQueryService.findMember(memberId);
@@ -65,6 +73,32 @@ public class LandmarkController {
                 member,
                 spotQueryService.findOwnerSpot(memberId, id)
         );
+    }
+
+    /**
+     * 랜드마크 지도 기준 검색 - 랜드마크는 클러스터링 진행하지 않습니다. <br/> 랜드마크 정보에는 해당 사용자의 최초 방문 여부를 함께 반환합니다. 결과가 존재하지 않다면 NoContent를 반환하고, <br/> 결과가 존재한다면 좌표 정보와 함께 사용자가
+     * 방문했는지 정보를 같이 반환합니다.
+     *
+     * @param west   : minLng
+     * @param south  : minLat
+     * @param east   : maxLng
+     * @param north  : maxLat
+     * @param member : 현재 접근중인 주체
+     * @return List<LandmarkMapResponseDto>
+     */
+    @GetMapping("/landmarks")
+    public ResponseEntity<List<LandmarkMapResponseDto>> findLandmarksBasedMap(
+            @RequestParam Double west, @RequestParam Double south,
+            @RequestParam Double east, @RequestParam Double north,
+            @AuthenticationPrincipal CustomUserDetails member
+    ) {
+        List<LandmarkMapResponseDto> landmarkBasedMap = landmarkQueryService.findLandmarkBasedMap(west, south, east, north, member.getId());
+        if (landmarkBasedMap.isEmpty()) {
+            return ResponseEntity.noContent().build();
+        } else {
+            return ResponseEntity.ok(landmarkBasedMap);
+        }
+
     }
 
 }
