@@ -21,6 +21,8 @@ public class MemberServiceImpl implements MemberService {
     private final MemberRepository memberRepository;
     private final AwsS3Service awsS3Service;
 
+    private static final Integer LANDMARK_POINT = 5000;
+
     @Override
     public Member modifyMemberInfo(Long memberId, String nickname, MultipartFile image) {
         Member member = memberQueryRepository.findById(memberId)
@@ -53,6 +55,21 @@ public class MemberServiceImpl implements MemberService {
         }
 
         return awsS3Service.updateMemberProfileImage(image, memberImage);
+    }
+
+    /**
+     * 기본 포인트 전략 - 기본 값 5000 원 지급 버전
+     *
+     * @param memberId   : 현재 접근중인 사용자
+     * @param landmarkId : 랜드마크 번호
+     * @throws ResourceNotFoundException : 리소스 없음
+     */
+    @Override
+    public Integer gainPoint(Long memberId, Long landmarkId) throws ResourceNotFoundException {
+        Member member = memberQueryRepository.findById(memberId)
+                                             .orElseThrow(() -> new ResourceNotFoundException("DB에 존재하지 않습니다."));
+        member.gainPoint(LANDMARK_POINT);
+        return LANDMARK_POINT;
     }
 
 }

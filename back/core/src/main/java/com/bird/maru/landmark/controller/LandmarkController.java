@@ -1,25 +1,29 @@
 package com.bird.maru.landmark.controller;
 
+import com.bird.maru.auth.service.dto.CustomUserDetails;
 import com.bird.maru.common.exception.ResourceNotFoundException;
 import com.bird.maru.domain.model.entity.Member;
-import com.bird.maru.domain.model.type.CustomUserDetails;
 import com.bird.maru.landmark.controller.dto.LandmarkMapResponseDto;
 import com.bird.maru.landmark.controller.dto.LandmarkResponseDto;
 import com.bird.maru.landmark.controller.dto.OwnerResponseDto;
 import com.bird.maru.landmark.mapper.LandmarkMapper;
 import com.bird.maru.landmark.service.query.LandmarkQueryService;
 import com.bird.maru.member.mapper.MemberMapper;
+import com.bird.maru.member.service.MemberService;
 import com.bird.maru.member.service.query.MemberQueryService;
 import com.bird.maru.spot.service.query.SpotQueryService;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -30,6 +34,7 @@ public class LandmarkController {
 
     private final LandmarkQueryService landmarkQueryService;
     private final MemberQueryService memberQueryService;
+    private final MemberService memberService;
     private final SpotQueryService spotQueryService;
     private final MemberMapper memberMapper;
 
@@ -99,6 +104,25 @@ public class LandmarkController {
             return ResponseEntity.ok(landmarkBasedMap);
         }
 
+    }
+
+    /**
+     * 랜드마크 방문 API
+     *
+     * @param id     : 랜드마크 id
+     * @param member : 현재 접근중인 주체
+     * @throws ResourceNotFoundException 리소스 없음
+     */
+    @PostMapping("/landmarks/{id}")
+    @ResponseStatus(HttpStatus.CREATED)
+    public Integer visitLandmark(@PathVariable Long id, @AuthenticationPrincipal CustomUserDetails member) throws ResourceNotFoundException {
+        Long newVisited = memberQueryService.checkVisitLandmark(member.getId(), id);
+        if (newVisited.equals(0L)) {
+            return 0;
+        }
+        // 1. PointService -> PointServiceImpl -> SimplPointServiceImpl(extends PointServiceImpl)
+        // 2. MemberService에서 처리 [ 우선 이 방법 적용 ]
+        return memberService.gainPoint(member.getId(), id);
     }
 
 }

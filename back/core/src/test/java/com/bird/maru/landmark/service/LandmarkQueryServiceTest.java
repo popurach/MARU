@@ -9,8 +9,9 @@ import com.bird.maru.landmark.repository.query.LandmarkCustomQueryRepository;
 import com.bird.maru.landmark.service.query.LandmarkQueryService;
 import com.bird.maru.landmark.util.LandmarkUtil;
 import com.bird.maru.member.repository.query.MemberRedisQueryRepository;
-import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -30,7 +31,7 @@ class LandmarkQueryServiceTest {
     @MockBean
     private MemberRedisQueryRepository memberRedisQueryRepository;
     private List<Landmark> landmarks;
-    private final List<Long> visitedLandmarks = new ArrayList<>();
+    private final Set<Long> visitedLandmarks = new HashSet<>();
 
     @BeforeEach
     void setUp() {

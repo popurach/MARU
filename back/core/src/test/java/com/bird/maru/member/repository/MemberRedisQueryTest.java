@@ -1,7 +1,7 @@
 package com.bird.maru.member.repository;
 
 import com.bird.maru.member.repository.query.MemberRedisQueryRepository;
-import java.util.List;
+import java.util.Set;
 import lombok.extern.slf4j.Slf4j;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
@@ -24,7 +24,7 @@ class MemberRedisQueryTest {
         Long memberId = 1L;
 
         // when
-        List<Long> visitedLandmarks = memberRedisQueryRepository.findVisitedLandmarks(memberId);
+        Set<Long> visitedLandmarks = memberRedisQueryRepository.findVisitedLandmarks(memberId);
 
         // then
         log.debug("{}", visitedLandmarks);
@@ -39,12 +39,15 @@ class MemberRedisQueryTest {
         Long memberId = 999L;
 
         // when
-        List<Long> visitedLandmarks = memberRedisQueryRepository.findVisitedLandmarks(memberId);
+        Set<Long> visitedLandmarks = memberRedisQueryRepository.findVisitedLandmarks(memberId);
 
         // then
         log.debug("{}", visitedLandmarks);
         Assertions.assertThat(visitedLandmarks).isEmpty();
 
     }
+
+//    @Test
+//    @DisplayName("사용자 랜드마크 방문 추가 테스트")
 
 }
