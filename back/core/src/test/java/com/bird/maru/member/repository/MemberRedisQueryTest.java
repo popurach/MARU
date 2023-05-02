@@ -1,6 +1,6 @@
 package com.bird.maru.member.repository;
 
-import com.bird.maru.member.repository.query.MemberRedisQueryRepository;
+import com.bird.maru.member.repository.query.MemberRedisRepository;
 import java.util.Set;
 import lombok.extern.slf4j.Slf4j;
 import org.assertj.core.api.Assertions;
@@ -15,7 +15,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 class MemberRedisQueryTest {
 
     @Autowired
-    private MemberRedisQueryRepository memberRedisQueryRepository;
+    private MemberRedisRepository memberRedisRepository;
 
     @Test
     @DisplayName("레디스에서 방문한 랜드마크 조회 테스트 - 존재하는 경우")
@@ -24,7 +24,7 @@ class MemberRedisQueryTest {
         Long memberId = 1L;
 
         // when
-        Set<Long> visitedLandmarks = memberRedisQueryRepository.findVisitedLandmarks(memberId);
+        Set<Long> visitedLandmarks = memberRedisRepository.findVisitedLandmarks(memberId);
 
         // then
         log.debug("{}", visitedLandmarks);
@@ -39,7 +39,7 @@ class MemberRedisQueryTest {
         Long memberId = 999L;
 
         // when
-        Set<Long> visitedLandmarks = memberRedisQueryRepository.findVisitedLandmarks(memberId);
+        Set<Long> visitedLandmarks = memberRedisRepository.findVisitedLandmarks(memberId);
 
         // then
         log.debug("{}", visitedLandmarks);

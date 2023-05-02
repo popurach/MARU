@@ -6,12 +6,10 @@ import com.bird.maru.landmark.controller.dto.LandmarkMapResponseDto;
 import com.bird.maru.landmark.mapper.LandmarkMapper;
 import com.bird.maru.landmark.repository.query.LandmarkCustomQueryRepository;
 import com.bird.maru.landmark.repository.query.LandmarkQueryRepository;
-import com.bird.maru.member.repository.query.MemberRedisQueryRepository;
+import com.bird.maru.member.repository.query.MemberRedisRepository;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.function.Function;
-import java.util.stream.Collectors;
+import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,7 +21,7 @@ public class LandmarkQueryServiceImpl implements LandmarkQueryService {
 
     private final LandmarkQueryRepository landmarkQueryRepository;
     private final LandmarkCustomQueryRepository landmarkCustomQueryRepository;
-    private final MemberRedisQueryRepository memberRedisQueryRepository;
+    private final MemberRedisRepository memberRedisRepository;
 
     /**
      * 랜드마크 조회
@@ -55,10 +53,8 @@ public class LandmarkQueryServiceImpl implements LandmarkQueryService {
         if (landmarks.isEmpty()) {
             return new ArrayList<>();
         }
-        Map<Long, Boolean> visitedLandmarks = memberRedisQueryRepository.findVisitedLandmarks(memberId)
-                                                                        .stream().collect(Collectors.toMap(Function.identity(), id -> Boolean.TRUE));
-
-        return LandmarkMapper.toLandmarkMapResponseDto(landmarks, visitedLandmarks);
+        Set<Long> visitedLandmarks = memberRedisRepository.findVisitedLandmarks(memberId);
+        return LandmarkMapper.toLandmarkMapResponseDtos(landmarks, visitedLandmarks);
     }
 
 }

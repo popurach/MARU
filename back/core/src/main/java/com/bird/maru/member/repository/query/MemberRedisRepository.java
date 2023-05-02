@@ -15,7 +15,7 @@ import org.springframework.stereotype.Repository;
 
 @RequiredArgsConstructor
 @Repository
-public class MemberRedisQueryRepository {
+public class MemberRedisRepository {
 
     private final RedisTemplate<String, Object> redisTemplate;
 
