@@ -45,7 +45,7 @@ fun MainPage(
     memberViewModel: MemberViewModel = hiltViewModel(),
     navigateViewModel: NavigateViewModel = hiltViewModel()
 ) {
-    memberViewModel.getMemberInfo()
+    memberViewModel.getMemberInfo(navigateViewModel)
 
     val context = LocalContext.current
     val scaffoldState = rememberBottomSheetScaffoldState()
