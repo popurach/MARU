@@ -1,5 +1,6 @@
-package com.bird.maru.domain.model.type;
+package com.bird.maru.auth.service.dto;
 
+import com.bird.maru.domain.model.type.Provider;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;

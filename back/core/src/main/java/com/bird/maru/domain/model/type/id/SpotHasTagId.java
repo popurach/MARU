@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @EqualsAndHashCode
-public class LocationHasTagId implements Serializable {
+public class SpotHasTagId implements Serializable {
 
     private Long spot;
 

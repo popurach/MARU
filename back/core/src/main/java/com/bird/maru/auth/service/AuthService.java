@@ -1,6 +1,6 @@
 package com.bird.maru.auth.service;
 
-import com.bird.maru.domain.model.type.CustomUserDetails;
+import com.bird.maru.auth.service.dto.CustomUserDetails;
 import java.util.Map;
 import org.springframework.security.access.AccessDeniedException;
 

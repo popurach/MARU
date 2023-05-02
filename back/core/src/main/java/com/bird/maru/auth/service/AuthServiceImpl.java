@@ -1,7 +1,8 @@
 package com.bird.maru.auth.service;
 
+import com.bird.maru.common.redis.RedisCacheKey;
 import com.bird.maru.common.util.JwtUtil;
-import com.bird.maru.domain.model.type.CustomUserDetails;
+import com.bird.maru.auth.service.dto.CustomUserDetails;
 import java.time.Duration;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
@@ -14,8 +15,6 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 @RequiredArgsConstructor
 public class AuthServiceImpl implements AuthService {
-
-    public static final String REFRESH_TOKEN_PREFIX = "member_refresh:";
 
     private final RedisTemplate<String, String> redisTemplate;
     private final JwtUtil jwtUtil;
@@ -59,7 +58,9 @@ public class AuthServiceImpl implements AuthService {
     }
 
     private String createRedisKey(Long memberId) {
-        return REFRESH_TOKEN_PREFIX + memberId;
+        return RedisCacheKey.createKey(
+                RedisCacheKey.REFRESH_TOKEN_KEY, memberId
+        );
     }
 
 }

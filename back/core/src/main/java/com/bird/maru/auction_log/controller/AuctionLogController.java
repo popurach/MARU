@@ -2,7 +2,7 @@ package com.bird.maru.auction_log.controller;
 
 import com.bird.maru.auction_log.controller.dto.AuctionLogRequestDto;
 import com.bird.maru.auction_log.service.AuctionLogService;
-import com.bird.maru.domain.model.type.CustomUserDetails;
+import com.bird.maru.auth.service.dto.CustomUserDetails;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;

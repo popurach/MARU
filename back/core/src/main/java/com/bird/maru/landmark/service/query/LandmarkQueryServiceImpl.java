@@ -2,15 +2,28 @@ package com.bird.maru.landmark.service.query;
 
 import com.bird.maru.common.exception.ResourceNotFoundException;
 import com.bird.maru.domain.model.entity.Landmark;
+import com.bird.maru.landmark.controller.dto.LandmarkMapResponseDto;
+import com.bird.maru.landmark.mapper.LandmarkMapper;
+import com.bird.maru.landmark.repository.query.LandmarkCustomQueryRepository;
 import com.bird.maru.landmark.repository.query.LandmarkQueryRepository;
+import com.bird.maru.member.repository.query.MemberRedisQueryRepository;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class LandmarkQueryServiceImpl implements LandmarkQueryService {
 
     private final LandmarkQueryRepository landmarkQueryRepository;
+    private final LandmarkCustomQueryRepository landmarkCustomQueryRepository;
+    private final MemberRedisQueryRepository memberRedisQueryRepository;
 
     /**
      * 랜드마크 조회
@@ -24,6 +37,28 @@ public class LandmarkQueryServiceImpl implements LandmarkQueryService {
         return landmarkQueryRepository.findById(id).orElseThrow(
                 () -> new ResourceNotFoundException("해당 리소스 존재하지 않습니다.")
         );
+    }
+
+    /**
+     * 랜드마크 지도 기반 조회 <br/> 매일마다 갱신되는 방문 여부 체크 로직 추가 Mapper를 통해 방문 여부를 처리한 List<ResponseDTO> 형태로 반환합니다.
+     *
+     * @param west     : minLng
+     * @param south    : minLat
+     * @param east     : maxLng
+     * @param north    : maxLat
+     * @param memberId : Long
+     * @return List<LandmarkMapResponseDto>
+     */
+    @Override
+    public List<LandmarkMapResponseDto> findLandmarkBasedMap(Double west, Double south, Double east, Double north, Long memberId) {
+        List<Landmark> landmarks = landmarkCustomQueryRepository.findLandmarksBasedMap(west, south, east, north);
+        if (landmarks.isEmpty()) {
+            return new ArrayList<>();
+        }
+        Map<Long, Boolean> visitedLandmarks = memberRedisQueryRepository.findVisitedLandmarks(memberId)
+                                                                        .stream().collect(Collectors.toMap(Function.identity(), id -> Boolean.TRUE));
+
+        return LandmarkMapper.toLandmarkMapResponseDto(landmarks, visitedLandmarks);
     }
 
 }

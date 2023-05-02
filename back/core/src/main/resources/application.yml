@@ -6,17 +6,17 @@ spring:
         - s3-local
         - db-dev
         - global-dev
-        - security-dev
+        - security-local
       dev:
         - s3-server
         - db-dev
         - global-dev
-        - security-dev
+        - security-server
       prod:
         - s3-server
         - db-prod
         - global-prod
-        - security-prod
+        - security-server
     include:
       - s3
       - db
