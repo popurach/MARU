@@ -18,10 +18,10 @@ public class GoogleRegistration {
     private final String tokenUri;
 
     public GoogleRegistration(
-            @Value("spring.security.oauth2.client.registration.google.client-id") String clientId,
-            @Value("spring.security.oauth2.client.registration.google.client-secret") String clientSecret,
-            @Value("spring.security.oauth2.client.registration.google.redirect-uri") String redirectUri,
-            @Value("spring.security.oauth2.client.provider.google.token-uri") String tokenUri
+            @Value("${spring.security.oauth2.client.registration.google.client-id}") String clientId,
+            @Value("${spring.security.oauth2.client.registration.google.client-secret}") String clientSecret,
+            @Value("${spring.security.oauth2.client.registration.google.redirect-uri}") String redirectUri,
+            @Value("${spring.security.oauth2.client.provider.google.token-uri}") String tokenUri
     ) {
         this.clientId = clientId;
         this.clientSecret = clientSecret;
@@ -29,8 +29,9 @@ public class GoogleRegistration {
         this.tokenUri = tokenUri;
     }
 
-    public Map<String, String> getParams() {
+    public Map<String, String> getBody(String authCode) {
         return Map.of(
+                "code", authCode,
                 "client_id", this.clientId,
                 "client_secret", this.clientSecret,
                 "redirect_uri", this.redirectUri,
