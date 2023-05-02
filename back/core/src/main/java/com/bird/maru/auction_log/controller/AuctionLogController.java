@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/auction")
+@RequestMapping("/api/auctions")
 @Slf4j
 public class AuctionLogController {
 
@@ -49,16 +49,18 @@ public class AuctionLogController {
      * @Param id : auctionLogId (해당 경매 로그 테이블의 PK)
      */
     @DeleteMapping("/bidding/{id}")
-    public void auctionsCancelBidding(@AuthenticationPrincipal CustomUserDetails member, @PathVariable java.lang.Long id) {
+    public void auctionsCancelBidding(@AuthenticationPrincipal CustomUserDetails member, @PathVariable Long id) {
         auctionLogService.auctionsCancelBidding(member.getId(), id);
     }
 
     /**
      * 해당 랜드마크 경매 정보 조회
+     *
+     * @Param id : landmarkId
      */
-    @GetMapping
-    public void searchLandmarkById() {
-
+    @GetMapping("/{id}")
+    public void searchLandmarkById(@PathVariable Long id) {
+        auctionLogService.auctionRecord(id);
     }
 
 }
