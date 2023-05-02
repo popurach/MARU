@@ -7,15 +7,16 @@ import com.bird.maru.spot.repository.query.dto.SpotSimpleDto;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import org.mapstruct.Mapper;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 
-@Mapper(componentModel = "spring")
-public interface SpotMapper {
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
+public final class SpotMapper {
 
-    default SpotSimpleDto toSpotSimpleDto(Spot spot) {
+    public static SpotSimpleDto toSpotSimpleDto(Spot spot) {
         return SpotSimpleDto.builder()
                             .id(spot.getId())
-                            .landmarkId(spot.getLandmark() != null ? spot.getLandmark().getId() : null)
+                            .landmarkId(toLandmarkId(spot))
                             .imageUrl(spot.getImage().getUrl().toString())
                             .likeCount(spot.getLikeCount())
                             .tags(
@@ -28,16 +29,16 @@ public interface SpotMapper {
                             .build();
     }
 
-    default List<SpotSimpleDto> toSpotSimpleDto(List<Spot> spots) {
+    public static List<SpotSimpleDto> toSpotSimpleDto(List<Spot> spots) {
         return spots.stream()
-                    .map(this::toSpotSimpleDto)
+                    .map(SpotMapper::toSpotSimpleDto)
                     .collect(Collectors.toList());
     }
 
-    default SpotSimpleDto toSpotSimpleDto(Spot spot, Map<Long, List<Tag>> tagMap) {
+    public static SpotSimpleDto toSpotSimpleDto(Spot spot, Map<Long, List<Tag>> tagMap) {
         return SpotSimpleDto.builder()
                             .id(spot.getId())
-                            .landmarkId(spot.getLandmark() != null ? spot.getLandmark().getId() : null)
+                            .landmarkId(toLandmarkId(spot))
                             .imageUrl(spot.getImage().getUrl().toString())
                             .likeCount(spot.getLikeCount())
                             .tags(tagMap.get(spot.getId()))
@@ -45,10 +46,18 @@ public interface SpotMapper {
                             .build();
     }
 
-    default List<SpotSimpleDto> toSpotSimpleDto(List<Spot> spots, Map<Long, List<Tag>> tagMap) {
+    public static List<SpotSimpleDto> toSpotSimpleDto(List<Spot> spots, Map<Long, List<Tag>> tagMap) {
         return spots.stream()
                     .map(spot -> toSpotSimpleDto(spot, tagMap))
                     .collect(Collectors.toList());
+    }
+
+    private static Long toLandmarkId(Spot spot) {
+        if (!spot.isLandmark()) {
+            return null;
+        }
+
+        return spot.getLandmark().getId();
     }
 
 }

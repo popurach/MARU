@@ -29,7 +29,6 @@ public class SpotQueryServiceImpl implements SpotQueryService {
     private final SpotCustomQueryRepository spotCustomQueryRepository;
     private final LikeQueryService likeQueryService;
     private final ScrapQueryService scrapQueryService;
-    private final SpotMapper mapper;
     private final TagCustomQueryRepository tagCustomQueryRepository;
 
     /**
@@ -43,7 +42,7 @@ public class SpotQueryServiceImpl implements SpotQueryService {
     @Override
     public List<SpotSimpleDto> findMySpots(Long memberId, SpotSearchCondition condition) {
         List<Long> spotIds = spotCustomQueryRepository.findIdsByMemberAndMineCondition(memberId, condition);
-        List<SpotSimpleDto> spotDtos = mapper.toSpotSimpleDto(
+        List<SpotSimpleDto> spotDtos = SpotMapper.toSpotSimpleDto(
                 spotCustomQueryRepository.findAllWithTagsByIdIn(spotIds)
         );
 
@@ -56,11 +55,11 @@ public class SpotQueryServiceImpl implements SpotQueryService {
     public List<SpotSimpleDto> findMyScraps(Long memberId, SpotSearchCondition condition) {
         List<Spot> spots = spotCustomQueryRepository.findAllByMemberAndScrapCondition(memberId, condition);
         List<Long> spotIds = spots.stream()
-                                   .map(Spot::getId)
-                                   .collect(Collectors.toList());
+                                  .map(Spot::getId)
+                                  .collect(Collectors.toList());
 
         Map<Long, List<Tag>> tagMap = tagCustomQueryRepository.findAllWithTagBySpotIn(spotIds);
-        List<SpotSimpleDto> spotDtos = mapper.toSpotSimpleDto(spots, tagMap);
+        List<SpotSimpleDto> spotDtos = SpotMapper.toSpotSimpleDto(spots, tagMap);
 
         likeQueryService.checkLiked(memberId, spotIds, spotDtos);
         return spotDtos;
@@ -69,10 +68,12 @@ public class SpotQueryServiceImpl implements SpotQueryService {
     @Override
     public String findOwnerSpot(Long memberId, Long landmarkId) {
         LocalDateTime previousAuctionStartDate = TimeUtil.getPreviousAuctionStartDate();
-        List<String> ownerSpots = spotQueryRepository.findOwnerSpots(memberId, landmarkId, previousAuctionStartDate,
-                                                                     TimeUtil.getPreviousAuctionEndDate(previousAuctionStartDate));
+        List<String> ownerSpots = spotQueryRepository.findOwnerSpots(
+                memberId, landmarkId,
+                previousAuctionStartDate, TimeUtil.getPreviousAuctionEndDate(previousAuctionStartDate)
+        );
 
-        return ownerSpots.isEmpty() ? null : ownerSpots.get(RandomUtil.randomInt(ownerSpots.size()));
+        return ownerSpots.isEmpty() ? null : RandomUtil.randomElement(ownerSpots);
     }
 
 }

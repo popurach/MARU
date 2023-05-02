@@ -32,7 +32,7 @@ public class SpotCustomQueryRepository {
                                    spot.member.id.eq(memberId),
                                    ltOffset(memberId, condition)
                            )
-                           .orderBy(spot.id.desc())
+                           .orderBy(offsetOrder(condition))
                            .limit(condition.getSize())
                            .fetch();
     }
