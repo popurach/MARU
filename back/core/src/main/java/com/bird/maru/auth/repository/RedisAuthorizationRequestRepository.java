@@ -69,10 +69,7 @@ public class RedisAuthorizationRequestRepository implements AuthorizationRequest
     }
 
     private String getRedisKey(String state) {
-        return RedisCacheKey.createKey(
-                RedisCacheKey.AUTHORIZATION_REQUEST_KEY,
-                state
-        );
+        return RedisCacheKey.AUTHORIZATION_REQUEST.getKey(state);
     }
 
 }

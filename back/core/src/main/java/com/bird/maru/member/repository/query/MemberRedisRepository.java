@@ -1,9 +1,8 @@
 package com.bird.maru.member.repository.query;
 
 import com.bird.maru.common.redis.RedisCacheKey;
-import java.time.LocalDate;
+import com.bird.maru.common.util.TimeUtil;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.time.ZoneOffset;
 import java.util.HashSet;
 import java.util.Set;
@@ -16,13 +15,13 @@ import org.springframework.stereotype.Repository;
 
 @RequiredArgsConstructor
 @Repository
-public class MemberRedisQueryRepository {
+public class MemberRedisRepository {
 
     private final RedisTemplate<String, Object> redisTemplate;
 
     public Set<Long> findVisitedLandmarks(Long memberId) {
         Set<Object> members = redisTemplate.opsForSet().members(
-                RedisCacheKey.createKey(RedisCacheKey.MEMBER_VISITED, memberId)
+                RedisCacheKey.MEMBER_VISITED.getKey(memberId)
         );
         return members == null || members.isEmpty() ? new HashSet<>()
                 : members.stream().map(m -> Long.parseLong(m.toString()))
@@ -31,9 +30,9 @@ public class MemberRedisQueryRepository {
 
     public Long insertVisitLandmark(Long memberId, Long landmarkId) {
         SetOperations<String, Object> ops = redisTemplate.opsForSet();
-        LocalDateTime midnight = LocalDate.now().plusDays(1).atTime(LocalTime.MIDNIGHT);
+        LocalDateTime midnight = TimeUtil.getMidnightDate();
         long expirationInSecs = midnight.toEpochSecond(ZoneOffset.UTC) - LocalDateTime.now().toEpochSecond(ZoneOffset.UTC);
-        String key = RedisCacheKey.createKey(RedisCacheKey.MEMBER_VISITED, memberId);
+        String key = RedisCacheKey.MEMBER_VISITED.getKey(memberId);
         Long result = ops.add(key, landmarkId.toString());
         redisTemplate.expire(key, expirationInSecs, TimeUnit.SECONDS);
         return result;

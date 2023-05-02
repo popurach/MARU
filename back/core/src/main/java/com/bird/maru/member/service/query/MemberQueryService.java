@@ -7,6 +7,6 @@ public interface MemberQueryService {
 
     Member findMember(Long memberId) throws ResourceNotFoundException;
 
-    Long checkVisitLandmark(Long memberId, Long landmarkId);
+    Boolean checkVisitLandmark(Long memberId, Long landmarkId);
 
 }

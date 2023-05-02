@@ -116,8 +116,7 @@ public class LandmarkController {
     @PostMapping("/landmarks/{id}")
     @ResponseStatus(HttpStatus.CREATED)
     public Integer visitLandmark(@PathVariable Long id, @AuthenticationPrincipal CustomUserDetails member) throws ResourceNotFoundException {
-        Long newVisited = memberQueryService.checkVisitLandmark(member.getId(), id);
-        if (newVisited.equals(0L)) {
+        if (memberQueryService.checkVisitLandmark(member.getId(), id)) {
             return 0;
         }
         // 1. PointService -> PointServiceImpl -> SimplPointServiceImpl(extends PointServiceImpl)

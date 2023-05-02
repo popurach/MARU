@@ -3,7 +3,7 @@ package com.bird.maru.member.service.query;
 import com.bird.maru.common.exception.ResourceNotFoundException;
 import com.bird.maru.domain.model.entity.Member;
 import com.bird.maru.member.repository.query.MemberQueryRepository;
-import com.bird.maru.member.repository.query.MemberRedisQueryRepository;
+import com.bird.maru.member.repository.query.MemberRedisRepository;
 import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -15,7 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class MemberQueryServiceImpl implements MemberQueryService {
 
     private final MemberQueryRepository memberQueryRepository;
-    private final MemberRedisQueryRepository memberRedisQueryRepository;
+    private final MemberRedisRepository memberRedisRepository;
 
     @Override
     public Member findMember(Long memberId) throws ResourceNotFoundException {
@@ -31,12 +31,12 @@ public class MemberQueryServiceImpl implements MemberQueryService {
      * @return Long - 추가된 데이터 수
      */
     @Override
-    public Long checkVisitLandmark(Long memberId, Long landmarkId) {
-        Set<Long> visitedLandmarks = memberRedisQueryRepository.findVisitedLandmarks(memberId);
+    public Boolean checkVisitLandmark(Long memberId, Long landmarkId) {
+        Set<Long> visitedLandmarks = memberRedisRepository.findVisitedLandmarks(memberId);
         if (visitedLandmarks.contains(landmarkId)) {
-            return 0L;
+            return Boolean.TRUE;
         }
-        return memberRedisQueryRepository.insertVisitLandmark(memberId, landmarkId);
+        return memberRedisRepository.insertVisitLandmark(memberId, landmarkId) != 0 ? Boolean.FALSE : Boolean.TRUE;
     }
 
 }

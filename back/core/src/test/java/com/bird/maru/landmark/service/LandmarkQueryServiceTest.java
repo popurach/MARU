@@ -8,7 +8,7 @@ import com.bird.maru.landmark.controller.dto.LandmarkMapResponseDto;
 import com.bird.maru.landmark.repository.query.LandmarkCustomQueryRepository;
 import com.bird.maru.landmark.service.query.LandmarkQueryService;
 import com.bird.maru.landmark.util.LandmarkUtil;
-import com.bird.maru.member.repository.query.MemberRedisQueryRepository;
+import com.bird.maru.member.repository.query.MemberRedisRepository;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -29,7 +29,7 @@ class LandmarkQueryServiceTest {
     @MockBean
     private LandmarkCustomQueryRepository landmarkCustomQueryRepository;
     @MockBean
-    private MemberRedisQueryRepository memberRedisQueryRepository;
+    private MemberRedisRepository memberRedisRepository;
     private List<Landmark> landmarks;
     private final Set<Long> visitedLandmarks = new HashSet<>();
 
@@ -55,7 +55,7 @@ class LandmarkQueryServiceTest {
         List<Landmark> landmarks1 = landmarks.subList(0, 20);
         given(landmarkCustomQueryRepository.findLandmarksBasedMap(west, south, east, north))
                 .willReturn(landmarks1);
-        given(memberRedisQueryRepository.findVisitedLandmarks(memberId))
+        given(memberRedisRepository.findVisitedLandmarks(memberId))
                 .willReturn(visitedLandmarks);
         // when
         List<LandmarkMapResponseDto> landmarkBasedMap = landmarkQueryService.findLandmarkBasedMap(west, south, east, north, memberId);

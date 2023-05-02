@@ -3,9 +3,9 @@ package com.bird.maru.landmark.mapper;
 import com.bird.maru.domain.model.entity.Landmark;
 import com.bird.maru.landmark.controller.dto.LandmarkMapResponseDto;
 import com.bird.maru.landmark.controller.dto.LandmarkResponseDto;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 public class LandmarkMapper {
 
@@ -15,17 +15,19 @@ public class LandmarkMapper {
                                   .build();
     }
 
-    public static List<LandmarkMapResponseDto> toLandmarkMapResponseDto(List<Landmark> landmarks, Map<Long, Boolean> visited) {
-        List<LandmarkMapResponseDto> responseDtos = new ArrayList<>();
-        landmarks.forEach(
-                l -> responseDtos.add(
-                        LandmarkMapResponseDto.builder()
-                                              .id(l.getId())
-                                              .coordinate(l.getCoordinate())
-                                              .name(l.getName())
-                                              .visited(visited.containsKey(l.getId()))
-                                              .build()));
-        return responseDtos;
+    public static LandmarkMapResponseDto toLandmarkMapResponseDto(Landmark landmark, Set<Long> visited) {
+        return LandmarkMapResponseDto.builder()
+                                     .id(landmark.getId())
+                                     .coordinate(landmark.getCoordinate())
+                                     .name(landmark.getName())
+                                     .visited(visited.contains(landmark.getId()))
+                                     .build();
+    }
+
+    public static List<LandmarkMapResponseDto> toLandmarkMapResponseDtos(List<Landmark> landmarks, Set<Long> visited) {
+        return landmarks.stream().map(
+                l -> toLandmarkMapResponseDto(l, visited)
+        ).collect(Collectors.toList());
     }
 
 }
