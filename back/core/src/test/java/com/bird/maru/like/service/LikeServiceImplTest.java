@@ -3,6 +3,7 @@ package com.bird.maru.like.service;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.bird.maru.common.exception.ResourceNotFoundException;
+import com.bird.maru.common.util.NamedLockExecutor;
 import com.bird.maru.domain.model.entity.Like;
 import com.bird.maru.domain.model.entity.Member;
 import com.bird.maru.domain.model.entity.Spot;
@@ -13,6 +14,11 @@ import com.bird.maru.like.repository.LikeRepository;
 import com.bird.maru.like.repository.query.LikeQueryRepository;
 import com.bird.maru.member.repository.MemberRepository;
 import com.bird.maru.spot.repository.SpotRepository;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -37,6 +43,9 @@ class LikeServiceImplTest {
 
     @Autowired
     private LikeService likeService;
+
+    @Autowired
+    private NamedLockExecutor namedLockExecutor;
 
     @BeforeEach
     void beforeEach() {
@@ -107,6 +116,54 @@ class LikeServiceImplTest {
         like = likeQueryRepository.findByMemberAndSpot(testMember.getId(), testSpot.getId())
                                        .orElseThrow(() -> new ResourceNotFoundException("해당 리소스를 찾을 수 없습니다."));
         assertThat(like.getDeleted()).isFalse();
+    }
+
+    @Test
+    @DisplayName("동시성 테스트")
+    void synchronousTest() throws InterruptedException {
+        // given
+        List<Member> members = new ArrayList<>();
+        for (int i = 0; i < 100; i++) {
+            members.add(
+                    Member.builder()
+                          .nickname("test" + i)
+                          .email("test" + i + "@naver.com")
+                          .provider(Provider.NAVER)
+                          .build()
+            );
+        }
+        memberRepository.saveAll(members);
+        Spot testSpot = spotRepository.findAll().get(0);
+
+        // when
+        members = memberRepository.findAll();
+        int threadCount = members.size();
+        ExecutorService executorService = Executors.newFixedThreadPool(threadCount);
+        CountDownLatch countDownLatch = new CountDownLatch(threadCount);
+
+        for (Member member : members) {
+            executorService.submit(
+                    () -> {
+                        try {
+                            namedLockExecutor.executeWithLock(
+                                    testSpot.getId().toString(), 5,
+                                    () -> likeService.toggleLike(member.getId(), testSpot.getId())
+                            );
+                        } finally {
+                            countDownLatch.countDown();
+                        }
+                    }
+            );
+        }
+
+        countDownLatch.await();
+
+        // then
+        assertThat(
+                spotRepository.findAll()
+                              .get(0)
+                              .getLikeCount()
+        ).isEqualTo(101);
     }
 
 }

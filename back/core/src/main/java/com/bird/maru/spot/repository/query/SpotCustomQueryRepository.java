@@ -32,7 +32,7 @@ public class SpotCustomQueryRepository {
                            .where(
                                    spot.deleted.isFalse(),
                                    spot.member.id.eq(memberId),
-                                   ltOffset(memberId, condition)
+                                   ltSpotOffset(condition.getLastOffset())
                            )
                            .orderBy(offsetOrder(condition))
                            .limit(condition.getSize())
@@ -56,7 +56,7 @@ public class SpotCustomQueryRepository {
                                    scrap.deleted.isFalse(),
                                    spot.deleted.isFalse(),
                                    scrap.member.id.eq(memberId),
-                                   ltOffset(memberId, condition)
+                                   ltScrapOffset(memberId, condition.getLastOffset())
                            )
                            .orderBy(offsetOrder(condition))
                            .limit(condition.getSize())
@@ -85,33 +85,21 @@ public class SpotCustomQueryRepository {
         return queryFactory.selectFrom(spot)
                 .where(spot.landmark.id.eq(landmarkId),
                        spot.deleted.isFalse(),
-                       ltOffset(lastOffset))
+                       ltSpotOffset(lastOffset))
                 .orderBy(spot.id.desc())
                 .limit(size)
                 .fetch();
     }
 
-    private BooleanExpression ltOffset(Long memberId, SpotSearchCondition condition) {
-        if (condition.getLastOffset() == null) {
-            return null;
-        }
-
-        if (Boolean.TRUE.equals(condition.getMine())) {
-            return ltOffset(condition.getLastOffset());
-        }
-
-        if (Boolean.TRUE.equals(condition.getScraped())) {
-            return ltScrapOffset(memberId, condition.getLastOffset());
-        }
-
-        return null;
-    }
-
-    private BooleanExpression ltOffset(Long lastOffset) {
+    private BooleanExpression ltSpotOffset(Long lastOffset) {
         return lastOffset == null ? null : spot.id.lt(lastOffset);
     }
 
     private BooleanExpression ltScrapOffset(Long memberId, Long lastOffset) {
+        if (lastOffset == null) {
+            return null;
+        }
+
         return scrap.modifiedDateTime.before(queryModifiedDateTimeByMemberAndSpot(memberId, lastOffset))
                                      .or(
                                              scrap.modifiedDateTime.eq(queryModifiedDateTimeByMemberAndSpot(memberId, lastOffset))
