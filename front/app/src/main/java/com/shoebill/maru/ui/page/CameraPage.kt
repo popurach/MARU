@@ -14,20 +14,25 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.shoebill.maru.ui.component.camera.CameraCapturedImage
 import com.shoebill.maru.ui.component.camera.CameraPreview
 import com.shoebill.maru.viewmodel.CameraViewModel
+import com.shoebill.maru.viewmodel.NavigateViewModel
 
 @Composable
 fun CameraPage(
     cameraViewModel: CameraViewModel = hiltViewModel(),
     onImageCaptured: (Uri, Boolean) -> Unit,
-    onError: (ImageCaptureException) -> Unit
+    onError: (ImageCaptureException) -> Unit,
+    navigateViewModel: NavigateViewModel = viewModel()
 ) {
     val isCapture = cameraViewModel.isCapture.observeAsState()
     BackHandler {
         if (isCapture.value == true) {
             cameraViewModel.backToCameraScreen(false)
+        } else {
+            navigateViewModel.navigator?.popBackStack()
         }
     }
 
