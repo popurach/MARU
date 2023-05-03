@@ -1,5 +1,6 @@
 package com.shoebill.maru.ui.component.common
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
@@ -25,14 +26,17 @@ fun GradientButton(
     gradient: Brush,
     modifier: Modifier = Modifier,
     onClick: () -> Unit = { },
+    enabled: Boolean = true,
 ) {
     Button(
         modifier = modifier.padding(top = 0.dp),
         colors = ButtonDefaults.buttonColors(backgroundColor = Color.Transparent),
         contentPadding = PaddingValues(),
         onClick = { onClick() },
+        enabled = enabled,
         shape = RoundedCornerShape(10.dp)
     ) {
+        Log.d("TEST", "GradientButton: $enabled")
         Box(
             modifier = Modifier
                 .background(gradient)

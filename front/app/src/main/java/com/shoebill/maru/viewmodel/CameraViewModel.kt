@@ -1,6 +1,7 @@
 package com.shoebill.maru.viewmodel
 
 import android.content.Context
+import android.location.Location
 import android.media.MediaScannerConnection
 import android.net.Uri
 import android.webkit.MimeTypeMap
@@ -8,6 +9,7 @@ import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageCaptureException
 import androidx.core.net.toFile
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.shoebill.maru.R
@@ -21,8 +23,14 @@ import java.util.concurrent.Executors
 class CameraViewModel() : ViewModel() {
     private val FILENAME = "yyyy-MM-dd-HH-mm-ss-SSS"
     private val PHOTO_EXTENSION = ".png"
-
     private val _imageUrl = MutableLiveData("")
+    private val _location = MutableLiveData<Location>()
+
+    val location: LiveData<Location> get() = _location
+    fun setLocation(location: Location) {
+        _location.value = location
+    }
+
     val imageUrl get() = _imageUrl
 
     private val _isCapture = MutableLiveData(false)

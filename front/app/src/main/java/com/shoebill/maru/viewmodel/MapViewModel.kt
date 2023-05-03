@@ -40,7 +40,7 @@ import javax.inject.Inject
 @HiltViewModel
 class MapViewModel @Inject constructor() : ViewModel() {
     private lateinit var mapView: MapView
-    private lateinit var mapBoxMap: MapboxMap
+    lateinit var mapBoxMap: MapboxMap
     private var isTracking = false
     private lateinit var _focusManager: FocusManager
 
