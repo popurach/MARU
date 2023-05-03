@@ -47,9 +47,7 @@ public class AuctionLogCustomQueryRepository {
                 .orderBy(auction.createdDate.desc())
                 .limit(10)
                 .fetch();
-        if(auctionLogs.isEmpty()) {
-            return new ArrayList<>();
-        }
+
         return auctionLogs;
     }
 
