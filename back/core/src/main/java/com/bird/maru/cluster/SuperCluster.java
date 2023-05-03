@@ -211,7 +211,7 @@ public class SuperCluster {
         double minLat = Math.max(-90, Math.min(90, boundingBox.getSouth()));
         double maxLng = boundingBox.getEast() == 180 ? 180 : ((boundingBox.getEast() + 180) % 360 + 360) % 360 - 180;
         double maxLat = Math.max(-90, Math.min(90, boundingBox.getNorth()));
-        int zoom = boundingBox.getZoomLevel();
+        int zoom = boundingBox.getZoom();
         if (boundingBox.getEast() - boundingBox.getWest() >= 360) {
             minLng = -180;
             maxLng = 180;
@@ -222,14 +222,14 @@ public class SuperCluster {
                                                            .south(minLat)
                                                            .east(180.0)
                                                            .north(maxLat)
-                                                           .zoomLevel(zoom)
+                                                           .zoom(zoom)
                                                            .build());
             List<Feature> westernHem = this.run(BoundingBox.builder()
                                                            .west(-180.0)
                                                            .south(minLat)
                                                            .east(maxLng)
                                                            .north(maxLat)
-                                                           .zoomLevel(zoom)
+                                                           .zoom(zoom)
                                                            .build());
 //            List<Feature> westernHem = this.run(new double[] { -180, minLat, maxLng, maxLat }, zoom);
             easternHem.addAll(westernHem);

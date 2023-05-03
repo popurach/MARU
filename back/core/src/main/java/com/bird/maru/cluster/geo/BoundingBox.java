@@ -1,22 +1,24 @@
 package com.bird.maru.cluster.geo;
 
 import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
+import lombok.experimental.SuperBuilder;
 
-@Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
-@Builder
+@Getter
+@Setter
+@SuperBuilder
+@ToString
 public class BoundingBox {
 
     private Double west;
     private Double south;
     private Double east;
     private Double north;
-    private Integer zoomLevel;
+    private Integer zoom;
 
     public double[] getBoundingBox() {
         return new double[] { west, south, east, north };
