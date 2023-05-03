@@ -39,24 +39,13 @@ public class AuctionLogCustomQueryRepository {
     }
 
     public List<AuctionLog> auctionRecordTop10(Long landmarkId) {
-//                .join(auction).on(auctionLog.auction.eq(auction))
-        List<AuctionLog> auctionLogs = queryFactory.selectFrom(auctionLog)
+        return queryFactory.selectFrom(auctionLog)
                 .join(auctionLog.auction, auction).on(auctionLog.id.eq(auction.lastLogId))
-//                .where(auction.landmark.id.eq(landmarkId),
-                .where(eqLandmark(landmarkId),
+                .where(auction.landmark.id.eq(landmarkId),
                        auction.finished.isTrue())
                 .orderBy(auction.createdDate.desc())
                 .limit(10)
                 .fetch();
-        if(auctionLogs != null) {
-            return auctionLogs;
-        }
-        return Collections.emptyList();
     }
-
-    public BooleanExpression eqLandmark(Long landmarkId) {
-        return landmarkId == null ? null :  auction.landmark.id.eq(landmarkId);
-    }
-
 
 }

@@ -157,7 +157,9 @@ public class AuctionLogServiceImpl implements AuctionLogService {
         if(auctionLogList.isEmpty()) {
             return new ArrayList<>();
         }
-        List<Integer> auctionRecords = auctionLogList.stream().map(AuctionLog::getPrice).collect(Collectors.toList());
+        List<Integer> auctionRecords = auctionLogList.stream().map(
+                auctionLog -> auctionLog.getPrice() != null ? auctionLog.getPrice() : 0
+        ).collect(Collectors.toList());
         return auctionRecords;
     }
 
