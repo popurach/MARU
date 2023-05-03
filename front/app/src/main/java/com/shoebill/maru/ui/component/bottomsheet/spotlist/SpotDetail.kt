@@ -56,7 +56,12 @@ fun SpotDetail(
                         tint = Color.White,
                         modifier = Modifier
                             .size(30.dp)
-                            .clickable { bottomSheetNavigatorViewModel.navController?.popBackStack() }
+                            .clickable {
+                                bottomSheetNavigatorViewModel.navController?.navigate("spot/list") {
+                                    launchSingleTop = true
+                                    popUpTo(0)
+                                }
+                            }
                     )
                 }
                 Box(
