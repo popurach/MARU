@@ -3,7 +3,6 @@ package com.bird.maru.landmark.controller;
 import com.bird.maru.auth.service.dto.CustomUserDetails;
 import com.bird.maru.common.exception.ResourceNotFoundException;
 import com.bird.maru.domain.model.entity.Member;
-import com.bird.maru.landmark.controller.dto.LandmarkMapResponseDto;
 import com.bird.maru.landmark.controller.dto.LandmarkResponseDto;
 import com.bird.maru.landmark.controller.dto.LandmarkSpotResponseDto;
 import com.bird.maru.landmark.controller.dto.LandmarkStampResponseDto;
@@ -31,7 +30,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api")
+@RequestMapping("/api/landmarks")
 @Slf4j
 public class LandmarkController {
 
@@ -48,7 +47,7 @@ public class LandmarkController {
      * @return LandmarkResponseDto
      * @throws ResourceNotFoundException : DB에 해당 리소스 존재하지 않음
      */
-    @GetMapping("/landmarks/{id}")
+    @GetMapping("/{id}")
     public LandmarkResponseDto findLandmark(@PathVariable Long id) throws ResourceNotFoundException {
         return LandmarkMapper.toLandmarkResponseDto(landmarkQueryService.findLandmark(id));
     }
@@ -60,7 +59,7 @@ public class LandmarkController {
      * @return OwnerResponseDto
      * @throws ResourceNotFoundException : DB에 해당 리소스 존재하지 않음
      */
-    @GetMapping("/landmarks/{id}/owner")
+    @GetMapping("/{id}/owner")
     public OwnerResponseDto findOwner(@PathVariable Long id) throws ResourceNotFoundException {
         Long memberId = landmarkQueryService.findLandmark(id).getMemberId();
         Member member = memberQueryService.findMember(memberId);
@@ -84,33 +83,13 @@ public class LandmarkController {
     }
 
     /**
-     * 랜드마크 지도 기준 검색 - 랜드마크는 클러스터링 진행하지 않습니다. <br/> 랜드마크 정보에는 해당 사용자의 최초 방문 여부를 함께 반환합니다. 결과가 존재하지 않다면 빈 리스트를 반환하고, <br/> 결과가 존재한다면 좌표 정보와 함께 사용자가
-     * 방문했는지 정보를 같이 반환합니다.
-     *
-     * @param west   : minLng
-     * @param south  : minLat
-     * @param east   : maxLng
-     * @param north  : maxLat
-     * @param member : 현재 접근중인 주체
-     * @return List<LandmarkMapResponseDto>
-     */
-    @GetMapping("/landmarks")
-    public List<LandmarkMapResponseDto> findLandmarksBasedMap(
-            @RequestParam Double west, @RequestParam Double south,
-            @RequestParam Double east, @RequestParam Double north,
-            @AuthenticationPrincipal CustomUserDetails member
-    ) {
-        return landmarkQueryService.findLandmarkBasedMap(west, south, east, north, member.getId());
-    }
-
-    /**
      * 랜드마크 방문 API
      *
      * @param id     : 랜드마크 id
      * @param member : 현재 접근중인 주체
      * @throws ResourceNotFoundException 리소스 없음
      */
-    @PostMapping("/landmarks/{id}")
+    @PostMapping("/{id}")
     @ResponseStatus(HttpStatus.CREATED)
     public Integer visitLandmark(@PathVariable Long id, @AuthenticationPrincipal CustomUserDetails member) throws ResourceNotFoundException {
         if (Boolean.TRUE.equals(memberQueryService.checkVisitLandmark(member.getId(), id))) {
@@ -127,7 +106,7 @@ public class LandmarkController {
      * @param member : 현재 접근중인 주체
      * @return LandmarkStampResponseDto : 랜드마크 id, 스팟 id, 최신 스팟 사진, 랜드마크 이름
      */
-    @GetMapping("/landmarks/my/stamps")
+    @GetMapping("/my/stamps")
     public List<LandmarkStampResponseDto> findLandmarkStamps(
             @AuthenticationPrincipal CustomUserDetails member, @RequestParam(defaultValue = "20") Integer size,
             @RequestParam @Nullable Long lastOffset) {
@@ -142,7 +121,7 @@ public class LandmarkController {
      * @param lastOffset : 이전 페이지의 마지막 아이템의 id
      * @return 랜드마크에 속한 스팟의 사진과 id
      */
-    @GetMapping("/landmarks/{landmarkId}/spots")
+    @GetMapping("/{landmarkId}/spots")
     public List<LandmarkSpotResponseDto> findLandmarkSpots(
             @PathVariable Long landmarkId, @RequestParam(defaultValue = "20") Integer size, @RequestParam @Nullable Long lastOffset
     ) {

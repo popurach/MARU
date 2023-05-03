@@ -5,6 +5,8 @@ import static com.bird.maru.domain.model.entity.QSpot.spot;
 import static com.bird.maru.domain.model.entity.QSpotHasTag.spotHasTag;
 import static com.bird.maru.domain.model.entity.QTag.tag;
 
+import com.bird.maru.cluster.geo.BoundingBox;
+import com.bird.maru.cluster.geo.Marker;
 import com.bird.maru.domain.model.entity.Spot;
 import com.bird.maru.spot.controller.dto.SpotSearchCondition;
 import com.bird.maru.spot.repository.query.dto.SpotSimpleDto;
@@ -83,12 +85,26 @@ public class SpotCustomQueryRepository {
 
     public List<Spot> findSpotByLandmark(Long landmarkId, Long lastOffset, Integer size) {
         return queryFactory.selectFrom(spot)
-                .where(spot.landmark.id.eq(landmarkId),
-                       spot.deleted.isFalse(),
-                       ltSpotOffset(lastOffset))
-                .orderBy(spot.id.desc())
-                .limit(size)
-                .fetch();
+                           .where(spot.landmark.id.eq(landmarkId),
+                                  spot.deleted.isFalse(),
+                                  ltSpotOffset(lastOffset))
+                           .orderBy(spot.id.desc())
+                           .limit(size)
+                           .fetch();
+    }
+
+    public List<Marker> findMarkerByBoundingBox(BoundingBox boundingBox) {
+        return queryFactory.select(Projections.fields(Marker.class,
+                                                      spot.id.as("id"),
+                                                      spot.member.id.as("memberId"),
+                                                      spot.coordinate.as("coordinate")
+                           ))
+                           .from(spot)
+                           .where(spot.coordinate.lng.between(boundingBox.getWest(), boundingBox.getEast()),
+                                  spot.coordinate.lat.between(boundingBox.getSouth(), boundingBox.getNorth()),
+                                  spot.deleted.isFalse(),
+                                  spot.landmark.id.isNull())
+                           .fetch();
     }
 
     private BooleanExpression ltSpotOffset(Long lastOffset) {

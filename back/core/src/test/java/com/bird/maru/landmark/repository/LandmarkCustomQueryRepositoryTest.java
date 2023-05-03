@@ -9,7 +9,6 @@ import com.bird.maru.landmark.repository.query.LandmarkCustomQueryRepository;
 import com.bird.maru.landmark.util.LandmarkUtil;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import javax.persistence.EntityManager;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
@@ -43,7 +42,7 @@ class LandmarkCustomQueryRepositoryTest {
                                  .west(126.9634795)
                                  .east(126.9807529)
                                  .north(37.5587141)
-                                 .zoomLevel(15)
+                                 .zoom(15)
                                  .build();
     }
 
