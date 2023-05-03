@@ -28,6 +28,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavOptions
 import coil.compose.AsyncImage
 import com.shoebill.maru.R
 import com.shoebill.maru.model.data.Member
@@ -180,5 +181,11 @@ fun navigateToMyPage(
     myPageViewModel.switchTab(
         tabIndex
     )
-    navigateViewModel.navigator!!.navigate("mypage")
+    navigateViewModel.navigator!!.navigate("mypage") {
+        NavOptions.Builder().setEnterAnim(0)
+            .setExitAnim(0)
+            .setPopEnterAnim(0)
+            .setPopExitAnim(0)
+            .build()
+    }
 }
