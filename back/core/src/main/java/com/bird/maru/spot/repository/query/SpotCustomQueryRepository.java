@@ -5,6 +5,8 @@ import static com.bird.maru.domain.model.entity.QSpot.spot;
 import static com.bird.maru.domain.model.entity.QSpotHasTag.spotHasTag;
 import static com.bird.maru.domain.model.entity.QTag.tag;
 
+import com.bird.maru.auction.controller.dto.AuctionSearchCondition;
+import com.bird.maru.common.util.TimeUtil;
 import com.bird.maru.domain.model.entity.Spot;
 import com.bird.maru.spot.controller.dto.SpotSearchCondition;
 import com.bird.maru.spot.repository.query.dto.SpotSimpleDto;
@@ -63,6 +65,28 @@ public class SpotCustomQueryRepository {
                            .fetch();
     }
 
+    public List<Long> findLandmarkIdsByMemberAndCondition(Long memberId, AuctionSearchCondition condition) {
+        return queryFactory.select(spot.landmark.id)
+                           .from(spot)
+                           .where(
+                                   spot.member.id.eq(memberId),
+                                   spot.landmark.isNotNull(),
+                                   spot.createdDateTime.after(TimeUtil.getThisWeekStartDateTime()),
+                                   gtLandmarkOffset(condition.getLastOffset())
+                           )
+                           .orderBy(spot.landmark.id.asc())
+                           .limit(condition.getSize())
+                           .fetch();
+    }
+
+    private BooleanExpression gtLandmarkOffset(Long lastOffset) {
+        if (lastOffset == null) {
+            return null;
+        }
+
+        return spot.landmark.id.gt(lastOffset);
+    }
+
     public List<SpotSimpleDto> findSpotByMyVisitedLandmark(Long memberId, List<Long> landmarkIds) {
         return queryFactory.select(Projections.constructor(SpotSimpleDto.class,
                                                            spot.id.as("id"),
@@ -83,12 +107,12 @@ public class SpotCustomQueryRepository {
 
     public List<Spot> findSpotByLandmark(Long landmarkId, Long lastOffset, Integer size) {
         return queryFactory.selectFrom(spot)
-                .where(spot.landmark.id.eq(landmarkId),
-                       spot.deleted.isFalse(),
-                       ltSpotOffset(lastOffset))
-                .orderBy(spot.id.desc())
-                .limit(size)
-                .fetch();
+                           .where(spot.landmark.id.eq(landmarkId),
+                                  spot.deleted.isFalse(),
+                                  ltSpotOffset(lastOffset))
+                           .orderBy(spot.id.desc())
+                           .limit(size)
+                           .fetch();
     }
 
     private BooleanExpression ltSpotOffset(Long lastOffset) {
