@@ -12,7 +12,6 @@ class NoticeSource(private val noticeRepository: NoticeRepository) : PagingSourc
     override suspend fun load(params: LoadParams<Int>): LoadResult<Int, Notice> {
         return try {
             val page = params.key ?: 0
-
             val noticeResponse = noticeRepository.getNotices(page)
 
             LoadResult.Page(
