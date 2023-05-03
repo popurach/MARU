@@ -63,9 +63,11 @@ fun BottomSheetPage(
             composable(
                 "spot/detail/{id}",
                 arguments = listOf(navArgument("id") {
-                    type = NavType.LongType; defaultValue =
-                    navigatorViewModel.navigator?.previousBackStackEntry?.savedStateHandle?.get("spotId")
-                        ?: 1
+                    type = NavType.LongType
+                    defaultValue =
+                        navigatorViewModel.navigator?.previousBackStackEntry?.savedStateHandle?.get(
+                            "spotId"
+                        ) ?: 1
                 })
             ) {
                 CompositionLocalProvider(
