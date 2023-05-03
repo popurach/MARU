@@ -5,7 +5,7 @@ import retrofit2.http.GET
 import retrofit2.http.Query
 
 interface LandmarkApi {
-    @GET("/api/landmarks/my")
+    @GET("/api/landmarks/my/stamps")
     suspend fun getVisitedLandmarks(
         @Query(
             "lastOffset",
