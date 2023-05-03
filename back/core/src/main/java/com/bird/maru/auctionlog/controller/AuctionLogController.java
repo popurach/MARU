@@ -1,12 +1,12 @@
-package com.bird.maru.auction_log.controller;
+package com.bird.maru.auctionlog.controller;
 
-import com.bird.maru.auction_log.controller.dto.AuctionLogRequestDto;
-import com.bird.maru.auction_log.controller.dto.AuctionLogResponseDto;
-import com.bird.maru.auction_log.service.AuctionLogService;
+import com.bird.maru.auctionlog.controller.dto.AuctionLogRequestDto;
+import com.bird.maru.auctionlog.service.AuctionLogService;
 import com.bird.maru.auth.service.dto.CustomUserDetails;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -60,9 +61,11 @@ public class AuctionLogController {
      *
      * @Param id : landmarkId
      */
-    @GetMapping("/{id}")
-    public List<AuctionLogResponseDto> searchLandmarkById(@PathVariable Long id) {
-        return auctionLogService.auctionRecord(id);
+    @GetMapping("/landmarks/{id}")
+    public ResponseEntity<List<Integer>> searchLandmarkById(@PathVariable Long id) {
+        List<Integer> auctionLogMap = auctionLogService.auctionRecord(id);
+
+        return ResponseEntity.ok(auctionLogMap);
     }
 
 }

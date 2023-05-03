@@ -1,10 +1,8 @@
-package com.bird.maru.auction_log.service;
+package com.bird.maru.auctionlog.service;
 
 import com.bird.maru.auction.repository.AuctionRepository;
-import com.bird.maru.auction_log.controller.dto.AuctionLogResponseDto;
-import com.bird.maru.auction_log.mapper.AuctionLogMapper;
-import com.bird.maru.auction_log.repository.AuctionLogRepository;
-import com.bird.maru.auction_log.repository.query.AuctionLogCustomQueryRepository;
+import com.bird.maru.auctionlog.repository.AuctionLogRepository;
+import com.bird.maru.auctionlog.repository.query.AuctionLogCustomQueryRepository;
 import com.bird.maru.common.exception.NotEnoughMoney;
 import com.bird.maru.common.exception.ResourceNotFoundException;
 import com.bird.maru.domain.model.entity.Auction;
@@ -13,11 +11,10 @@ import com.bird.maru.domain.model.entity.Landmark;
 import com.bird.maru.domain.model.entity.Member;
 import com.bird.maru.landmark.repository.LandmarkRepository;
 import com.bird.maru.member.repository.MemberRepository;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,7 +29,6 @@ public class AuctionLogServiceImpl implements AuctionLogService {
     private final AuctionLogCustomQueryRepository auctionLogCustomQueryRepository;
     private final AuctionRepository auctionRepository;
     private final MemberRepository memberRepository;
-    private final LandmarkRepository landmarkRepository;
 
     /**
      * 입찰 처리 (신규 입찰자)
@@ -51,7 +47,7 @@ public class AuctionLogServiceImpl implements AuctionLogService {
 
         // 2. 현재 auction 테이블의 최고 입찰값 (없을 수도 있음) 가져오기
         Auction auction = auctionRepository.findByLandmarkAndFinished(landmarkId, Boolean.FALSE)
-                         .orElseThrow(() -> new ResourceNotFoundException("해당 리소스 존재하지 않습니다."));
+                                           .orElseThrow(() -> new ResourceNotFoundException("해당 리소스 존재하지 않습니다."));
         biddingWithAuction(auction, member, price);
     }
 
@@ -155,19 +151,14 @@ public class AuctionLogServiceImpl implements AuctionLogService {
      * @Param 랜드마크 PK
      */
     @Override
-    public List<AuctionLogResponseDto> auctionRecord(Long landmarkId) {
-        List<AuctionLog> auctionLogList = auctionLogRepository.auctionRecord(landmarkId, PageRequest.of(0, 10));
-//        List<AuctionLogResponseDto> auctionLogResponseDtoList = new ArrayList<>();
-//
-//        for (AuctionLog auctionLog : auctionLogList) {
-//            auctionLogResponseDtoList.add(AuctionLogMapper.toAuctionResponseDto(auctionLog));
-//        }
-//        return auctionLogResponseDtoList;
-        return AuctionLogMapper.toAuctionResponseDto(auctionLogList);
+    public List<Integer> auctionRecord(Long landmarkId) {
+        List<AuctionLog> auctionLogList = auctionLogCustomQueryRepository.auctionRecordTop10(landmarkId);
+        List<Integer> auctionRecords = auctionLogList.stream().map(AuctionLog::getPrice).collect(Collectors.toList());
+        return auctionRecords;
     }
 
     private void biddingWithAuction(Auction auction, Member member, int price) {
-        if(auction.getLastLogId() != null) {
+        if (auction.getLastLogId() != null) {
             int prevCost = auctionLogRepository.findById(auction.getLastLogId())
                                                .orElseThrow(() -> new ResourceNotFoundException("해당 리소스 존재하지 않습니다."))
                                                .getPrice();

@@ -1,4 +1,4 @@
-package com.bird.maru.auction_log.controller.dto;
+package com.bird.maru.auctionlog.controller.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

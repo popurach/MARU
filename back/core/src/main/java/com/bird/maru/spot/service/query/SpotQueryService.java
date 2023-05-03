@@ -1,6 +1,5 @@
 package com.bird.maru.spot.service.query;
 
-import com.bird.maru.domain.model.entity.Spot;
 import com.bird.maru.spot.controller.dto.SpotSearchCondition;
 import com.bird.maru.spot.repository.query.dto.SpotSimpleDto;
 import java.util.List;
@@ -12,7 +11,5 @@ public interface SpotQueryService {
     List<SpotSimpleDto> findMyScraps(Long memberId, SpotSearchCondition condition);
 
     String findOwnerSpot(Long memberId, Long landmarkId);
-
-    List<Spot> findLandmarkSpots(Long landmarkId, Long lastOffset, Integer size);
 
 }

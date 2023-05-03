@@ -3,7 +3,6 @@ package com.bird.maru.spot.mapper;
 import com.bird.maru.domain.model.entity.Spot;
 import com.bird.maru.domain.model.entity.SpotHasTag;
 import com.bird.maru.domain.model.entity.Tag;
-import com.bird.maru.landmark.controller.dto.LandmarkSpotResponseDto;
 import com.bird.maru.spot.repository.query.dto.SpotSimpleDto;
 import java.util.List;
 import java.util.Map;
@@ -59,19 +58,6 @@ public final class SpotMapper {
         }
 
         return spot.getLandmark().getId();
-    }
-
-    public static LandmarkSpotResponseDto toLandmarkSpotResponseDto(Spot spot) {
-        return LandmarkSpotResponseDto.builder()
-                                      .id(spot.getId())
-                                      .imageUrl(spot.getImage().getUrl().toString())
-                                      .build();
-    }
-
-    public static List<LandmarkSpotResponseDto> toLandmarkSpotResponseDtos(List<Spot> spots) {
-        return spots.stream()
-                    .map(SpotMapper::toLandmarkSpotResponseDto)
-                    .collect(Collectors.toList());
     }
 
 }

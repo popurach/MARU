@@ -7,11 +7,8 @@ import static com.bird.maru.domain.model.entity.QTag.tag;
 
 import com.bird.maru.domain.model.entity.Spot;
 import com.bird.maru.spot.controller.dto.SpotSearchCondition;
-import com.bird.maru.spot.repository.query.dto.SpotSimpleDto;
 import com.querydsl.core.types.OrderSpecifier;
-import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
-import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.JPQLQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -42,8 +39,8 @@ public class SpotCustomQueryRepository {
 
     public List<Spot> findAllWithTagsByIdIn(List<Long> spotIds) {
         return queryFactory.selectFrom(spot)
-                           .leftJoin(spot.tags, spotHasTag).fetchJoin()
-                           .leftJoin(spotHasTag.tag, tag).fetchJoin()
+                           .join(spot.tags, spotHasTag).fetchJoin()
+                           .join(spotHasTag.tag, tag).fetchJoin()
                            .where(spot.id.in(spotIds))
                            .orderBy(spot.id.desc())
                            .fetch();
@@ -64,41 +61,13 @@ public class SpotCustomQueryRepository {
                            .fetch();
     }
 
-    public List<SpotSimpleDto> findSpotByMyVisitedLandmark(Long memberId, List<Long> landmarkIds) {
-        return queryFactory.select(Projections.constructor(SpotSimpleDto.class,
-                                                           spot.id.as("id"),
-                                                           spot.landmark.id.as("landmarkId"),
-                                                           Expressions.asString(spot.image.url.toString()).as("imageUrl")
-                           ))
-                           .from(spot)
-                           .where(spot.id.in(
-                                   JPAExpressions.select(spot.id.max())
-                                                 .from(spot)
-                                                 .where(spot.landmark.id.in(landmarkIds),
-                                                        spot.deleted.isFalse(),
-                                                        spot.member.id.eq(memberId))
-                                                 .groupBy(spot.landmark.id)
-                           ))
-                           .fetch();
-    }
-
-    public List<Spot> findSpotByLandmark(Long landmarkId, Long lastOffset, Integer size) {
-        return queryFactory.selectFrom(spot)
-                .where(spot.landmark.id.eq(landmarkId),
-                       spot.deleted.isFalse(),
-                       ltOffset(lastOffset))
-                .orderBy(spot.id.desc())
-                .limit(size)
-                .fetch();
-    }
-
     private BooleanExpression ltOffset(Long memberId, SpotSearchCondition condition) {
         if (condition.getLastOffset() == null) {
             return null;
         }
 
         if (Boolean.TRUE.equals(condition.getMine())) {
-            return ltOffset(condition.getLastOffset());
+            return ltMineOffset(condition.getLastOffset());
         }
 
         if (Boolean.TRUE.equals(condition.getScraped())) {
@@ -108,8 +77,8 @@ public class SpotCustomQueryRepository {
         return null;
     }
 
-    private BooleanExpression ltOffset(Long lastOffset) {
-        return lastOffset == null ? null : spot.id.lt(lastOffset);
+    private BooleanExpression ltMineOffset(Long lastOffset) {
+        return spot.id.lt(lastOffset);
     }
 
     private BooleanExpression ltScrapOffset(Long memberId, Long lastOffset) {

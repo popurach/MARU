@@ -1,7 +1,6 @@
 package com.bird.maru.spot.controller;
 
 import com.bird.maru.auth.service.dto.CustomUserDetails;
-import com.bird.maru.like.service.LikeService;
 import com.bird.maru.spot.controller.dto.SpotSearchCondition;
 import com.bird.maru.spot.repository.query.dto.SpotSimpleDto;
 import com.bird.maru.spot.service.query.SpotQueryService;
@@ -10,8 +9,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -21,7 +18,6 @@ import org.springframework.web.bind.annotation.RestController;
 public class SpotController {
 
     private final SpotQueryService spotQueryService;
-    private final LikeService likeService;
 
     /**
      * 내 스팟 목록 조회에 성공할 경우 스팟 목록과 상태 코드 200을 반환합니다.
@@ -53,14 +49,6 @@ public class SpotController {
     ) {
         condition.setMyScrapCondition();
         return spotQueryService.findMyScraps(member.getId(), condition);
-    }
-
-    @PostMapping("/{spotId}/like")
-    public void toggleLike(
-            @AuthenticationPrincipal CustomUserDetails member,
-            @PathVariable Long spotId
-    ) {
-        likeService.toggleLike(member.getId(), spotId);
     }
 
 }

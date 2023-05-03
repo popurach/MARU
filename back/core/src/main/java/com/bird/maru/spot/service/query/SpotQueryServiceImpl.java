@@ -32,8 +32,8 @@ public class SpotQueryServiceImpl implements SpotQueryService {
     private final TagCustomQueryRepository tagCustomQueryRepository;
 
     /**
-     * 먼저 조건에 맞는 Spot ID의 목록을 조회합니다. 이후 조회한 Spot ID의 목록으로 Tag를 포함한 Spot 목록을 조회합니다. 그 결과를 DTO 변환한 후에 좋아요 여부와 스크랩 여부를 확인합니다. 이 비즈니스 로직을 수행하는 과정에서 총 4번의
-     * 쿼리가 수행됩니다.
+     * 먼저 조건에 맞는 Spot ID의 목록을 조회합니다. 이후 조회한 Spot ID의 목록으로 Tag를 포함한 Spot 목록을 조회합니다.
+     * 그 결과를 DTO 변환한 후에 좋아요 여부와 스크랩 여부를 확인합니다. 이 비즈니스 로직을 수행하는 과정에서 총 4번의 쿼리가 수행됩니다.
      *
      * @param memberId  현재 로그인한 회원의 ID
      * @param condition Spot 조회 조건
@@ -74,19 +74,6 @@ public class SpotQueryServiceImpl implements SpotQueryService {
         );
 
         return ownerSpots.isEmpty() ? null : RandomUtil.randomElement(ownerSpots);
-    }
-
-    /**
-     * 랜드마크에 포함된 모든 스팟 조회
-     *
-     * @param landmarkId : 랜드마크 id
-     * @param size       : 페이지네이션 size
-     * @param lastOffset : 이전 페이지의 마지막 아이템의 id
-     * @return Spot 리스트
-     */
-    @Override
-    public List<Spot> findLandmarkSpots(Long landmarkId, Long lastOffset, Integer size) {
-        return spotCustomQueryRepository.findSpotByLandmark(landmarkId, lastOffset, size);
     }
 
 }

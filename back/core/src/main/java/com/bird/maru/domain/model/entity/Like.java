@@ -39,14 +39,4 @@ public class Like extends BaseDateTime {
     @Builder.Default
     private Boolean deleted = Boolean.FALSE;
 
-    public void toggleDeleted() {
-        if (Boolean.TRUE.equals(this.deleted)) {
-            this.spot.likeCountUp();
-        } else {
-            this.spot.likeCountDown();
-        }
-
-        this.deleted = !this.deleted;
-    }
-
 }
