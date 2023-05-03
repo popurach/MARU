@@ -11,6 +11,7 @@ import com.bird.maru.domain.model.entity.Landmark;
 import com.bird.maru.domain.model.entity.Member;
 import com.bird.maru.landmark.repository.LandmarkRepository;
 import com.bird.maru.member.repository.MemberRepository;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -153,6 +154,9 @@ public class AuctionLogServiceImpl implements AuctionLogService {
     @Override
     public List<Integer> auctionRecord(Long landmarkId) {
         List<AuctionLog> auctionLogList = auctionLogCustomQueryRepository.auctionRecordTop10(landmarkId);
+        if(auctionLogList.size() == 0) {
+            return new ArrayList<>();
+        }
         List<Integer> auctionRecords = auctionLogList.stream().map(AuctionLog::getPrice).collect(Collectors.toList());
         return auctionRecords;
     }
