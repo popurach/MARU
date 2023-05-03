@@ -1,6 +1,7 @@
 package com.shoebill.maru.ui.component.mypage
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -16,6 +17,7 @@ import coil.compose.AsyncImage
 import com.shoebill.maru.R
 import com.shoebill.maru.model.data.Stamp
 import com.shoebill.maru.viewmodel.MyPageViewModel
+import com.shoebill.maru.viewmodel.NavigateViewModel
 
 @Composable
 fun StampScreen(
@@ -31,14 +33,26 @@ fun StampScreen(
 }
 
 @Composable
-fun StampItem(stamp: Stamp) {
+fun StampItem(stamp: Stamp, navigateViewModel: NavigateViewModel = viewModel()) {
     if (stamp.imageUrl != null)
         AsyncImage(
             model = stamp.imageUrl,
             contentDescription = "stamp item",
             modifier = Modifier
                 .size(120.dp)
-                .padding(horizontal = 0.5.dp, vertical = 0.5.dp),
+                .padding(horizontal = 0.5.dp, vertical = 0.5.dp)
+                .clickable {
+                    navigateViewModel.navigator?.currentBackStackEntry?.savedStateHandle?.set(
+                        key = "spotId",
+                        value = stamp.spotId
+                    )
+                    navigateViewModel.navigator?.currentBackStackEntry?.savedStateHandle?.set(
+                        key = "expandState",
+                        value = true
+                    )
+
+                    navigateViewModel.navigator?.navigate("main")
+                },
             contentScale = ContentScale.Crop
         )
     else
