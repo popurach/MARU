@@ -71,9 +71,11 @@ public class LandmarkQueryServiceImpl implements LandmarkQueryService {
      * @return LandmarkStampResponseDto : 랜드마크 id, 스팟 id, 최신 스팟 사진, 랜드마크 이름
      */
     @Override
-    public List<LandmarkStampResponseDto> findLandmarkStamps(Long memberId) {
-        List<Landmark> landmarks = landmarkQueryRepository.findAll();
-        Map<Long, SpotSimpleDto> spotSimpleMap = spotCustomQueryRepository.findSpotByMyVisitedLandmark(memberId)
+    public List<LandmarkStampResponseDto> findLandmarkStamps(Long memberId, Long lastOffset, Integer size) {
+        List<Landmark> landmarks = landmarkCustomQueryRepository.findAll(lastOffset, size);
+        Map<Long, SpotSimpleDto> spotSimpleMap = spotCustomQueryRepository.findSpotByMyVisitedLandmark(memberId,
+                                                                                                       landmarks.stream().map(Landmark::getId)
+                                                                                                                .collect(Collectors.toList()))
                                                                           .stream()
                                                                           .collect(Collectors.toMap(SpotSimpleDto::getLandmarkId,
                                                                                                     Function.identity()));
