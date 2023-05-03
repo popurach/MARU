@@ -86,7 +86,7 @@ public class LandmarkController {
     }
 
     /**
-     * 랜드마크 지도 기준 검색 - 랜드마크는 클러스터링 진행하지 않습니다. <br/> 랜드마크 정보에는 해당 사용자의 최초 방문 여부를 함께 반환합니다. 결과가 존재하지 않다면 NoContent를 반환하고, <br/> 결과가 존재한다면 좌표 정보와 함께 사용자가
+     * 랜드마크 지도 기준 검색 - 랜드마크는 클러스터링 진행하지 않습니다. <br/> 랜드마크 정보에는 해당 사용자의 최초 방문 여부를 함께 반환합니다. 결과가 존재하지 않다면 빈 리스트를 반환하고, <br/> 결과가 존재한다면 좌표 정보와 함께 사용자가
      * 방문했는지 정보를 같이 반환합니다.
      *
      * @param west   : minLng
@@ -97,18 +97,12 @@ public class LandmarkController {
      * @return List<LandmarkMapResponseDto>
      */
     @GetMapping("/landmarks")
-    public ResponseEntity<List<LandmarkMapResponseDto>> findLandmarksBasedMap(
+    public List<LandmarkMapResponseDto> findLandmarksBasedMap(
             @RequestParam Double west, @RequestParam Double south,
             @RequestParam Double east, @RequestParam Double north,
             @AuthenticationPrincipal CustomUserDetails member
     ) {
-        List<LandmarkMapResponseDto> landmarkBasedMap = landmarkQueryService.findLandmarkBasedMap(west, south, east, north, member.getId());
-        if (landmarkBasedMap.isEmpty()) {
-            return ResponseEntity.noContent().build();
-        } else {
-            return ResponseEntity.ok(landmarkBasedMap);
-        }
-
+        return landmarkQueryService.findLandmarkBasedMap(west, south, east, north, member.getId());
     }
 
     /**
@@ -136,15 +130,10 @@ public class LandmarkController {
      * @return LandmarkStampResponseDto : 랜드마크 id, 스팟 id, 최신 스팟 사진, 랜드마크 이름
      */
     @GetMapping("/landmarks/my")
-    public ResponseEntity<List<LandmarkStampResponseDto>> findLandmarkStamps(
+    public List<LandmarkStampResponseDto> findLandmarkStamps(
             @AuthenticationPrincipal CustomUserDetails member, @RequestParam(defaultValue = "20") Integer size,
             @RequestParam @Nullable Long lastOffset) {
-        List<LandmarkStampResponseDto> landmarkStamps = landmarkQueryService.findLandmarkStamps(member.getId(), lastOffset, size);
-        if (landmarkStamps.isEmpty())
-            return ResponseEntity.noContent().build();
-        else {
-            return ResponseEntity.ok(landmarkStamps);
-        }
+        return landmarkQueryService.findLandmarkStamps(member.getId(), lastOffset, size);
     }
 
     /**
@@ -156,35 +145,10 @@ public class LandmarkController {
      * @return 랜드마크에 속한 스팟의 사진과 id
      */
     @GetMapping("/landmarks/{landmarkId}/spots")
-    public ResponseEntity<List<LandmarkSpotResponseDto>> findLandmarkSpots(
+    public List<LandmarkSpotResponseDto> findLandmarkSpots(
             @PathVariable Long landmarkId, @RequestParam(defaultValue = "20") Integer size, @RequestParam @Nullable Long lastOffset
     ) {
-        List<Spot> spots = spotQueryService.findLandmarkSpots(landmarkId, lastOffset, size);
-        if (spots.isEmpty()) {
-            return ResponseEntity.noContent().build();
-        } else {
-            return ResponseEntity.ok(SpotMapper.toLandmarkSpotResponseDtos(spots));
-        }
-    }
-
-    /**
-     * 랜드마크에 등록된 Spot 사진 조회 <br/> 필요한 데이터 : spotId, imageUrl <br/> 페이지네이션 - 정렬 기준 최신순, pageSize = 20
-     *
-     * @param landmarkId : 랜드마크 id
-     * @param size       : 페이지 내에 포함된 아이템 수
-     * @param lastOffset : 이전 페이지의 마지막 아이템의 id
-     * @return 랜드마크에 속한 스팟의 사진과 id
-     */
-    @GetMapping("/landmarks/{landmarkId}/spots")
-    public ResponseEntity<List<LandmarkSpotResponseDto>> findLandmarkSpots(
-            @PathVariable Long landmarkId, @RequestParam(defaultValue = "20") Integer size, @RequestParam @Nullable Long lastOffset
-    ) {
-        List<Spot> spots = spotQueryService.findLandmarkSpots(landmarkId, lastOffset, size);
-        if (spots.isEmpty()) {
-            return ResponseEntity.noContent().build();
-        } else {
-            return ResponseEntity.ok(SpotMapper.toLandmarkSpotResponseDtos(spots));
-        }
+        return SpotMapper.toLandmarkSpotResponseDtos(spotQueryService.findLandmarkSpots(landmarkId, lastOffset, size));
     }
 
 }
