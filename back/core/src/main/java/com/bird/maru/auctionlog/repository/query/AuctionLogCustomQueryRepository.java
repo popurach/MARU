@@ -18,7 +18,7 @@ import org.springframework.stereotype.Repository;
 @RequiredArgsConstructor
 public class AuctionLogCustomQueryRepository {
 
-    private JPAQueryFactory queryFactory;
+    private final JPAQueryFactory queryFactory;
 
     public Optional<AuctionLog> findWithAuctionById(Long auctionLogId) {
         return Optional.ofNullable(
