@@ -8,7 +8,6 @@ import com.bird.maru.map.service.query.MapQueryService;
 import com.bird.maru.spot.service.query.SpotQueryService;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -21,7 +20,6 @@ import org.wololo.geojson.Feature;
 @RestController
 @RequestMapping("/api/map")
 @RequiredArgsConstructor
-@Slf4j
 public class MapController {
 
     private final LandmarkQueryService landmarkQueryService;
@@ -58,7 +56,6 @@ public class MapController {
      * */
     @PostMapping("/spots")
     public List<Feature> spotsCluster(@AuthenticationPrincipal CustomUserDetails member, @RequestBody MapCondition condition) {
-        log.debug("{}", condition);
         return mapQueryService.spotsCluster(member.getId(), condition);
     }
 
