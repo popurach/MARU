@@ -1,6 +1,7 @@
 package com.bird.maru.spot.repository.query.dto;
 
 import com.bird.maru.domain.model.entity.Tag;
+import java.net.URL;
 import java.util.List;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -22,7 +23,7 @@ public class SpotSimpleDto {
 
     private Long landmarkId;
 
-    private String imageUrl;
+    private URL imageUrl;
 
     private Integer likeCount;
 
@@ -35,7 +36,7 @@ public class SpotSimpleDto {
     private Boolean scraped = Boolean.FALSE;
 
     @Builder
-    public SpotSimpleDto(Long id, Long landmarkId, String imageUrl) {
+    public SpotSimpleDto(Long id, Long landmarkId, URL imageUrl) {
         this.id = id;
         this.landmarkId = landmarkId;
         this.imageUrl = imageUrl;

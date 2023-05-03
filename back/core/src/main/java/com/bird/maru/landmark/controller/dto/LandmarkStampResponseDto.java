@@ -1,5 +1,6 @@
 package com.bird.maru.landmark.controller.dto;
 
+import java.net.URL;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -15,6 +16,6 @@ public class LandmarkStampResponseDto {
     private Long landmarkId;
     private String name;
     private Long spotId;
-    private String imageUrl;
+    private URL imageUrl;
 
 }

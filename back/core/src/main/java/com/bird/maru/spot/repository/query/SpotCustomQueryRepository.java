@@ -11,7 +11,6 @@ import com.bird.maru.spot.repository.query.dto.SpotSimpleDto;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
-import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.JPQLQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -68,7 +67,7 @@ public class SpotCustomQueryRepository {
         return queryFactory.select(Projections.constructor(SpotSimpleDto.class,
                                                            spot.id.as("id"),
                                                            spot.landmark.id.as("landmarkId"),
-                                                           Expressions.asString(spot.image.url.toString()).as("imageUrl")
+                                                           spot.image.url.as("imageUrl")
                            ))
                            .from(spot)
                            .where(spot.id.in(
