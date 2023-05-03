@@ -88,4 +88,12 @@ public class Spot extends BaseDateTime {
         );
     }
 
+    public void likeCountUp() {
+        this.likeCount++;
+    }
+
+    public void likeCountDown() {
+        this.likeCount--;
+    }
+
 }
