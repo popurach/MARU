@@ -3,7 +3,6 @@ package com.bird.maru.landmark.controller;
 import com.bird.maru.auth.service.dto.CustomUserDetails;
 import com.bird.maru.common.exception.ResourceNotFoundException;
 import com.bird.maru.domain.model.entity.Member;
-import com.bird.maru.domain.model.entity.Spot;
 import com.bird.maru.landmark.controller.dto.LandmarkMapResponseDto;
 import com.bird.maru.landmark.controller.dto.LandmarkResponseDto;
 import com.bird.maru.landmark.controller.dto.LandmarkSpotResponseDto;
@@ -21,7 +20,6 @@ import javax.annotation.Nullable;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -129,7 +127,7 @@ public class LandmarkController {
      * @param member : 현재 접근중인 주체
      * @return LandmarkStampResponseDto : 랜드마크 id, 스팟 id, 최신 스팟 사진, 랜드마크 이름
      */
-    @GetMapping("/landmarks/my")
+    @GetMapping("/landmarks/my/stamps")
     public List<LandmarkStampResponseDto> findLandmarkStamps(
             @AuthenticationPrincipal CustomUserDetails member, @RequestParam(defaultValue = "20") Integer size,
             @RequestParam @Nullable Long lastOffset) {
