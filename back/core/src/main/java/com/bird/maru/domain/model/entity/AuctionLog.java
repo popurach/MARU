@@ -1,7 +1,6 @@
 package com.bird.maru.domain.model.entity;
 
-import java.time.LocalDateTime;
-import javax.persistence.Column;
+import com.bird.maru.domain.model.type.BaseDateTime;
 import javax.persistence.Entity;
 import javax.persistence.EntityListeners;
 import javax.persistence.FetchType;
@@ -19,7 +18,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 @Entity
@@ -32,7 +30,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Getter
 @Builder
-public class AuctionLog {
+public class AuctionLog extends BaseDateTime {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -43,19 +41,16 @@ public class AuctionLog {
             @JoinColumn(name = "auction_created_date", referencedColumnName = "created_date", updatable = false),
             @JoinColumn(name = "landmark_id", referencedColumnName = "landmark_id", updatable = false)
     })
+    @NotNull
     private Auction auction;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id", updatable = false)
+    @NotNull
     private Member member;
 
     @NotNull
     private Integer price;
-
-    @CreatedDate
-    @Column(name = "created_date_time", columnDefinition = "DATETIME")
-    @NotNull
-    private LocalDateTime createdDateTime;
 
     public void bidding(int price) {
         this.price = price;
