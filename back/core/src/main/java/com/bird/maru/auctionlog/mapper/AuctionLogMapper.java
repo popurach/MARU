@@ -1,6 +1,6 @@
-package com.bird.maru.auction_log.mapper;
+package com.bird.maru.auctionlog.mapper;
 
-import com.bird.maru.auction_log.controller.dto.AuctionLogResponseDto;
+import com.bird.maru.auctionlog.controller.dto.AuctionLogResponseDto;
 import com.bird.maru.domain.model.entity.AuctionLog;
 import java.util.List;
 import java.util.stream.Collectors;

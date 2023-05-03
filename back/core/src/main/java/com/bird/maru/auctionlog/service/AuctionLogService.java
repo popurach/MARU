@@ -1,6 +1,5 @@
-package com.bird.maru.auction_log.service;
+package com.bird.maru.auctionlog.service;
 
-import com.bird.maru.auction_log.controller.dto.AuctionLogResponseDto;
 import com.bird.maru.domain.model.entity.AuctionLog;
 import java.util.List;
 
@@ -14,6 +13,6 @@ public interface AuctionLogService {
 
     void auctionExecute(AuctionLog auctionLogs);
 
-    List<AuctionLogResponseDto> auctionRecord(Long landmarkId);
+    List<Integer> auctionRecord(Long landmarkId);
 
 }

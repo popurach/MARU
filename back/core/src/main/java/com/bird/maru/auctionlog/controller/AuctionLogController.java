@@ -1,8 +1,7 @@
-package com.bird.maru.auction_log.controller;
+package com.bird.maru.auctionlog.controller;
 
-import com.bird.maru.auction_log.controller.dto.AuctionLogRequestDto;
-import com.bird.maru.auction_log.controller.dto.AuctionLogResponseDto;
-import com.bird.maru.auction_log.service.AuctionLogService;
+import com.bird.maru.auctionlog.controller.dto.AuctionLogRequestDto;
+import com.bird.maru.auctionlog.service.AuctionLogService;
 import com.bird.maru.auth.service.dto.CustomUserDetails;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -16,6 +15,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -61,15 +61,11 @@ public class AuctionLogController {
      *
      * @Param id : landmarkId
      */
-    @GetMapping("/{id}")
-    public ResponseEntity<List<AuctionLogResponseDto>> searchLandmarkById(@PathVariable Long id) {
+    @GetMapping("/landmarks/{id}")
+    public ResponseEntity<List<Integer>> searchLandmarkById(@PathVariable Long id) {
+        List<Integer> auctionLogMap = auctionLogService.auctionRecord(id);
 
-        List<AuctionLogResponseDto> auctionLogMap = auctionLogService.auctionRecord(id);
-        if(auctionLogMap.isEmpty()) {
-            return ResponseEntity.noContent().build();
-        } else {
-            return ResponseEntity.ok(auctionLogMap);
-        }
+        return ResponseEntity.ok(auctionLogMap);
     }
 
 }

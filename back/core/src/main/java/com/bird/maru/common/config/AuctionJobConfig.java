@@ -1,8 +1,8 @@
 package com.bird.maru.common.config;
 
 import com.bird.maru.auction.repository.AuctionRepository;
-import com.bird.maru.auction_log.repository.AuctionLogRepository;
-import com.bird.maru.auction_log.service.AuctionLogService;
+import com.bird.maru.auctionlog.repository.AuctionLogRepository;
+import com.bird.maru.auctionlog.service.AuctionLogService;
 import com.bird.maru.domain.model.entity.Auction;
 import com.bird.maru.domain.model.entity.AuctionLog;
 import com.bird.maru.domain.model.entity.Landmark;

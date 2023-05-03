@@ -1,11 +1,13 @@
-package com.bird.maru.auction_log.repository.query;
+package com.bird.maru.auctionlog.repository.query;
 
 import static com.bird.maru.domain.model.entity.QAuction.auction;
 import static com.bird.maru.domain.model.entity.QAuctionLog.auctionLog;
 
 import com.bird.maru.domain.model.entity.Auction;
 import com.bird.maru.domain.model.entity.AuctionLog;
+import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
@@ -33,5 +35,22 @@ public class AuctionLogCustomQueryRepository {
                             .fetchFirst()
         );
     }
+
+    public List<AuctionLog> auctionRecordTop10(Long landmarkId) {
+//                .join(auction).on(auctionLog.auction.eq(auction))
+        return queryFactory.selectFrom(auctionLog)
+                .join(auctionLog.auction, auction).on(auctionLog.id.eq(auction.lastLogId))
+//                .where(auction.landmark.id.eq(landmarkId),
+                .where(eqLandmark(landmarkId),
+                       auction.finished.isTrue())
+                .orderBy(auction.createdDate.desc())
+                .limit(10)
+                .fetch();
+    }
+
+    public BooleanExpression eqLandmark(Long landmarkId) {
+        return landmarkId == null ? null :  auction.landmark.id.eq(landmarkId);
+    }
+
 
 }
