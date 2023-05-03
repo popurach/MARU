@@ -17,6 +17,8 @@ import androidx.compose.material.Icon
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -39,6 +41,8 @@ import com.patrykandpatrick.vico.compose.component.shape.shader.verticalGradient
 import com.patrykandpatrick.vico.core.chart.values.AxisValuesOverrider
 import com.patrykandpatrick.vico.core.entry.entryModelOf
 import com.shoebill.maru.R
+import com.shoebill.maru.ui.component.auction.BiddingConfirmModal
+import com.shoebill.maru.ui.component.auction.DeleteConfirmModal
 import com.shoebill.maru.ui.component.common.GradientButton
 import com.shoebill.maru.ui.theme.Pretendard
 import com.shoebill.maru.viewmodel.AuctionViewModel
@@ -50,6 +54,9 @@ fun AuctionPage(auctionViewModel: AuctionViewModel = viewModel()) {
     val gradient = Brush.horizontalGradient(listOf(Color(0xFF6039DF), Color(0xFFA14AB7)))
     val bid = auctionViewModel.bid.observeAsState()
     val dec = DecimalFormat("#,###")
+    val auctionInfo = auctionViewModel.auctionInfo.observeAsState()
+    val isDeleteModalOpen = remember { mutableStateOf(false) }
+    val isBiddigModalOpen = remember { mutableStateOf(false) }
 
     Column(
         modifier = Modifier
@@ -273,7 +280,7 @@ fun AuctionPage(auctionViewModel: AuctionViewModel = viewModel()) {
         ) {
             Button(
                 contentPadding = PaddingValues(horizontal = 20.dp, vertical = 18.dp),
-                onClick = { /*TODO*/ },
+                onClick = { isDeleteModalOpen.value = true },
                 colors = ButtonDefaults.buttonColors(Color(0xFFD3D3D3)),
                 shape = RoundedCornerShape(10.dp)
             ) {
@@ -291,8 +298,19 @@ fun AuctionPage(auctionViewModel: AuctionViewModel = viewModel()) {
                 gradient = gradient,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(vertical = 18.dp)
+                    .padding(vertical = 18.dp),
+                onClick = { isBiddigModalOpen.value = true }
             )
+        }
+        if (isDeleteModalOpen.value) {
+            DeleteConfirmModal() {
+                isDeleteModalOpen.value = false
+            }
+        }
+        if (isBiddigModalOpen.value) {
+            BiddingConfirmModal() {
+                isBiddigModalOpen.value = false
+            }
         }
     }
 }

@@ -70,7 +70,8 @@ class MainActivity : ComponentActivity() {
                         .padding(bottom = 45.dp),
                     color = MaterialTheme.colors.background
                 ) {
-                    MyApp(startDestination = if (prefUtil.isLogin()) "main" else "login")
+//                    MyApp(startDestination = if (prefUtil.isLogin()) "main" else "login")
+                    MyApp(startDestination = "auction")
                 }
             }
         }
