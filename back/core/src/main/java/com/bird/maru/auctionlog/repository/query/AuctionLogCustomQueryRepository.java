@@ -8,6 +8,7 @@ import com.bird.maru.domain.model.entity.AuctionLog;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
@@ -47,8 +48,10 @@ public class AuctionLogCustomQueryRepository {
                 .orderBy(auction.createdDate.desc())
                 .limit(10)
                 .fetch();
-
-        return auctionLogs;
+        if(auctionLogs != null) {
+            return auctionLogs;
+        }
+        return Collections.emptyList();
     }
 
     public BooleanExpression eqLandmark(Long landmarkId) {
