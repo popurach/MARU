@@ -54,7 +54,7 @@ fun LandmarkMain(
         ) {
             Box(Modifier.height(267.dp)) {
                 AsyncImage(
-                    model = landmarkLandingViewModel.landmark.occupantProfileImageUrl,
+                    model = "",
                     contentDescription = "occupant profile",
                     contentScale = ContentScale.Crop,
                     modifier = Modifier
@@ -74,13 +74,13 @@ fun LandmarkMain(
                 )
             }
             Text(
-                text = landmarkLandingViewModel.landmark.occupantNickname,
+                text = "",
                 fontSize = 25.sp,
                 fontWeight = FontWeight.Bold
             )
         }
         Text(
-            text = landmarkLandingViewModel.landmark.sentence,
+            text = "",
             Modifier.padding(horizontal = 50.dp),
             textAlign = TextAlign.Center
         )
