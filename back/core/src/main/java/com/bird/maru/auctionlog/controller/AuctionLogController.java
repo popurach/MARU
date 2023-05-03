@@ -62,10 +62,8 @@ public class AuctionLogController {
      * @Param id : landmarkId
      */
     @GetMapping("/landmarks/{id}")
-    public ResponseEntity<List<Integer>> searchLandmarkById(@PathVariable Long id) {
-        List<Integer> auctionLogMap = auctionLogService.auctionRecord(id);
-
-        return ResponseEntity.ok(auctionLogMap);
+    public List<Integer> searchLandmarkById(@PathVariable Long id) {
+        return auctionLogService.auctionRecord(id);
     }
 
 }
