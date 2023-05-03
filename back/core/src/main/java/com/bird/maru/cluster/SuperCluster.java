@@ -204,7 +204,6 @@ public class SuperCluster {
      * 클러스터링 알고리즘 수행
      *
      * @param boundingBox : 현재 사용자의 지도 범위
-     * @param zoom        : 현재 사용자의 지도 줌 레벨
      */
     public List<Feature> run(BoundingBox boundingBox) {
         double minLng = ((boundingBox.getWest() + 180) % 360 + 360) % 360 - 180;
