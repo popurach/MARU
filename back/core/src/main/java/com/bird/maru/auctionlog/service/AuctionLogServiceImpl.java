@@ -154,10 +154,12 @@ public class AuctionLogServiceImpl implements AuctionLogService {
     @Override
     public List<Integer> auctionRecord(Long landmarkId) {
         List<AuctionLog> auctionLogList = auctionLogCustomQueryRepository.auctionRecordTop10(landmarkId);
-        if(auctionLogList.size() == 0) {
+        if(auctionLogList.isEmpty()) {
             return new ArrayList<>();
         }
-        List<Integer> auctionRecords = auctionLogList.stream().map(AuctionLog::getPrice).collect(Collectors.toList());
+        List<Integer> auctionRecords = auctionLogList.stream().map(
+                auctionLog -> auctionLog.getPrice() != null ? auctionLog.getPrice() : 0
+        ).collect(Collectors.toList());
         return auctionRecords;
     }
 

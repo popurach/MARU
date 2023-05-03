@@ -8,6 +8,7 @@ import com.bird.maru.domain.model.entity.AuctionLog;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
@@ -38,22 +39,13 @@ public class AuctionLogCustomQueryRepository {
     }
 
     public List<AuctionLog> auctionRecordTop10(Long landmarkId) {
-//                .join(auction).on(auctionLog.auction.eq(auction))
-        List<AuctionLog> auctionLogs = queryFactory.selectFrom(auctionLog)
+        return queryFactory.selectFrom(auctionLog)
                 .join(auctionLog.auction, auction).on(auctionLog.id.eq(auction.lastLogId))
-//                .where(auction.landmark.id.eq(landmarkId),
-                .where(eqLandmark(landmarkId),
+                .where(auction.landmark.id.eq(landmarkId),
                        auction.finished.isTrue())
                 .orderBy(auction.createdDate.desc())
                 .limit(10)
                 .fetch();
-
-        return auctionLogs;
     }
-
-    public BooleanExpression eqLandmark(Long landmarkId) {
-        return landmarkId == null ? null :  auction.landmark.id.eq(landmarkId);
-    }
-
 
 }
