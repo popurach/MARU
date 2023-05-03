@@ -55,11 +55,17 @@ fun MainPage(
 
     val spotId: Long? =
         navigateViewModel.navigator?.previousBackStackEntry?.savedStateHandle?.get("spotId")
+    val expandState: Boolean? =
+        navigateViewModel.navigator?.previousBackStackEntry?.savedStateHandle?.get("expandState")
 
     val coroutineContext = rememberCoroutineScope()
 
     coroutineContext.launch {
-        if (spotId != null && !isDrawerOpen.value) {
+        if (expandState != null && expandState) {
+            navigateViewModel.navigator?.previousBackStackEntry?.savedStateHandle?.set(
+                key = "expandState",
+                value = false
+            )
             scaffoldState.bottomSheetState.expand()
         }
     }

@@ -1,5 +1,6 @@
 package com.shoebill.maru.ui.component.mypage
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -31,13 +32,23 @@ fun StampScreen(
 
 @Composable
 fun StampItem(stamp: Stamp) {
-    AsyncImage(
-        model = stamp.imageUrl ?: painterResource(id = R.drawable.locked_stamp),
-        contentDescription = "stamp item",
-        modifier = Modifier
-            .size(120.dp)
-            .padding(horizontal = 0.5.dp, vertical = 0.5.dp),
-        contentScale = ContentScale.Crop
-    )
+    if (stamp.imageUrl != null)
+        AsyncImage(
+            model = stamp.imageUrl,
+            contentDescription = "stamp item",
+            modifier = Modifier
+                .size(120.dp)
+                .padding(horizontal = 0.5.dp, vertical = 0.5.dp),
+            contentScale = ContentScale.Crop
+        )
+    else
+        Image(
+            painter = painterResource(id = R.drawable.locked_stamp),
+            contentDescription = "locked stamp item",
+            modifier = Modifier
+                .size(120.dp)
+                .padding(horizontal = 0.5.dp, vertical = 0.5.dp),
+            contentScale = ContentScale.Crop
+        )
 }
 

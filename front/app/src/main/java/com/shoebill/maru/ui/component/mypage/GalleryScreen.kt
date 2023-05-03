@@ -43,6 +43,11 @@ fun GalleryItem(spot: Spot, navigateViewModel: NavigateViewModel) {
                     key = "spotId",
                     value = spot.id
                 )
+                navigateViewModel.navigator?.currentBackStackEntry?.savedStateHandle?.set(
+                    key = "expandState",
+                    value = true
+                )
+
                 navigateViewModel.navigator?.navigate("main")
             },
         contentScale = ContentScale.Crop
