@@ -64,7 +64,7 @@ public class SpotCustomQueryRepository {
                            .fetch();
     }
 
-    public List<SpotSimpleDto> findSpotByMyVisitedLandmark(Long memberId) {
+    public List<SpotSimpleDto> findSpotByMyVisitedLandmark(Long memberId, List<Long> landmarkIds) {
         return queryFactory.select(Projections.constructor(SpotSimpleDto.class,
                                                            spot.id.as("id"),
                                                            spot.landmark.id.as("landmarkId"),
@@ -74,7 +74,7 @@ public class SpotCustomQueryRepository {
                            .where(spot.id.in(
                                    JPAExpressions.select(spot.id.max())
                                                  .from(spot)
-                                                 .where(spot.landmark.id.isNotNull(),
+                                                 .where(spot.landmark.id.in(landmarkIds),
                                                         spot.deleted.isFalse(),
                                                         spot.member.id.eq(memberId))
                                                  .groupBy(spot.landmark.id)

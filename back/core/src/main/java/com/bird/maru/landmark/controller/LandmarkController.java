@@ -136,9 +136,15 @@ public class LandmarkController {
      * @return LandmarkStampResponseDto : 랜드마크 id, 스팟 id, 최신 스팟 사진, 랜드마크 이름
      */
     @GetMapping("/landmarks/my")
-    public List<LandmarkStampResponseDto> findLandmarkStamps(
-            @AuthenticationPrincipal CustomUserDetails member) {
-        return landmarkQueryService.findLandmarkStamps(member.getId());
+    public ResponseEntity<List<LandmarkStampResponseDto>> findLandmarkStamps(
+            @AuthenticationPrincipal CustomUserDetails member, @RequestParam(defaultValue = "20") Integer size,
+            @RequestParam @Nullable Long lastOffset) {
+        List<LandmarkStampResponseDto> landmarkStamps = landmarkQueryService.findLandmarkStamps(member.getId(), lastOffset, size);
+        if (landmarkStamps.isEmpty())
+            return ResponseEntity.noContent().build();
+        else {
+            return ResponseEntity.ok(landmarkStamps);
+        }
     }
 
     /**

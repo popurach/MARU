@@ -12,6 +12,6 @@ public interface LandmarkQueryService {
 
     List<LandmarkMapResponseDto> findLandmarkBasedMap(Double west, Double south, Double east, Double north, Long memberId);
 
-    List<LandmarkStampResponseDto> findLandmarkStamps(Long memberId);
+    List<LandmarkStampResponseDto> findLandmarkStamps(Long memberId, Long lastOffset, Integer size);
 
 }
