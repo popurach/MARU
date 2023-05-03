@@ -2,6 +2,7 @@ package com.bird.maru.spot.repository.query;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.bird.maru.cluster.geo.BoundingBox;
 import com.bird.maru.cluster.geo.Marker;
 import com.bird.maru.common.util.RandomUtil;
 import com.bird.maru.domain.model.entity.Landmark;
@@ -195,15 +196,17 @@ class SpotCustomQueryRepositoryTest {
     void simpleFindMarkerTest() {
         // given
         MapCondition condition = MapCondition.builder()
-                                             .west(-180.0)
-                                             .south(-90.0)
-                                             .east(180.0)
-                                             .north(90.0)
-                                             .zoom(1)
+                                             .boundingBox(BoundingBox.builder()
+                                                                     .west(-180.0)
+                                                                     .south(-90.0)
+                                                                     .east(180.0)
+                                                                     .north(90.0)
+                                                                     .zoom(1)
+                                                                     .build())
                                              .build();
 
         // when
-        List<Marker> markerbyBoundingBox = spotCustomQueryRepository.findMarkerByBoundingBox(condition);
+        List<Marker> markerbyBoundingBox = spotCustomQueryRepository.findMarkerByBoundingBox(condition.getBoundingBox());
         log.debug("{}", markerbyBoundingBox);
 
         // then

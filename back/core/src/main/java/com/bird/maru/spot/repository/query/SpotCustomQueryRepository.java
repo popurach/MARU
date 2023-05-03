@@ -5,9 +5,9 @@ import static com.bird.maru.domain.model.entity.QSpot.spot;
 import static com.bird.maru.domain.model.entity.QSpotHasTag.spotHasTag;
 import static com.bird.maru.domain.model.entity.QTag.tag;
 
+import com.bird.maru.cluster.geo.BoundingBox;
 import com.bird.maru.cluster.geo.Marker;
 import com.bird.maru.domain.model.entity.Spot;
-import com.bird.maru.map.controller.dto.MapCondition;
 import com.bird.maru.spot.controller.dto.SpotSearchCondition;
 import com.bird.maru.spot.repository.query.dto.SpotSimpleDto;
 import com.querydsl.core.types.OrderSpecifier;
@@ -93,15 +93,15 @@ public class SpotCustomQueryRepository {
                            .fetch();
     }
 
-    public List<Marker> findMarkerByBoundingBox(MapCondition condition) {
+    public List<Marker> findMarkerByBoundingBox(BoundingBox boundingBox) {
         return queryFactory.select(Projections.fields(Marker.class,
                                                       spot.id.as("id"),
                                                       spot.member.id.as("memberId"),
                                                       spot.coordinate.as("coordinate")
                            ))
                            .from(spot)
-                           .where(spot.coordinate.lng.between(condition.getWest(), condition.getEast()),
-                                  spot.coordinate.lat.between(condition.getSouth(), condition.getNorth()),
+                           .where(spot.coordinate.lng.between(boundingBox.getWest(), boundingBox.getEast()),
+                                  spot.coordinate.lat.between(boundingBox.getSouth(), boundingBox.getNorth()),
                                   spot.deleted.isFalse(),
                                   spot.landmark.id.isNull())
                            .fetch();
