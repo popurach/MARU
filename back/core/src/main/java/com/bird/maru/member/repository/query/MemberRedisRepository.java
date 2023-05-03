@@ -28,6 +28,12 @@ public class MemberRedisRepository {
                          .collect(Collectors.toSet());
     }
 
+    public Boolean existVisitedLandmark(Long memberId, Long landmarkId) {
+        return redisTemplate.opsForSet().isMember(
+                RedisCacheKey.MEMBER_VISITED.getKey(memberId), landmarkId.toString()
+        );
+    }
+
     public Long insertVisitLandmark(Long memberId, Long landmarkId) {
         SetOperations<String, Object> ops = redisTemplate.opsForSet();
         LocalDateTime midnight = TimeUtil.getMidnightDate();

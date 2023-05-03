@@ -6,7 +6,7 @@ spring:
         - s3-local
         - db-test
         - global-dev
-        - security-dev
+        - security-local
     include:
       - s3
       - db

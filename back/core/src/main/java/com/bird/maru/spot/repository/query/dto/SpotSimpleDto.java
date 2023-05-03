@@ -34,6 +34,13 @@ public class SpotSimpleDto {
     @Builder.Default
     private Boolean scraped = Boolean.FALSE;
 
+    @Builder
+    public SpotSimpleDto(Long id, Long landmarkId, String imageUrl) {
+        this.id = id;
+        this.landmarkId = landmarkId;
+        this.imageUrl = imageUrl;
+    }
+
     public void checkLiked() {
         this.liked = Boolean.TRUE;
     }
