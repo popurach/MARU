@@ -18,7 +18,7 @@ public final class SpotMapper {
         return SpotSimpleDto.builder()
                             .id(spot.getId())
                             .landmarkId(toLandmarkId(spot))
-                            .imageUrl(spot.getImage().getUrl().toString())
+                            .imageUrl(spot.getImage().getUrl())
                             .likeCount(spot.getLikeCount())
                             .tags(
                                     spot.getTags()
@@ -40,7 +40,7 @@ public final class SpotMapper {
         return SpotSimpleDto.builder()
                             .id(spot.getId())
                             .landmarkId(toLandmarkId(spot))
-                            .imageUrl(spot.getImage().getUrl().toString())
+                            .imageUrl(spot.getImage().getUrl())
                             .likeCount(spot.getLikeCount())
                             .tags(tagMap.get(spot.getId()))
                             .scraped(Boolean.TRUE)
