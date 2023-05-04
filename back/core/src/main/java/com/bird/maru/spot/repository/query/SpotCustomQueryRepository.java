@@ -7,6 +7,8 @@ import static com.bird.maru.domain.model.entity.QTag.tag;
 
 import com.bird.maru.cluster.geo.BoundingBox;
 import com.bird.maru.cluster.geo.Marker;
+import com.bird.maru.auction.controller.dto.AuctionSearchCondition;
+import com.bird.maru.common.util.TimeUtil;
 import com.bird.maru.domain.model.entity.Spot;
 import com.bird.maru.spot.controller.dto.SpotSearchCondition;
 import com.bird.maru.spot.repository.query.dto.SpotSimpleDto;
@@ -62,6 +64,20 @@ public class SpotCustomQueryRepository {
                            )
                            .orderBy(offsetOrder(condition))
                            .limit(condition.getSize())
+                           .fetch();
+    }
+
+    public List<Long> findLandmarkIdsByMemberAndCondition(Long memberId, AuctionSearchCondition condition) {
+        return queryFactory.select(spot.landmark.id)
+                           .from(spot)
+                           .where(
+                                   spot.member.id.eq(memberId),
+                                   spot.landmark.isNotNull(),
+                                   spot.createdDateTime.after(TimeUtil.getThisWeekStartDateTime()),
+                                   gtLandmarkOffset(condition.getLastOffset())
+                           )
+                           .orderBy(spot.landmark.id.asc())
+                           .limit(condition.getSize() + 10L)
                            .fetch();
     }
 
@@ -139,6 +155,14 @@ public class SpotCustomQueryRepository {
 
         orderSpecifiers.add(spot.id.desc());
         return orderSpecifiers.toArray(new OrderSpecifier<?>[0]);
+    }
+
+    private BooleanExpression gtLandmarkOffset(Long lastOffset) {
+        if (lastOffset == null) {
+            return null;
+        }
+
+        return spot.landmark.id.gt(lastOffset);
     }
 
 }
