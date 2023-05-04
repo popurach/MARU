@@ -1,5 +1,6 @@
 package com.bird.maru.domain.model.entity;
 
+import com.bird.maru.domain.model.type.BaseDateTime;
 import java.time.LocalDateTime;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -19,20 +20,19 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 @Entity
 @Table(
         name = "auction_logs",
-        indexes = @Index(name = "log_date_index", columnList = "created_date_time")
+        indexes = @Index(name = "log_date_index", columnList = "modified_date_time")
 )
 @EntityListeners(AuditingEntityListener.class)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Getter
 @Builder
-public class AuctionLog {
+public class AuctionLog extends BaseDateTime {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -51,11 +51,6 @@ public class AuctionLog {
 
     @NotNull
     private Integer price;
-
-    @CreatedDate
-    @Column(name = "created_date_time", columnDefinition = "DATETIME")
-    @NotNull
-    private LocalDateTime createdDateTime;
 
     public void bidding(int price) {
         this.price = price;
