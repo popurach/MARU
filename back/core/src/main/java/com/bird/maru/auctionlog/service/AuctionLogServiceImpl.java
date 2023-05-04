@@ -26,7 +26,6 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 @Slf4j
 public class AuctionLogServiceImpl implements AuctionLogService {
-
     private final NamedLockConfig namedLockConfig;
     private final AuctionLogRepository auctionLogRepository;
     private final AuctionLogCustomQueryRepository auctionLogCustomQueryRepository;
@@ -65,8 +64,8 @@ public class AuctionLogServiceImpl implements AuctionLogService {
                                         .orElseThrow(() -> new ResourceNotFoundException("해당 리소스 존재하지 않습니다."));
 
         // 1. 현재 auctionLog에 입찰 기록이 있는지 확인
-        AuctionLog auctionLog = auctionLogCustomQueryRepository.findByLandmarkAndMember(memberId, landmarkId)
-                                                               .orElseThrow(() -> new ResourceNotFoundException("해당 리소스 존재하지 않습니다."));
+        AuctionLog auctionLog = auctionLogRepository.findByLandmarkAndMember(member.getId(), landmarkId)
+                                                    .orElseThrow(() -> new ResourceNotFoundException("해당 리소스 존재하지 않습니다."));
 
         if ((member.getPoint() + auctionLog.getPrice()) < price) {
             throw new NotEnoughMoney("포인트가 부족합니다.");
@@ -156,7 +155,7 @@ public class AuctionLogServiceImpl implements AuctionLogService {
     @Override
     public List<Integer> auctionRecord(Long landmarkId) {
         List<AuctionLog> auctionLogList = auctionLogCustomQueryRepository.auctionRecordTop10(landmarkId);
-        if (auctionLogList.isEmpty()) {
+        if(auctionLogList.isEmpty()) {
             return new ArrayList<>();
         }
         List<Integer> auctionRecords = auctionLogList.stream().map(
@@ -166,9 +165,6 @@ public class AuctionLogServiceImpl implements AuctionLogService {
     }
 
     private void biddingWithAuction(Auction auction, Member member, int price) {
-        log.info("auction 정보 : {}, {}", auction.getCreatedDate(), auction.getLandmark().getId());
-        log.info("member 정보 : {}", member.getNickname());
-        log.info("입찰 가격 : {}", price);
 
         if (auction.getLastLogId() != null) {
             int prevCost = auctionLogRepository.findById(auction.getLastLogId())
@@ -178,6 +174,11 @@ public class AuctionLogServiceImpl implements AuctionLogService {
                 throw new NotEnoughMoney("입찰 금액이 최고가보다 낮습니다.");
             }
         }
+
+        log.info("auction 정보 : {}, {}", auction.getCreatedDate(), auction.getLandmark().getId());
+        log.info("member 정보 : {}", member.getNickname());
+        log.info("입찰 가격 : {}", price);
+
 
         // 입찰 가격이 더 높은 경우
         // 4. auctionLog에 입찰 정보 등록
