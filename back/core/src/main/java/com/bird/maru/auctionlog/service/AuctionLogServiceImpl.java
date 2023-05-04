@@ -26,6 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 @Slf4j
 public class AuctionLogServiceImpl implements AuctionLogService {
+
     private final NamedLockConfig namedLockConfig;
     private final AuctionLogRepository auctionLogRepository;
     private final AuctionLogCustomQueryRepository auctionLogCustomQueryRepository;
@@ -64,8 +65,8 @@ public class AuctionLogServiceImpl implements AuctionLogService {
                                         .orElseThrow(() -> new ResourceNotFoundException("해당 리소스 존재하지 않습니다."));
 
         // 1. 현재 auctionLog에 입찰 기록이 있는지 확인
-        AuctionLog auctionLog = auctionLogRepository.findByLandmarkAndMember(member.getId(), landmarkId)
-                                                    .orElseThrow(() -> new ResourceNotFoundException("해당 리소스 존재하지 않습니다."));
+        AuctionLog auctionLog = auctionLogCustomQueryRepository.findByLandmarkAndMember(memberId, landmarkId)
+                                                               .orElseThrow(() -> new ResourceNotFoundException("해당 리소스 존재하지 않습니다."));
 
         if ((member.getPoint() + auctionLog.getPrice()) < price) {
             throw new NotEnoughMoney("포인트가 부족합니다.");
@@ -155,7 +156,7 @@ public class AuctionLogServiceImpl implements AuctionLogService {
     @Override
     public List<Integer> auctionRecord(Long landmarkId) {
         List<AuctionLog> auctionLogList = auctionLogCustomQueryRepository.auctionRecordTop10(landmarkId);
-        if(auctionLogList.isEmpty()) {
+        if (auctionLogList.isEmpty()) {
             return new ArrayList<>();
         }
         List<Integer> auctionRecords = auctionLogList.stream().map(

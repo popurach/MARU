@@ -7,6 +7,8 @@ import static com.bird.maru.domain.model.entity.QTag.tag;
 
 import com.bird.maru.cluster.geo.BoundingBox;
 import com.bird.maru.cluster.geo.Marker;
+import com.bird.maru.auction.controller.dto.AuctionSearchCondition;
+import com.bird.maru.common.util.TimeUtil;
 import com.bird.maru.domain.model.entity.Spot;
 import com.bird.maru.spot.controller.dto.SpotSearchCondition;
 import com.bird.maru.spot.repository.query.dto.SpotSimpleDto;
@@ -19,6 +21,7 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
@@ -65,6 +68,20 @@ public class SpotCustomQueryRepository {
                            .fetch();
     }
 
+    public List<Long> findLandmarkIdsByMemberAndCondition(Long memberId, AuctionSearchCondition condition) {
+        return queryFactory.select(spot.landmark.id)
+                           .from(spot)
+                           .where(
+                                   spot.member.id.eq(memberId),
+                                   spot.landmark.isNotNull(),
+                                   spot.createdDateTime.after(TimeUtil.getThisWeekStartDateTime()),
+                                   gtLandmarkOffset(condition.getLastOffset())
+                           )
+                           .orderBy(spot.landmark.id.asc())
+                           .limit(condition.getSize() + 10L)
+                           .fetch();
+    }
+
     public List<SpotSimpleDto> findSpotByMyVisitedLandmark(Long memberId, List<Long> landmarkIds) {
         return queryFactory.select(Projections.constructor(SpotSimpleDto.class,
                                                            spot.id.as("id"),
@@ -107,6 +124,17 @@ public class SpotCustomQueryRepository {
                            .fetch();
     }
 
+    public boolean existsSpotByMemberAndLandmark(Long memberId, Long landmarkId) {
+        return Optional.ofNullable(
+                queryFactory.select(spot.id)
+                            .from(spot)
+                            .where(spot.createdDateTime.after(TimeUtil.getThisWeekStartDateTime()),
+                                   spot.member.id.eq(memberId),
+                                   spot.landmark.id.eq(landmarkId))
+                            .fetchOne()
+        ).isPresent();
+    }
+
     private BooleanExpression ltSpotOffset(Long lastOffset) {
         return lastOffset == null ? null : spot.id.lt(lastOffset);
     }
@@ -139,6 +167,14 @@ public class SpotCustomQueryRepository {
 
         orderSpecifiers.add(spot.id.desc());
         return orderSpecifiers.toArray(new OrderSpecifier<?>[0]);
+    }
+
+    private BooleanExpression gtLandmarkOffset(Long lastOffset) {
+        if (lastOffset == null) {
+            return null;
+        }
+
+        return spot.landmark.id.gt(lastOffset);
     }
 
 }
