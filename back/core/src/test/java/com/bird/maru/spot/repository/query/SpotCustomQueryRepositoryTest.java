@@ -2,7 +2,10 @@ package com.bird.maru.spot.repository.query;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.bird.maru.cluster.geo.BoundingBox;
+import com.bird.maru.cluster.geo.Marker;
 import com.bird.maru.common.util.RandomUtil;
+import com.bird.maru.domain.model.entity.Landmark;
 import com.bird.maru.domain.model.entity.Member;
 import com.bird.maru.domain.model.entity.Scrap;
 import com.bird.maru.domain.model.entity.Spot;
@@ -10,6 +13,8 @@ import com.bird.maru.domain.model.entity.Tag;
 import com.bird.maru.domain.model.type.Coordinate;
 import com.bird.maru.domain.model.type.Image;
 import com.bird.maru.domain.model.type.Provider;
+import com.bird.maru.landmark.repository.LandmarkRepository;
+import com.bird.maru.map.controller.dto.MapCondition;
 import com.bird.maru.member.repository.MemberRepository;
 import com.bird.maru.scrap.repository.ScrapRepository;
 import com.bird.maru.scrap.repository.query.ScrapQueryRepository;
@@ -38,6 +43,9 @@ import org.springframework.transaction.annotation.Transactional;
 class SpotCustomQueryRepositoryTest {
 
     @Autowired
+    private LandmarkRepository landmarkRepository;
+
+    @Autowired
     private MemberRepository memberRepository;
 
     @Autowired
@@ -60,6 +68,16 @@ class SpotCustomQueryRepositoryTest {
 
     @BeforeEach
     void beforeEach() {
+        Landmark landmark = Landmark.builder()
+                                    .coordinate(Coordinate.builder()
+                                                          .lng(126.15651)
+                                                          .lat(36.5132)
+                                                          .build())
+                                    .name("역삼역")
+                                    .visitCount(0)
+                                    .build();
+        landmarkRepository.save(landmark);
+
         Member testMember1 = Member.builder()
                                    .nickname("test1")
                                    .email("test1@gmail.com")
@@ -89,8 +107,9 @@ class SpotCustomQueryRepositoryTest {
             spots.add(
                     Spot.builder()
                         .member((i & 1) != 0 ? testMember1 : testMember2)
+                        .landmark((i % 2) == 1 ? landmark : null)
                         .image(Image.getDefaultMemberProfile())
-                        .coordinate(new Coordinate(Math.random() * 90, Math.random() * 90))
+                        .coordinate(new Coordinate(Math.random() * 130, Math.random() * 40))
                         .build()
             );
         }
@@ -170,6 +189,28 @@ class SpotCustomQueryRepositoryTest {
                             .filter(spot -> scraped.contains(spot.getId()))
                             .collect(Collectors.toList())
         ).hasSize(pageSize);
+    }
+
+    @Test
+    @DisplayName("지도 기반 스팟 좌표 조회 테스트")
+    void simpleFindMarkerTest() {
+        // given
+        MapCondition condition = MapCondition.builder()
+                                             .boundingBox(BoundingBox.builder()
+                                                                     .west(-180.0)
+                                                                     .south(-90.0)
+                                                                     .east(180.0)
+                                                                     .north(90.0)
+                                                                     .zoom(1)
+                                                                     .build())
+                                             .build();
+
+        // when
+        List<Marker> markerbyBoundingBox = spotCustomQueryRepository.findMarkerByBoundingBox(condition.getBoundingBox());
+        log.debug("{}", markerbyBoundingBox);
+
+        // then
+        assertThat(markerbyBoundingBox).hasSize(50);
     }
 
 }

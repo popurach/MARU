@@ -204,14 +204,13 @@ public class SuperCluster {
      * 클러스터링 알고리즘 수행
      *
      * @param boundingBox : 현재 사용자의 지도 범위
-     * @param zoom        : 현재 사용자의 지도 줌 레벨
      */
     public List<Feature> run(BoundingBox boundingBox) {
         double minLng = ((boundingBox.getWest() + 180) % 360 + 360) % 360 - 180;
         double minLat = Math.max(-90, Math.min(90, boundingBox.getSouth()));
         double maxLng = boundingBox.getEast() == 180 ? 180 : ((boundingBox.getEast() + 180) % 360 + 360) % 360 - 180;
         double maxLat = Math.max(-90, Math.min(90, boundingBox.getNorth()));
-        int zoom = boundingBox.getZoomLevel();
+        int zoom = boundingBox.getZoom();
         if (boundingBox.getEast() - boundingBox.getWest() >= 360) {
             minLng = -180;
             maxLng = 180;
@@ -222,14 +221,14 @@ public class SuperCluster {
                                                            .south(minLat)
                                                            .east(180.0)
                                                            .north(maxLat)
-                                                           .zoomLevel(zoom)
+                                                           .zoom(zoom)
                                                            .build());
             List<Feature> westernHem = this.run(BoundingBox.builder()
                                                            .west(-180.0)
                                                            .south(minLat)
                                                            .east(maxLng)
                                                            .north(maxLat)
-                                                           .zoomLevel(zoom)
+                                                           .zoom(zoom)
                                                            .build());
 //            List<Feature> westernHem = this.run(new double[] { -180, minLat, maxLng, maxLat }, zoom);
             easternHem.addAll(westernHem);

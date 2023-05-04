@@ -5,6 +5,8 @@ import static com.bird.maru.domain.model.entity.QSpot.spot;
 import static com.bird.maru.domain.model.entity.QSpotHasTag.spotHasTag;
 import static com.bird.maru.domain.model.entity.QTag.tag;
 
+import com.bird.maru.cluster.geo.BoundingBox;
+import com.bird.maru.cluster.geo.Marker;
 import com.bird.maru.auction.controller.dto.AuctionSearchCondition;
 import com.bird.maru.common.util.TimeUtil;
 import com.bird.maru.domain.model.entity.Spot;
@@ -104,6 +106,20 @@ public class SpotCustomQueryRepository {
                                   ltSpotOffset(lastOffset))
                            .orderBy(spot.id.desc())
                            .limit(size)
+                           .fetch();
+    }
+
+    public List<Marker> findMarkerByBoundingBox(BoundingBox boundingBox) {
+        return queryFactory.select(Projections.fields(Marker.class,
+                                                      spot.id.as("id"),
+                                                      spot.member.id.as("memberId"),
+                                                      spot.coordinate.as("coordinate")
+                           ))
+                           .from(spot)
+                           .where(spot.coordinate.lng.between(boundingBox.getWest(), boundingBox.getEast()),
+                                  spot.coordinate.lat.between(boundingBox.getSouth(), boundingBox.getNorth()),
+                                  spot.deleted.isFalse(),
+                                  spot.landmark.id.isNull())
                            .fetch();
     }
 

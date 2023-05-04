@@ -1,10 +1,11 @@
-package com.bird.maru.cluster.geo;
+package com.bird.maru.map.controller.dto;
 
+import com.bird.maru.cluster.geo.BoundingBox;
 import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.ToString;
 
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -12,12 +13,9 @@ import lombok.ToString;
 @Getter
 @Builder
 @ToString
-public class BoundingBox {
+public class MapCondition {
 
-    private Double west;
-    private Double south;
-    private Double east;
-    private Double north;
-    private Integer zoom;
+    private BoundingBox boundingBox;
+    private Boolean mine;
 
 }

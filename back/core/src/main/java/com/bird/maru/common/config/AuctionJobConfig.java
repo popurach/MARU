@@ -3,6 +3,7 @@ package com.bird.maru.common.config;
 import com.bird.maru.auction.repository.AuctionRepository;
 import com.bird.maru.auctionlog.repository.AuctionLogRepository;
 import com.bird.maru.auctionlog.service.AuctionLogService;
+import com.bird.maru.common.util.NamedLockExecutor;
 import com.bird.maru.domain.model.entity.Auction;
 import com.bird.maru.domain.model.entity.AuctionLog;
 import com.bird.maru.domain.model.entity.Landmark;
@@ -40,6 +41,7 @@ import org.springframework.data.domain.Sort;
 @Slf4j
 public class AuctionJobConfig {
 
+    private final NamedLockExecutor namedLockExecutor;
     private final JobBuilderFactory jobBuilderFactory;
     private final StepBuilderFactory stepBuilderFactory;
     private final AuctionLogRepository auctionLogsRepository;
@@ -139,7 +141,11 @@ public class AuctionJobConfig {
     public ItemProcessor<AuctionLog, AuctionLog> auctionLogsProcessor() {
         log.info("== auctionLogsProcessor 실행중 ==");
         return item -> {
-            auctionService.auctionExecute(item);
+            namedLockExecutor.executeWithLock(
+                    // Batch 작업 DB Named Lock 실시
+                    item.getId().toString(), 10, () -> auctionService.auctionExecute(item)
+            );
+
             return item;
         };
     }
