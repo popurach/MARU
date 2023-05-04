@@ -65,6 +65,24 @@ public class AuctionLogCustomQueryRepository {
         );
     }
 
+    public List<AuctionLog> auctionRecordTop10(Long landmarkId) {
+        return queryFactory.selectFrom(auctionLog)
+                           .join(auctionLog.auction, auction).on(auctionLog.id.eq(auction.lastLogId))
+                           .where(auction.landmark.id.eq(landmarkId),
+                                  auction.finished.isTrue())
+                           .orderBy(auction.createdDate.desc())
+                           .limit(10)
+                           .fetch();
+    }
+
+    public Optional<AuctionLog> findByLandmarkAndMember(Long memberId, Long landmarkId) {
+        return Optional.ofNullable(
+                queryFactory.selectFrom(auctionLog)
+                            .join(auctionLog.auction, auction)
+                            .where(auctionLog.member.id.eq(memberId), auction.landmark.id.eq(landmarkId))
+                            .fetchOne()
+        );
+
     private BooleanExpression ltOffset(Long lastOffset) {
         if (lastOffset == null) {
             return null;
