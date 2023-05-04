@@ -3,7 +3,11 @@ plugins {
     id 'org.jetbrains.kotlin.android'
     id 'kotlin-kapt'
     id 'com.google.dagger.hilt.android'
+    id 'com.google.gms.google-services'
 }
+
+Properties properties = new Properties()
+properties.load(project.rootProject.file('local.properties').newDataInputStream())
 
 android {
     namespace 'com.shoebill.maru'
@@ -20,6 +24,13 @@ android {
         vectorDrawables {
             useSupportLibrary true
         }
+
+        buildConfigField "String", "KAKAO_NATIVE_APP_KEY", properties['KAKAO_NATIVE_APP_KEY']
+        buildConfigField "String", "BASE_URL", properties['BASE_URL']
+        buildConfigField "String", "NAVER_CLIENT_ID", properties['NAVER_CLIENT_ID']
+        buildConfigField "String", "NAVER_CLIENT_SECRET", properties['NAVER_CLIENT_SECRET']
+        buildConfigField "String", "GOOGLE_CLIENT_ID", properties['GOOGLE_CLIENT_ID']
+        buildConfigField "String", "GOOGLE_CLIENT_SECRET", properties['GOOGLE_CLIENT_SECRET']
     }
 
     buildTypes {
@@ -46,9 +57,23 @@ android {
             excludes += '/META-INF/{AL2.0,LGPL2.1}'
         }
     }
+    kapt {
+        correctErrorTypes true
+    }
 }
 
 dependencies {
+    // paging
+    def paging_version = "3.1.1"
+    implementation("androidx.paging:paging-runtime:$paging_version")
+    implementation("androidx.paging:paging-compose:1.0.0-alpha18")
+
+    //firebase BoM
+    implementation platform('com.google.firebase:firebase-bom:31.5.0')
+
+    implementation 'com.google.firebase:firebase-messaging-ktx'
+    implementation 'com.google.firebase:firebase-analytics-ktx'
+
     // Mapbox
     implementation 'com.mapbox.maps:android:10.12.1'
     implementation 'com.google.android.gms:play-services-location:21.0.1'
@@ -59,8 +84,12 @@ dependencies {
     // viewModel
     implementation 'androidx.lifecycle:lifecycle-viewmodel-compose:2.6.1'
 
+    // livedata
+    implementation "androidx.compose.runtime:runtime-livedata:$compose_ui_version"
+
     // hilt
     implementation "com.google.dagger:hilt-android:2.44.2"
+    implementation 'androidx.work:work-runtime-ktx:2.7.1'
     kapt "com.google.dagger:hilt-compiler:2.44"
 
     // navigation
@@ -70,9 +99,20 @@ dependencies {
     // transparent status bar
     implementation "com.google.accompanist:accompanist-systemuicontroller:0.27.0"
 
+    // coil
+    implementation "io.coil-kt:coil-compose:2.3.0"
+
+    // Retrofit
+    implementation 'com.squareup.retrofit2:retrofit:2.6.4'
+    // Gson 변환기 라이브러리
+    implementation 'com.squareup.retrofit2:converter-gson:2.6.4'
+
     implementation 'androidx.core:core-ktx:1.10.0'
     implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.6.1'
     implementation 'androidx.activity:activity-compose:1.7.0'
+    implementation "androidx.core:core-ktx:1.10.0"
+    implementation "androidx.lifecycle:lifecycle-runtime-ktx:2.6.1"
+    implementation "androidx.activity:activity-compose:1.7.1"
     implementation "androidx.compose.ui:ui:$compose_ui_version"
     implementation "androidx.compose.ui:ui-tooling-preview:$compose_ui_version"
     implementation 'androidx.compose.material:material:1.4.1'
@@ -83,8 +123,33 @@ dependencies {
     androidTestImplementation "androidx.compose.ui:ui-test-junit4:$compose_ui_version"
     debugImplementation "androidx.compose.ui:ui-tooling:$compose_ui_version"
     debugImplementation "androidx.compose.ui:ui-test-manifest:$compose_ui_version"
-}
 
-kapt {
-    correctErrorTypes true
+    // Kakao Login
+    implementation 'com.kakao.sdk:v2-user:2.13.0' // 카카오 로그인
+
+    // Retrofit
+    implementation 'com.squareup.retrofit2:retrofit'
+    implementation 'com.squareup.retrofit2:converter-gson'
+
+    // lottie
+    implementation "com.airbnb.android:lottie-compose:4.2.0"
+
+    // vico chart
+    implementation "com.patrykandpatrick.vico:compose:1.6.5"
+    implementation "com.patrykandpatrick.vico:views:1.6.5"
+    implementation "com.patrykandpatrick.vico:compose-m2:1.6.5"
+    implementation "com.patrykandpatrick.vico:compose-m3:1.6.5"
+
+    // cameraX
+    implementation "androidx.camera:camera-lifecycle:$cameraxVersion"
+    implementation "androidx.camera:camera-video:$cameraxVersion"
+    implementation "androidx.camera:camera-view:$cameraxVersion"
+    implementation "androidx.camera:camera-extensions:$cameraxVersion"
+    implementation "com.google.accompanist:accompanist-permissions:0.30.0"
+
+    // Naver Login
+    implementation 'com.navercorp.nid:oauth-jdk8:5.5.0'
+
+    // Goggle Login
+    implementation 'com.google.android.gms:play-services-auth:20.5.0'
 }
