@@ -47,7 +47,7 @@ public class AuctionCustomQueryRepository {
                               .where(
                                       auctionLog.modifiedDateTime.after(TimeUtil.getCurrentAuctionStartDateTime()),
                                       auctionLog.member.id.eq(memberId),
-                                      auctionLog.auction.landmark.id.in(landmarkIds)
+                                      auction.landmark.id.in(landmarkIds)
                               )
         );
     }
