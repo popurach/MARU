@@ -91,7 +91,7 @@ class MemberViewModel @Inject constructor(
         memberRepository.logout()
     }
 
-    fun updateMemberProfileToServer(context: Context) {
+    suspend fun updateMemberProfileToServer(context: Context) {
         viewModelScope.launch() {
             val imageUri = modifiedImageUri.value
             val nickname = modifiedNickname.value
@@ -116,7 +116,7 @@ class MemberViewModel @Inject constructor(
         }
     }
 
-    fun uriToFile(context: Context, uri: Uri): File? {
+    private fun uriToFile(context: Context, uri: Uri): File {
         val inputStream: InputStream? = context.contentResolver.openInputStream(uri)
         val file = File(context.cacheDir, "image.jpg")
         inputStream?.use { input ->

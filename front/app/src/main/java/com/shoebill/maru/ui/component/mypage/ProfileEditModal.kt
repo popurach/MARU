@@ -51,12 +51,17 @@ import com.shoebill.maru.ui.theme.MaruBackground
 import com.shoebill.maru.ui.theme.MaruBrush
 import com.shoebill.maru.viewmodel.MemberViewModel
 import com.shoebill.maru.viewmodel.NavigateViewModel
+import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 
+@OptIn(DelicateCoroutinesApi::class)
 @Composable
 fun ProfileEditModal(
     onDismissRequest: () -> Unit,
     memberViewModel: MemberViewModel = hiltViewModel(),
-    navigateViewModel: NavigateViewModel = viewModel()
+    navigateViewModel: NavigateViewModel = viewModel(),
 ) {
     val memberInfo = memberViewModel.memberInfo
     val context = LocalContext.current
@@ -169,8 +174,14 @@ fun ProfileEditModal(
                         .fillMaxWidth()
                         .height(48.dp),
                     onClick = {
-                        memberViewModel.updateMemberProfileToServer(context)
-                        navigateViewModel.navigator?.navigate("main")
+                        GlobalScope.launch {
+                            launch(Dispatchers.IO) {
+                                memberViewModel.updateMemberProfileToServer(context)
+                            }
+                            launch(Dispatchers.Main) {
+                                navigateViewModel.navigator?.navigate("main")
+                            }
+                        }
                     })
             }
         }

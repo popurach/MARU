@@ -24,9 +24,9 @@ class CameraViewModel() : ViewModel() {
     private val FILENAME = "yyyy-MM-dd-HH-mm-ss-SSS"
     private val PHOTO_EXTENSION = ".png"
     private val _imageUrl = MutableLiveData("")
-    private val _location = MutableLiveData<Location>()
+    private val _location = MutableLiveData<Location?>()
 
-    val location: LiveData<Location> get() = _location
+    val location: LiveData<Location?> get() = _location
     fun setLocation(location: Location) {
         _location.value = location
     }
@@ -58,6 +58,7 @@ class CameraViewModel() : ViewModel() {
         _isCapture.value = value
         _imageUrl.value = null
         _inputTag.value = ""
+        _location.value = null
         listOfTag.clear()
         _tagList.value = listOfTag
     }
@@ -68,7 +69,7 @@ class CameraViewModel() : ViewModel() {
         scope: CoroutineScope,
         lensFacing: Int,
         onImageCaptured: (Uri, Boolean) -> Unit,
-        onError: (ImageCaptureException) -> Unit
+        onError: (ImageCaptureException) -> Unit,
     ) {
         imageCapture.takePicture(context, scope, lensFacing, onImageCaptured, onError)
     }
@@ -78,7 +79,7 @@ class CameraViewModel() : ViewModel() {
         scope: CoroutineScope,
         lensFacing: Int,
         onImageCaptured: (Uri, Boolean) -> Unit,
-        onError: (ImageCaptureException) -> Unit
+        onError: (ImageCaptureException) -> Unit,
     ) {
         val outputDirectory = context.getOutputDirectory()
         // Create output file to hold the image
@@ -118,7 +119,7 @@ class CameraViewModel() : ViewModel() {
 
     private fun getOutputFileOptions(
         lensFacing: Int,
-        photoFile: File
+        photoFile: File,
     ): ImageCapture.OutputFileOptions {
         // Setup image capture metadata
         val metadata = ImageCapture.Metadata().apply {
