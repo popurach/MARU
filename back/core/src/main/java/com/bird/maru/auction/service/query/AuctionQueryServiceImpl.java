@@ -18,9 +18,9 @@ public class AuctionQueryServiceImpl implements AuctionQueryService {
     private final AuctionCustomQueryRepository auctionCustomQueryRepository;
 
     @Override
-    public List<Auction> findNonBiddingAuctions(Long memberId, AuctionSearchCondition condition) {
+    public List<Auction> findMyNonBiddingAuctions(Long memberId, AuctionSearchCondition condition) {
         List<Long> visitedLandmarkIds = spotCustomQueryRepository.findLandmarkIdsByMemberAndCondition(memberId, condition);
-        return auctionCustomQueryRepository.findAllByMemberAndLandmarkIdIn(memberId, visitedLandmarkIds);
+        return auctionCustomQueryRepository.findAllByMemberAndLandmarkIdIn(memberId, visitedLandmarkIds, condition.getSize());
     }
 
 }

@@ -20,13 +20,20 @@ public class AuctionController {
 
     private final AuctionQueryService auctionQueryService;
 
+    /**
+     * 내가 참여할 수 있는 경매 목록을 조회합니다. 현재는 경매에 참여하지 않은 것들입니다.
+     *
+     * @param member    현재 로그인 한 회원
+     * @param condition 마지막 랜드마크 ID와 Page Size
+     * @return 참여할 수 있는 경매의 랜드마크 목록
+     */
     @GetMapping("/my/non-biddings")
-    public List<LandmarkSimpleDto> findNonBiddingAuctions(
+    public List<LandmarkSimpleDto> findMyNonBiddingAuctions(
             @AuthenticationPrincipal CustomUserDetails member,
             @ModelAttribute AuctionSearchCondition condition
     ) {
         return AuctionMapper.toLandmarkSimpleDto(
-                auctionQueryService.findNonBiddingAuctions(member.getId(), condition)
+                auctionQueryService.findMyNonBiddingAuctions(member.getId(), condition)
         );
     }
 

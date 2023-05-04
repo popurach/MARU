@@ -75,16 +75,8 @@ public class SpotCustomQueryRepository {
                                    gtLandmarkOffset(condition.getLastOffset())
                            )
                            .orderBy(spot.landmark.id.asc())
-                           .limit(condition.getSize())
+                           .limit(condition.getSize() + 10L)
                            .fetch();
-    }
-
-    private BooleanExpression gtLandmarkOffset(Long lastOffset) {
-        if (lastOffset == null) {
-            return null;
-        }
-
-        return spot.landmark.id.gt(lastOffset);
     }
 
     public List<SpotSimpleDto> findSpotByMyVisitedLandmark(Long memberId, List<Long> landmarkIds) {
@@ -147,6 +139,14 @@ public class SpotCustomQueryRepository {
 
         orderSpecifiers.add(spot.id.desc());
         return orderSpecifiers.toArray(new OrderSpecifier<?>[0]);
+    }
+
+    private BooleanExpression gtLandmarkOffset(Long lastOffset) {
+        if (lastOffset == null) {
+            return null;
+        }
+
+        return spot.landmark.id.gt(lastOffset);
     }
 
 }

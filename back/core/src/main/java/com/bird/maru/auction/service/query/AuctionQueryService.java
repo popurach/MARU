@@ -6,6 +6,6 @@ import java.util.List;
 
 public interface AuctionQueryService {
 
-    List<Auction> findNonBiddingAuctions(Long memberId, AuctionSearchCondition condition);
+    List<Auction> findMyNonBiddingAuctions(Long memberId, AuctionSearchCondition condition);
 
 }
