@@ -1,5 +1,6 @@
 package com.bird.maru.auction.controller;
 
+import com.bird.maru.auction.controller.dto.AuctionDetailDto;
 import com.bird.maru.auction.controller.dto.AuctionSearchCondition;
 import com.bird.maru.auction.mapper.AuctionMapper;
 import com.bird.maru.auction.service.query.AuctionQueryService;
@@ -10,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -35,6 +37,22 @@ public class AuctionController {
         return AuctionMapper.toLandmarkSimpleDto(
                 auctionQueryService.findMyNonBiddingAuctions(member.getId(), condition)
         );
+    }
+
+    /**
+     * 랜드마크 경매 상세 정보를 조회합니다.
+     * 상세 정보는 랜드마크의 이름, 나의 경매 참여 여부에 따른 정보를 포함합니다.
+     *
+     * @param member     현재 로그인 한 회원
+     * @param landmarkId 경매 정보를 얻으려는 랜드마크의 ID
+     * @return 랜드마크의 경매 상세 정보
+     */
+    @GetMapping("/{landmarkId}/details")
+    public AuctionDetailDto findAuctionDetail(
+            @AuthenticationPrincipal CustomUserDetails member,
+            @PathVariable Long landmarkId
+    ) {
+        return auctionQueryService.findAuctionDetail(member.getId(), landmarkId);
     }
 
 }
