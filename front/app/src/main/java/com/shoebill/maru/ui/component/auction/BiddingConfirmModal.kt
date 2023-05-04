@@ -54,7 +54,7 @@ fun BiddingConfirmModal(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier
                     .padding(horizontal = 25.dp)
-                    .height(250.dp)
+                    .height(270.dp)
             ) {
                 Text(
                     modifier = Modifier
@@ -67,8 +67,8 @@ fun BiddingConfirmModal(
                 )
                 Text(
                     modifier = Modifier
-                        .padding(bottom = 24.dp)
-                        .padding(horizontal = 24.dp),
+                        .padding(bottom = 24.dp),
+//                        .padding(horizontal = 24.dp),
                     textAlign = TextAlign.Center,
                     text = "위의 입찰가로 경매에 참여하시겠습니까?",
                     fontSize = 14.sp,
