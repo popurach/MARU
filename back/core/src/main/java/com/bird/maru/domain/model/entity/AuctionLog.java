@@ -38,8 +38,8 @@ public class AuctionLog extends BaseDateTime {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumns({
-            @JoinColumn(name = "auction_created_date", referencedColumnName = "created_date", updatable = false),
-            @JoinColumn(name = "landmark_id", referencedColumnName = "landmark_id", updatable = false)
+            @JoinColumn(name = "auction_created_date", referencedColumnName = "created_date"),
+            @JoinColumn(name = "landmark_id", referencedColumnName = "landmark_id")
     })
     @NotNull
     private Auction auction;
