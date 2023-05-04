@@ -1,10 +1,14 @@
 package com.bird.maru.spot.mapper;
 
+import com.bird.maru.domain.model.entity.Landmark;
+import com.bird.maru.domain.model.entity.Member;
 import com.bird.maru.domain.model.entity.Spot;
 import com.bird.maru.domain.model.entity.SpotHasTag;
 import com.bird.maru.domain.model.entity.Tag;
+import com.bird.maru.domain.model.type.Coordinate;
 import com.bird.maru.landmark.controller.dto.LandmarkSpotResponseDto;
 import com.bird.maru.spot.repository.query.dto.SpotSimpleDto;
+import com.bird.maru.spot.service.dto.SpotImage;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -72,6 +76,18 @@ public final class SpotMapper {
         return spots.stream()
                     .map(SpotMapper::toLandmarkSpotResponseDto)
                     .collect(Collectors.toList());
+    }
+
+    public static Spot toSpot(SpotImage image, Landmark landmark, Member member) {
+        return Spot.builder()
+                   .landmark(landmark)
+                   .member(member)
+                   .image(image.getImage())
+                   .coordinate(Coordinate.builder()
+                                         .lng(image.getLng())
+                                         .lat(image.getLat())
+                                         .build())
+                   .build();
     }
 
 }

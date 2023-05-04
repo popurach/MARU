@@ -3,17 +3,22 @@ package com.bird.maru.spot.controller;
 import com.bird.maru.auth.service.dto.CustomUserDetails;
 import com.bird.maru.common.util.NamedLockExecutor;
 import com.bird.maru.like.service.LikeService;
+import com.bird.maru.spot.controller.dto.SpotPostRequestDto;
 import com.bird.maru.spot.controller.dto.SpotSearchCondition;
 import com.bird.maru.spot.repository.query.dto.SpotSimpleDto;
+import com.bird.maru.spot.service.SpotService;
 import com.bird.maru.spot.service.query.SpotQueryService;
 import java.util.List;
+import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -22,6 +27,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class SpotController {
 
     private final SpotQueryService spotQueryService;
+    private final SpotService spotService;
     private final LikeService likeService;
     private final NamedLockExecutor namedLockExecutor;
 
@@ -58,8 +64,7 @@ public class SpotController {
     }
 
     /**
-     * 좋아요 개수를 높이는 것은 동시성 문제가 발생할 수 있습니다.
-     * 따라서 Named Lock을 이용하여 좋아요 여부를 토글하도록 구현했습니다.
+     * 좋아요 개수를 높이는 것은 동시성 문제가 발생할 수 있습니다. 따라서 Named Lock을 이용하여 좋아요 여부를 토글하도록 구현했습니다.
      *
      * @param member 현재 로그인 한 회원
      * @param spotId 회원이 좋아요를 토글하려는 스팟
@@ -74,6 +79,24 @@ public class SpotController {
                 5,
                 () -> likeService.toggleLike(member.getId(), spotId)
         );
+    }
+
+    /**
+     * 스팟 등록 API <br/> - 사진, 스팟, 태그, 스팟에 대한 사진, 포인트 변화가 하나의 트랜잭션 작업
+     *
+     * @param spotPostRequestDto : 스팟 등록시 필요한 Request DTO
+     * @param member             : 현재 접근중인 주체
+     * @return Long : spot의 id
+     */
+    @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
+    public Long postSpot(
+            @Valid @ModelAttribute SpotPostRequestDto spotPostRequestDto, @AuthenticationPrincipal CustomUserDetails member
+    ) {
+        return spotService.insertSpotAndTags(spotPostRequestDto.getSpotImage(),
+                                             spotPostRequestDto.getTags(),
+                                             spotPostRequestDto.getLandmarkId(),
+                                             member.getId());
     }
 
 }
