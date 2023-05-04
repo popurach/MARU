@@ -31,6 +31,7 @@ class AuctionRepository @Inject constructor(private val auctionApi: AuctionApi) 
     suspend fun deleteBidding(auctionLogId: Long): Boolean {
         val response = auctionApi.deleteBidding(auctionLogId)
         if (response.isSuccessful) {
+            Log.d("AUCTION", "deleteBidding: $response")
             return response.isSuccessful
         } else {
             throw Exception("deleteBidding fail: ${response.code()}")

@@ -1,5 +1,6 @@
 package com.shoebill.maru.ui.component.auction
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -25,10 +26,14 @@ import com.shoebill.maru.ui.component.common.GradientButton
 import com.shoebill.maru.ui.component.common.GradientColoredText
 import com.shoebill.maru.ui.theme.MaruBrush
 import com.shoebill.maru.viewmodel.AuctionViewModel
+import com.shoebill.maru.viewmodel.MyPageViewModel
+import com.shoebill.maru.viewmodel.NavigateViewModel
 
 @Composable
 fun DeleteConfirmModal(
+    navigateViewModel: NavigateViewModel = viewModel(),
     auctionViewModel: AuctionViewModel = viewModel(),
+    myPageViewModel: MyPageViewModel = viewModel(),
     onDismissRequest: () -> Unit
 ) {
 
@@ -72,7 +77,15 @@ fun DeleteConfirmModal(
                         .fillMaxWidth()
                         .clip(RoundedCornerShape(40.dp))
                         .background(Color.Transparent)
-                        .clickable { auctionViewModel.deleteBidding(8) },
+                        .clickable {
+                            auctionViewModel.deleteBidding(9) { success ->
+                                if (success) {
+                                    navigateToMyPage2(3, myPageViewModel, navigateViewModel)
+                                } else {
+                                    Log.e("AUCTION", "createBidding fail")
+                                }
+                            }
+                        },
                 ) {
                     GradientColoredText(
                         text = "입찰 포기하기",
@@ -85,4 +98,15 @@ fun DeleteConfirmModal(
             }
         }
     }
+}
+
+fun navigateToMyPage2(
+    tabIndex: Int,
+    myPageViewModel: MyPageViewModel,
+    navigateViewModel: NavigateViewModel,
+) {
+    myPageViewModel.switchTab(
+        tabIndex
+    )
+    navigateViewModel.navigator!!.navigate("mypage")
 }

@@ -49,14 +49,16 @@ import com.shoebill.maru.viewmodel.AuctionViewModel
 import java.text.DecimalFormat
 
 @Composable
-fun AuctionPage(auctionViewModel: AuctionViewModel = viewModel()) {
-    val chartEntryModel = entryModelOf(1f, 3f, 4f, 7f, 8f, 11f)
+fun AuctionPage(
+    auctionViewModel: AuctionViewModel = viewModel(),
+) {
+    val auctionInfo = auctionViewModel.auctionInfo.observeAsState(arrayOf(1, 1, 1, 1, 1))
+    val chartEntryModel = entryModelOf(*(auctionInfo.value))
     val gradient = Brush.horizontalGradient(listOf(Color(0xFF6039DF), Color(0xFFA14AB7)))
     val bid = auctionViewModel.bid.observeAsState()
     val dec = DecimalFormat("#,###")
-    val auctionInfo = auctionViewModel.auctionInfo.observeAsState()
     val isDeleteModalOpen = remember { mutableStateOf(false) }
-    val isBiddigModalOpen = remember { mutableStateOf(false) }
+    val isBiddingModalOpen = remember { mutableStateOf(false) }
 
     Column(
         modifier = Modifier
@@ -130,7 +132,7 @@ fun AuctionPage(auctionViewModel: AuctionViewModel = viewModel()) {
                         ),
                     ),
                 ),
-                axisValuesOverrider = AxisValuesOverrider.fixed(minY = -1f, maxY = 11f),
+                axisValuesOverrider = AxisValuesOverrider.fixed(),
             ),
             model = chartEntryModel,
         )
@@ -299,7 +301,7 @@ fun AuctionPage(auctionViewModel: AuctionViewModel = viewModel()) {
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(vertical = 18.dp),
-                onClick = { isBiddigModalOpen.value = true }
+                onClick = { isBiddingModalOpen.value = true }
             )
         }
         if (isDeleteModalOpen.value) {
@@ -307,9 +309,9 @@ fun AuctionPage(auctionViewModel: AuctionViewModel = viewModel()) {
                 isDeleteModalOpen.value = false
             }
         }
-        if (isBiddigModalOpen.value) {
+        if (isBiddingModalOpen.value) {
             BiddingConfirmModal() {
-                isBiddigModalOpen.value = false
+                isBiddingModalOpen.value = false
             }
         }
     }

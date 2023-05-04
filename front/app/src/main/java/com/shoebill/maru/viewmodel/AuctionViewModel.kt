@@ -15,7 +15,9 @@ import kotlin.math.pow
 
 
 @HiltViewModel
-class AuctionViewModel @Inject constructor(private val auctionRepository: AuctionRepository) :
+class AuctionViewModel @Inject constructor(
+    private val auctionRepository: AuctionRepository,
+) :
     ViewModel() {
     private val _bid = MutableLiveData<Int>(23000)
     val bid get() = _bid
@@ -35,8 +37,8 @@ class AuctionViewModel @Inject constructor(private val auctionRepository: Auctio
     val downPrice: Int get() = if (_bid.value == null) 1000 else _bid.value!!.minus(unit)
     val upPrice: Int get() = if (_bid.value == null) 1000 else _bid.value!!.plus(unit)
 
-    private val _auctionInfo = MutableLiveData<List<Int>>()
-    val auctionInfo: LiveData<List<Int>> = _auctionInfo
+    private val _auctionInfo = MutableLiveData<Array<Int>>()
+    val auctionInfo: LiveData<Array<Int>> = _auctionInfo
 
     init {
         getAuctionInfo(2)
@@ -57,7 +59,8 @@ class AuctionViewModel @Inject constructor(private val auctionRepository: Auctio
     private fun getAuctionInfo(landmarkId: Long) {
         viewModelScope.launch {
             try {
-                _auctionInfo.value = auctionRepository.getAuctionInfo(landmarkId)
+                val result = auctionRepository.getAuctionInfo(landmarkId).toTypedArray()
+                _auctionInfo.value = if (result.isEmpty()) arrayOf(2, 4, 2, 5, 2) else result
                 Log.d("AUCTION", "getAuctionInfo: ${_auctionInfo.value}")
             } catch (e: Exception) {
                 Log.e("AUCTION", "Error while getting auction info: $e")
@@ -65,42 +68,35 @@ class AuctionViewModel @Inject constructor(private val auctionRepository: Auctio
         }
     }
 
-    fun createBidding() {
-        val requestBody = AuctionBiddingRequest(4, _bid.value!!)
+    fun createBidding(onComplete: (Boolean) -> Unit) {
+        val requestBody = AuctionBiddingRequest(6, _bid.value!!)
         viewModelScope.launch {
             val success = viewModelScope.async {
                 auctionRepository.createBidding(requestBody)
             }.await()
 
-            if (!success) {
-                Log.e("AUCTION", "createBidding fail")
-            }
+            onComplete(success)
         }
     }
 
-    fun updateBidding() {
+    fun updateBidding(onComplete: (Boolean) -> Unit) {
         val requestBody = AuctionBiddingRequest(4, _bid.value!!)
         viewModelScope.launch {
             val success = viewModelScope.async {
                 auctionRepository.updateBidding(requestBody)
             }.await()
 
-            if (!success) {
-                Log.e("AUCTION", "updateBidding fail")
-            }
+            onComplete(success)
         }
     }
 
-    fun deleteBidding(auctionLogId: Long) {
+    fun deleteBidding(auctionLogId: Long, onComplete: (Boolean) -> Unit) {
         viewModelScope.launch {
             val success = viewModelScope.async {
                 auctionRepository.deleteBidding(auctionLogId)
             }.await()
 
-            if (!success) {
-                Log.e("AUCTION", "deleteBidding fail")
-            }
+            onComplete(success)
         }
     }
-
 }

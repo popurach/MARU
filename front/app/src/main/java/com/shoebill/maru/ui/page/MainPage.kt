@@ -46,6 +46,7 @@ fun MainPage(
     navigateViewModel: NavigateViewModel = hiltViewModel()
 ) {
     memberViewModel.getMemberInfo(navigateViewModel)
+    navigateViewModel.navigator?.navigate("auction")
 
     val context = LocalContext.current
     val scaffoldState = rememberBottomSheetScaffoldState()
