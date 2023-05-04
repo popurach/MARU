@@ -1,8 +1,6 @@
 package com.bird.maru.domain.model.entity;
 
 import com.bird.maru.domain.model.type.BaseDateTime;
-import java.time.LocalDateTime;
-import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EntityListeners;
 import javax.persistence.FetchType;
@@ -43,10 +41,12 @@ public class AuctionLog extends BaseDateTime {
             @JoinColumn(name = "auction_created_date", referencedColumnName = "created_date", updatable = false),
             @JoinColumn(name = "landmark_id", referencedColumnName = "landmark_id", updatable = false)
     })
+    @NotNull
     private Auction auction;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id", updatable = false)
+    @NotNull
     private Member member;
 
     @NotNull
