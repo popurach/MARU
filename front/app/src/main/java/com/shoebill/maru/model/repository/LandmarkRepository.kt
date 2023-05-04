@@ -1,14 +1,15 @@
 package com.shoebill.maru.model.repository
 
+import android.util.Log
 import com.shoebill.maru.model.data.Stamp
-import com.shoebill.maru.model.data.Landmark
+import com.shoebill.maru.model.data.landmark.Landmark
+import com.shoebill.maru.model.data.landmark.Owner
 import com.shoebill.maru.model.interfaces.LandmarkApi
 import javax.inject.Inject
 
 class LandmarkRepository @Inject constructor(
     private val landmarkApi: LandmarkApi
 ) {
-
     suspend fun getVisitedLandmarks(lastOffset: Long?): List<Stamp> =
         landmarkApi.getVisitedLandmarks(lastOffset = lastOffset)
 
@@ -23,5 +24,22 @@ class LandmarkRepository @Inject constructor(
             return response.body() ?: listOf()
         }
         return null
+    }
+
+    suspend fun getLandmarkOwner(landmarkId: Long): Owner {
+        val response = landmarkApi.getLandmarkOwner(landmarkId)
+        if (response.isSuccessful) {
+            return response.body() ?: Owner()
+        }
+        Log.d("LANDMARK", "getLandmarkOwner fail ${response.errorBody()}")
+        return Owner()
+    }
+
+    suspend fun getLandmarkName(landmarkId: Long): String {
+        val response = landmarkApi.getLandmarkName(landmarkId)
+        if (response.isSuccessful) {
+            return response.body()?.name ?: ""
+        }
+        return ""
     }
 }

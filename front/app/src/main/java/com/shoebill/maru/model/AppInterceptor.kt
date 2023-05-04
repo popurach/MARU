@@ -7,11 +7,8 @@ import javax.inject.Inject
 
 class AppInterceptor @Inject constructor(
     private val prefUtil: PreferenceUtil,
-) :
-    Interceptor {
-
+) : Interceptor {
     override fun intercept(chain: Interceptor.Chain): Response {
-
         val originRequest = chain.request()
         val accessToken = prefUtil.getString("accessToken", "")
 

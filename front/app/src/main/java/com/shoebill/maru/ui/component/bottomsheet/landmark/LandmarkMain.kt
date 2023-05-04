@@ -13,10 +13,10 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
@@ -27,14 +27,19 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import com.shoebill.maru.R
+import com.shoebill.maru.ui.component.common.GradientColoredText
 import com.shoebill.maru.viewmodel.BottomSheetNavigatorViewModel
-import com.shoebill.maru.viewmodel.LandmarkLandingViewModel
+import com.shoebill.maru.viewmodel.LandmarkOwnerViewModel
 
 @Composable
 fun LandmarkMain(
-    landmarkLandingViewModel: LandmarkLandingViewModel = hiltViewModel(),
-    bottomSheetNavigatorViewModel: BottomSheetNavigatorViewModel = hiltViewModel()
+    landmarkOwnerViewModel: LandmarkOwnerViewModel = hiltViewModel(),
+    bottomSheetNavigatorViewModel: BottomSheetNavigatorViewModel = hiltViewModel(),
+    landmarkId: Long
 ) {
+    landmarkOwnerViewModel.initLandmarkOwnerViewModel(landmarkId)
+    val owner = landmarkOwnerViewModel.owner.observeAsState()
+    val landmarkName = landmarkOwnerViewModel.landmarkName.observeAsState()
     Column(
         Modifier
             .fillMaxSize()
@@ -43,8 +48,8 @@ fun LandmarkMain(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(50.dp)
     ) {
-        Text(
-            text = landmarkLandingViewModel.coloredLandmarkName,
+        GradientColoredText(
+            text = landmarkName.value ?: "",
             fontSize = 32.sp,
             fontWeight = FontWeight.SemiBold
         )
@@ -54,16 +59,15 @@ fun LandmarkMain(
         ) {
             Box(Modifier.height(267.dp)) {
                 AsyncImage(
-                    model = "",
+                    model = owner.value!!.profileImageUrl,
                     contentDescription = "occupant profile",
                     contentScale = ContentScale.Crop,
                     modifier = Modifier
-                        .padding(1.dp)
-                        .border(4.dp, Color.White, CircleShape)
                         .size(200.dp)
+                        .padding(1.dp)
                         .clip(CircleShape)
+                        .border(4.dp, Color.White, CircleShape)
                         .align(Alignment.BottomCenter)
-                        .shadow(14.dp, CircleShape)
                 )
                 Image(
                     painter = painterResource(id = R.drawable.crown_image),
@@ -74,13 +78,14 @@ fun LandmarkMain(
                 )
             }
             Text(
-                text = "",
+                text = owner.value!!.nickname,
                 fontSize = 25.sp,
                 fontWeight = FontWeight.Bold
             )
         }
         Text(
-            text = "",
+            text = "나는 ${landmarkName.value}의 주인 ${owner.value!!.nickname}이다.\n" +
+                    "나의 공간에서 잘 즐기다가도록 하여라.",
             Modifier.padding(horizontal = 50.dp),
             textAlign = TextAlign.Center
         )

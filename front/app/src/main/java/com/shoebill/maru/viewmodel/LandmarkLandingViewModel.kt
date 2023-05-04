@@ -8,7 +8,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
 import androidx.lifecycle.ViewModel
 import com.shoebill.maru.model.data.Coordinate
-import com.shoebill.maru.model.data.Landmark
+import com.shoebill.maru.model.data.landmark.Landmark
 import com.shoebill.maru.ui.theme.MaruBrush
 
 @OptIn(ExperimentalTextApi::class)

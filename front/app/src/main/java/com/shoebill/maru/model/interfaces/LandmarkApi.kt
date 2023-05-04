@@ -1,9 +1,12 @@
 package com.shoebill.maru.model.interfaces
 
 import com.shoebill.maru.model.data.Stamp
-import com.shoebill.maru.model.data.Landmark
+import com.shoebill.maru.model.data.landmark.Landmark
+import com.shoebill.maru.model.data.landmark.LandmarkName
+import com.shoebill.maru.model.data.landmark.Owner
 import retrofit2.Response
 import retrofit2.http.GET
+import retrofit2.http.Path
 import retrofit2.http.Query
 
 interface LandmarkApi {
@@ -23,4 +26,10 @@ interface LandmarkApi {
         @Query("east") east: Double,
         @Query("north") north: Double,
     ): Response<List<Landmark>>
+
+    @GET("/api/landmarks/{id}/owner")
+    suspend fun getLandmarkOwner(@Path("id") id: Long): Response<Owner>
+
+    @GET("/api/landmarks/{id}")
+    suspend fun getLandmarkName(@Path("id") id: Long): Response<LandmarkName>
 }

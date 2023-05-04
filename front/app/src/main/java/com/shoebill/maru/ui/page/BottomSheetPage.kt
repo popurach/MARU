@@ -24,6 +24,7 @@ import com.shoebill.maru.ui.component.bottomsheet.spotlist.SpotDetail
 import com.shoebill.maru.ui.component.bottomsheet.spotlist.SpotList
 import com.shoebill.maru.ui.theme.MaruBackground
 import com.shoebill.maru.viewmodel.BottomSheetNavigatorViewModel
+import com.shoebill.maru.viewmodel.MapViewModel
 import com.shoebill.maru.viewmodel.NavigateViewModel
 
 @Composable
@@ -31,9 +32,11 @@ fun BottomSheetPage(
     bottomSheetNavigatorViewModel: BottomSheetNavigatorViewModel = hiltViewModel(),
     navController: NavHostController = rememberNavController(),
     navigatorViewModel: NavigateViewModel = viewModel(),
+    mapViewModel: MapViewModel = hiltViewModel(),
     startDestination: String = "spot/list",
 ) {
     bottomSheetNavigatorViewModel.init(navController)
+    mapViewModel.initBottomSheetController(navController)
     Column(
         modifier = Modifier
             .heightIn(min = 40.dp, max = 670.dp)
@@ -78,12 +81,18 @@ fun BottomSheetPage(
                     }
                 }
             }
-            composable("landmark/main") {
+            composable(
+                "landmark/main/{landmarkId}",
+                arguments = listOf(navArgument("landmarkId") {
+                    type = NavType.LongType
+                    defaultValue = 0
+                })
+            ) {
                 CompositionLocalProvider(
                     LocalViewModelStoreOwner provides viewModelStoreOwner
                 ) {
                     BottomSheetFrame(hasFabCamera = true, backgroundColor = MaruBackground) {
-                        LandmarkMain()
+                        LandmarkMain(landmarkId = it.arguments!!.getLong("landmarkId"))
                     }
                 }
             }

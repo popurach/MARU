@@ -97,14 +97,4 @@ class ApiModule {
     @Singleton
     @Provides
     fun provideSpotRepository(spotApi: SpotApi): SpotRepository = SpotRepository(spotApi)
-
-    @Singleton
-    @Provides
-    fun provideLandmarkApi(retrofit: Retrofit): LandmarkApi =
-        retrofit.create(LandmarkApi::class.java)
-
-    @Singleton
-    @Provides
-    fun provideLandmarkRepository(landmarkApi: LandmarkApi): LandmarkRepository =
-        LandmarkRepository(landmarkApi)
 }

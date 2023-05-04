@@ -45,7 +45,7 @@ fun MapboxScreen(
     mapViewModel.initMarkerImage(
         AppCompatResources.getDrawable(
             LocalContext.current,
-            R.drawable.marker
+            R.drawable.landmark
         )
     )
     val context = LocalContext.current
@@ -76,6 +76,7 @@ fun MapboxScreen(
         content = { _ ->
             AndroidView(
                 modifier = Modifier
+                    .padding(bottom = 25.dp)
                     .fillMaxHeight(),
                 factory = { context ->
                     ResourceOptionsManager.getDefault(
