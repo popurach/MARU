@@ -165,6 +165,10 @@ public class AuctionLogServiceImpl implements AuctionLogService {
     }
 
     private void biddingWithAuction(Auction auction, Member member, int price) {
+        log.info("auction 정보 : {}, {}", auction.getCreatedDate(), auction.getLandmark().getId());
+        log.info("member 정보 : {}", member.getNickname());
+        log.info("입찰 가격 : {}", price);
+
         if (auction.getLastLogId() != null) {
             int prevCost = auctionLogRepository.findById(auction.getLastLogId())
                                                .orElseThrow(() -> new ResourceNotFoundException("해당 리소스 존재하지 않습니다."))
