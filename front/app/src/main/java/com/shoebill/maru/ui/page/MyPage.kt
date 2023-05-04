@@ -1,8 +1,8 @@
 package com.shoebill.maru.ui.page
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -10,8 +10,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.shoebill.maru.R
@@ -20,13 +20,13 @@ import com.shoebill.maru.ui.component.mypage.MyPageTabs
 import com.shoebill.maru.viewmodel.NavigateViewModel
 
 @Composable
-@Preview
 fun MyPage(
     navigateViewModel: NavigateViewModel = viewModel(),
 ) {
     Box(
         Modifier
-            .fillMaxWidth(),
+            .fillMaxWidth()
+            .background(color = Color.White),
     ) {
         // 뒤로 가기 버튼
         Image(
@@ -41,9 +41,8 @@ fun MyPage(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(top = 40.dp, bottom = 40.dp),
+                .padding(top = 40.dp, bottom = 0.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(5.dp),
         ) {
             MyPageMemberInfo()
             MyPageTabs()

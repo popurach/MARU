@@ -14,6 +14,8 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.RequestBody.Companion.toRequestBody
+import java.text.NumberFormat
+import java.util.Locale
 import javax.inject.Inject
 
 @HiltViewModel
@@ -26,6 +28,10 @@ class MemberViewModel @Inject constructor(
 
     fun updateMemberInfo(value: Member) {
         _memberInfo.value = value
+    }
+
+    fun getPoint(): String {
+        return NumberFormat.getNumberInstance(Locale.US).format(_memberInfo.value?.point)
     }
 
     private fun updateNoticeToken() {
