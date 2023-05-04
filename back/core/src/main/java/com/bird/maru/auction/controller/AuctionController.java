@@ -8,6 +8,7 @@ import com.bird.maru.auctionlog.controller.dto.LandmarkSimpleDto;
 import com.bird.maru.auth.service.dto.CustomUserDetails;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -48,6 +49,7 @@ public class AuctionController {
      * @return 랜드마크의 경매 상세 정보
      */
     @GetMapping("/{landmarkId}/details")
+    @PreAuthorize("@authService.authorizeToAuction(#member.getId(), #landmarkId)")
     public AuctionDetailDto findAuctionDetail(
             @AuthenticationPrincipal CustomUserDetails member,
             @PathVariable Long landmarkId
