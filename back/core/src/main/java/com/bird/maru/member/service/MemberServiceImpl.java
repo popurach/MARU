@@ -4,6 +4,7 @@ import com.bird.maru.cloud.aws.s3.service.AwsS3Service;
 import com.bird.maru.common.exception.ResourceNotFoundException;
 import com.bird.maru.domain.model.entity.Member;
 import com.bird.maru.domain.model.type.Image;
+import com.bird.maru.member.controller.dto.MemberInfoUpdateDto;
 import com.bird.maru.member.repository.MemberRepository;
 import com.bird.maru.member.repository.query.MemberQueryRepository;
 import lombok.RequiredArgsConstructor;
@@ -24,9 +25,12 @@ public class MemberServiceImpl implements MemberService {
     private static final Integer LANDMARK_POINT = 5000;
 
     @Override
-    public Member modifyMemberInfo(Long memberId, String nickname, MultipartFile image) {
+    public Member modifyMemberInfo(Long memberId, MemberInfoUpdateDto memberInfoUpdateDto) {
         Member member = memberQueryRepository.findById(memberId)
                                              .orElseThrow(() -> new ResourceNotFoundException("회원을 찾을 수 없습니다."));
+
+        String nickname = memberInfoUpdateDto.getNickname();
+        MultipartFile image = memberInfoUpdateDto.getImage();
 
         if (StringUtils.hasText(nickname)) {
             member.updateNickname(nickname);

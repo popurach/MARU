@@ -45,7 +45,7 @@ public class MemberController {
             @ModelAttribute MemberInfoUpdateDto memberInfoUpdateDto
     ) {
         return mapper.toMemberInfoDto(
-                memberService.modifyMemberInfo(member.getId(), memberInfoUpdateDto.getNickname(), memberInfoUpdateDto.getImage())
+                memberService.modifyMemberInfo(member.getId(), memberInfoUpdateDto)
         );
     }
 
