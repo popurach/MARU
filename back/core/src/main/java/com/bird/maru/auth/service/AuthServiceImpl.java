@@ -12,7 +12,7 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-@Service
+@Service("authService")
 @Transactional
 @RequiredArgsConstructor
 public class AuthServiceImpl implements AuthService {
@@ -55,7 +55,7 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     @Transactional(readOnly = true)
-    public boolean authorizeAuction(Long memberId, Long landmarkId) {
+    public boolean authorizeToAuction(Long memberId, Long landmarkId) {
         return spotCustomQueryRepository.existsSpotByMemberAndLandmark(memberId, landmarkId);
     }
 
