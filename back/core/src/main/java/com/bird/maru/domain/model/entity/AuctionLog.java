@@ -23,7 +23,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 @Entity
 @Table(
         name = "auction_logs",
-        indexes = @Index(name = "log_date_index", columnList = "created_date_time")
+        indexes = @Index(name = "log_date_index", columnList = "modified_date_time")
 )
 @EntityListeners(AuditingEntityListener.class)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
