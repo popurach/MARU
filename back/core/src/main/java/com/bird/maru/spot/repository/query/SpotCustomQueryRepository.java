@@ -21,6 +21,7 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
@@ -121,6 +122,17 @@ public class SpotCustomQueryRepository {
                                   spot.deleted.isFalse(),
                                   spot.landmark.id.isNull())
                            .fetch();
+    }
+
+    public boolean existsSpotByMemberAndLandmark(Long memberId, Long landmarkId) {
+        return Optional.ofNullable(
+                queryFactory.select(spot.id)
+                            .from(spot)
+                            .where(spot.createdDateTime.after(TimeUtil.getThisWeekStartDateTime()),
+                                   spot.member.id.eq(memberId),
+                                   spot.landmark.id.eq(landmarkId))
+                            .fetchOne()
+        ).isPresent();
     }
 
     private BooleanExpression ltSpotOffset(Long lastOffset) {

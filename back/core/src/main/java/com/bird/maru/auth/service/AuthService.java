@@ -12,4 +12,6 @@ public interface AuthService {
 
     void reportRefreshToken(CustomUserDetails member);
 
+    boolean authorizeAuction(Long memberId, Long landmarkId);
+
 }
