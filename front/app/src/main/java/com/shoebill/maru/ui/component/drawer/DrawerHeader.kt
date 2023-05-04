@@ -14,6 +14,8 @@ import androidx.compose.material.Icon
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -33,6 +35,7 @@ import androidx.navigation.NavOptions
 import coil.compose.AsyncImage
 import com.shoebill.maru.R
 import com.shoebill.maru.model.data.Member
+import com.shoebill.maru.ui.component.mypage.ProfileEditModal
 import com.shoebill.maru.viewmodel.MemberViewModel
 import com.shoebill.maru.viewmodel.MyPageViewModel
 import com.shoebill.maru.viewmodel.NavigateViewModel
@@ -49,6 +52,7 @@ fun DrawerHeader(
     val fontSize = 12.sp
     val memberInfo = memberViewModel.memberInfo.observeAsState(initial = Member())
     val isNewMessage = noticeViewModel.isNew.observeAsState(false)
+    val profileEditModalShown = remember { mutableStateOf(false) }
 
     Box(
         Modifier
@@ -75,7 +79,7 @@ fun DrawerHeader(
     ) {
         Box(modifier = Modifier
             .size(80.dp)
-            .clickable { }) {
+            .clickable { profileEditModalShown.value = true }) {
             AsyncImage(
                 model = memberInfo.value.imageUrl,
                 contentDescription = "Translated description of what the image contains",
@@ -93,6 +97,11 @@ fun DrawerHeader(
                     .size(30.dp)
             )
         }
+
+        if (profileEditModalShown.value) {
+            ProfileEditModal(onDismissRequest = { profileEditModalShown.value = false })
+        }
+
         // nickname
         Text(text = memberInfo.value.nickname, fontSize = 18.sp, fontWeight = FontWeight.Bold)
 
