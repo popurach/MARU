@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
@@ -72,16 +73,30 @@ fun DrawerHeader(
             .padding(top = 6.dp, bottom = 40.dp)
 
     ) {
-        AsyncImage(
-            model = memberInfo.value.imageUrl,
-            contentDescription = "Translated description of what the image contains",
-            contentScale = ContentScale.Crop,
-            modifier = Modifier
-                .size(80.dp)
-                .clip(CircleShape)
-        )
+        Box(modifier = Modifier
+            .size(80.dp)
+            .clickable { }) {
+            AsyncImage(
+                model = memberInfo.value.imageUrl,
+                contentDescription = "Translated description of what the image contains",
+                contentScale = ContentScale.Crop,
+                modifier = Modifier
+                    .clip(CircleShape)
+            )
+            Icon(
+                painter = painterResource(id = R.drawable.btn_profile_edit),
+                contentDescription = "edit button",
+                tint = Color.Unspecified,
+                modifier = Modifier
+                    .align(Alignment.BottomEnd)
+                    .offset(3.dp, 3.dp)
+                    .size(30.dp)
+            )
+        }
         // nickname
         Text(text = memberInfo.value.nickname, fontSize = 18.sp, fontWeight = FontWeight.Bold)
+
+        // point
         Row(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(5.dp)
