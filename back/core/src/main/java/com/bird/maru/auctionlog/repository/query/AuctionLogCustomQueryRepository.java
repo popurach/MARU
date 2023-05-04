@@ -23,16 +23,6 @@ public class AuctionLogCustomQueryRepository {
 
     private final JPAQueryFactory queryFactory;
 
-    public List<AuctionLog> auctionRecordTop10(Long landmarkId) {
-        return queryFactory.selectFrom(auctionLog)
-                           .join(auctionLog.auction, auction).on(auctionLog.id.eq(auction.lastLogId))
-                           .where(auction.landmark.id.eq(landmarkId),
-                                  auction.finished.isTrue())
-                           .orderBy(auction.createdDate.desc())
-                           .limit(10)
-                           .fetch();
-    }
-
     public List<AuctionLog> findAllWithAuctionByMemberAndCondition(Long memberId, AuctionLogSearchCondition condition) {
         return queryFactory.selectFrom(auctionLog)
                            .join(auctionLog.auction, auction).fetchJoin()
@@ -82,6 +72,7 @@ public class AuctionLogCustomQueryRepository {
                             .where(auctionLog.member.id.eq(memberId), auction.landmark.id.eq(landmarkId))
                             .fetchOne()
         );
+    }
 
     private BooleanExpression ltOffset(Long lastOffset) {
         if (lastOffset == null) {
