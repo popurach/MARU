@@ -40,6 +40,8 @@ fun ImageUploadForm(
     val inputTag = cameraViewModel.inputTag.observeAsState("")
     val tagList = cameraViewModel.tagList.observeAsState(listOf())
     val isModalOpen = remember { mutableStateOf(false) }
+    val location = cameraViewModel.location.observeAsState()
+
     Box {
         Column(
             modifier = Modifier
@@ -91,6 +93,7 @@ fun ImageUploadForm(
             ) {
                 GradientButton(
                     text = "완료",
+                    enabled = location.value != null,
                     gradient = MaruBrush,
                     modifier = Modifier
                         .fillMaxWidth()

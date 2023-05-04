@@ -45,7 +45,8 @@ fun MapboxScreen(
     /** 요청할 권한 **/
     val permissions = arrayOf(
         Manifest.permission.ACCESS_COARSE_LOCATION,
-        Manifest.permission.ACCESS_FINE_LOCATION
+        Manifest.permission.ACCESS_FINE_LOCATION,
+        Manifest.permission.READ_EXTERNAL_STORAGE
     )
 
     val launcherMultiplePermissions = rememberLauncherForActivityResult(
