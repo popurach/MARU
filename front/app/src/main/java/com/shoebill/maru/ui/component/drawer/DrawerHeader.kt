@@ -79,7 +79,10 @@ fun DrawerHeader(
     ) {
         Box(modifier = Modifier
             .size(80.dp)
-            .clickable { profileEditModalShown.value = true }) {
+            .clickable {
+                memberViewModel.modifiedImageUri.value = null
+                profileEditModalShown.value = true
+            }) {
             AsyncImage(
                 model = memberInfo.value.imageUrl,
                 contentDescription = "Translated description of what the image contains",

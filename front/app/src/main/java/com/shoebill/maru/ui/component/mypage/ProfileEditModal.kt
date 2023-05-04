@@ -42,6 +42,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import com.shoebill.maru.R
 import com.shoebill.maru.ui.component.common.CustomAlertDialog
@@ -49,17 +50,18 @@ import com.shoebill.maru.ui.component.common.GradientButton
 import com.shoebill.maru.ui.theme.MaruBackground
 import com.shoebill.maru.ui.theme.MaruBrush
 import com.shoebill.maru.viewmodel.MemberViewModel
+import com.shoebill.maru.viewmodel.NavigateViewModel
 
 @Composable
 fun ProfileEditModal(
     onDismissRequest: () -> Unit,
-    memberViewModel: MemberViewModel = hiltViewModel()
+    memberViewModel: MemberViewModel = hiltViewModel(),
+    navigateViewModel: NavigateViewModel = viewModel()
 ) {
     val memberInfo = memberViewModel.memberInfo
     val context = LocalContext.current
 
     val selectedImageUri = remember { mutableStateOf<Uri?>(null) }
-    val imageUpdated = remember { mutableStateOf<Boolean>(false) }
 
     val takePhotoFromAlbumLauncher =
         rememberLauncherForActivityResult(
@@ -109,7 +111,7 @@ fun ProfileEditModal(
                         }
                 ) {
 
-                    if (imageUpdated.value) {
+                    if (selectedImageUri.value != null) {
                         val bitmap = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
                             ImageDecoder.decodeBitmap(
                                 ImageDecoder.createSource(
@@ -168,6 +170,7 @@ fun ProfileEditModal(
                         .height(48.dp),
                     onClick = {
                         memberViewModel.updateMemberProfileToServer(context)
+                        navigateViewModel.navigator?.navigate("main")
                     })
             }
         }

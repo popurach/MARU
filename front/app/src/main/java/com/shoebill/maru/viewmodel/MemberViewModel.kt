@@ -2,7 +2,6 @@ package com.shoebill.maru.viewmodel
 
 import android.content.Context
 import android.net.Uri
-import android.provider.MediaStore
 import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -20,6 +19,7 @@ import kotlinx.coroutines.runBlocking
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.RequestBody.Companion.toRequestBody
 import java.io.File
+import java.io.InputStream
 import java.text.NumberFormat
 import java.util.Locale
 import javax.inject.Inject
@@ -92,13 +92,14 @@ class MemberViewModel @Inject constructor(
     }
 
     fun updateMemberProfileToServer(context: Context) {
-        val imageUri = modifiedImageUri.value
-        val nickname = modifiedNickname.value
-        var file: File? = null
-        if (imageUri != null) {
-            file = uriToFile(context, imageUri)
-        }
-        viewModelScope.launch {
+        viewModelScope.launch() {
+            val imageUri = modifiedImageUri.value
+            val nickname = modifiedNickname.value
+            var file: File? = null
+            if (imageUri != null) {
+                file = uriToFile(context, imageUri)
+            }
+
             val response = memberRepository.updateMemberInfo(
                 MemberUpdateRequest(
                     image = file,
@@ -107,24 +108,24 @@ class MemberViewModel @Inject constructor(
             )
 
             if (response.isSuccessful) {
+                Log.d("TEST", "updateMemberProfileToServer: 회원정보 업데이트 완료")
                 response.body()?.let { updateMemberInfo(it) }
+            } else {
+                Log.d("TEST", "updateMemberProfileToServer: 회원정보 업데이트 실패")
             }
         }
     }
 
-    private fun uriToFile(context: Context, uri: Uri): File {
-        val projection = arrayOf(MediaStore.Images.Media.DATA)
-
-        val cursor = context.contentResolver.query(uri, projection, null, null, null)
-        cursor?.let {
-            val columnIndex = it.getColumnIndexOrThrow(MediaStore.Images.Media.DATA)
-            it.moveToFirst()
-            val filePath = it.getString(columnIndex)
-            
-            cursor.close()
-            return File(filePath)
+    fun uriToFile(context: Context, uri: Uri): File? {
+        val inputStream: InputStream? = context.contentResolver.openInputStream(uri)
+        val file = File(context.cacheDir, "image.jpg")
+        inputStream?.use { input ->
+            file.outputStream().use { output ->
+                input.copyTo(output)
+            }
         }
 
-        throw IllegalArgumentException("Uri not found")
+        return file
     }
+
 }
