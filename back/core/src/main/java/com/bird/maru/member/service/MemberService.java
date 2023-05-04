@@ -10,6 +10,6 @@ public interface MemberService {
 
     void registerNoticeToken(Long memberId, String noticeToken);
 
-    Integer gainPoint(Long memberId, Long landmarkId) throws ResourceNotFoundException;
+    Integer gainPoint(Long memberId, Integer point) throws ResourceNotFoundException;
 
 }
