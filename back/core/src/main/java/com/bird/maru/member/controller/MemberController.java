@@ -2,18 +2,18 @@ package com.bird.maru.member.controller;
 
 import com.bird.maru.auth.service.dto.CustomUserDetails;
 import com.bird.maru.member.controller.dto.MemberInfoDto;
+import com.bird.maru.member.controller.dto.MemberInfoUpdateDto;
 import com.bird.maru.member.mapper.MemberMapper;
 import com.bird.maru.member.service.MemberService;
 import com.bird.maru.member.service.query.MemberQueryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/api/members")
@@ -42,11 +42,10 @@ public class MemberController {
     @PostMapping("/my")
     public MemberInfoDto modifyMemberInfo(
             @AuthenticationPrincipal CustomUserDetails member,
-            @RequestPart(required = false) MultipartFile image,
-            @RequestBody(required = false) String nickname
+            @ModelAttribute MemberInfoUpdateDto memberInfoUpdateDto
     ) {
         return mapper.toMemberInfoDto(
-                memberService.modifyMemberInfo(member.getId(), nickname, image)
+                memberService.modifyMemberInfo(member.getId(), memberInfoUpdateDto.getNickname(), memberInfoUpdateDto.getImage())
         );
     }
 

@@ -157,7 +157,7 @@ class MemberControllerTest {
                                         multipart("/api/members/my")
                                                 .file(image)
                                                 .header("Authorization", "Bearer " + testToken)
-                                                .content("modified")
+                                                .param("nickname", "modified")
                                 )
                                 .andExpect(status().isOk())
                                 .andReturn()
