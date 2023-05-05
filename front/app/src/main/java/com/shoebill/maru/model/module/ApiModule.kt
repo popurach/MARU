@@ -61,6 +61,11 @@ class ApiModule {
 
     @Singleton
     @Provides
+    fun provideLandmarkApi(retrofit: Retrofit): LandmarkApi =
+        retrofit.create(LandmarkApi::class.java)
+
+    @Singleton
+    @Provides
     fun provideMemberRepository(memberApi: MemberApi, prefUtil: PreferenceUtil): MemberRepository =
         MemberRepository(memberApi, prefUtil)
 
@@ -68,6 +73,11 @@ class ApiModule {
     @Provides
     fun provideAuctionRepository(auctionApi: AuctionApi): AuctionRepository =
         AuctionRepository(auctionApi)
+
+    @Singleton
+    @Provides
+    fun provideLandmarkRepository(landmarkApi: LandmarkApi): LandmarkRepository =
+        LandmarkRepository(landmarkApi)
 
     @Singleton
     @Provides
@@ -87,14 +97,4 @@ class ApiModule {
     @Singleton
     @Provides
     fun provideSpotRepository(spotApi: SpotApi): SpotRepository = SpotRepository(spotApi)
-
-    @Singleton
-    @Provides
-    fun provideLandmarkApi(retrofit: Retrofit): LandmarkApi =
-        retrofit.create(LandmarkApi::class.java)
-
-    @Singleton
-    @Provides
-    fun provideLandmarkRepository(landmarkApi: LandmarkApi): LandmarkRepository =
-        LandmarkRepository(landmarkApi)
 }

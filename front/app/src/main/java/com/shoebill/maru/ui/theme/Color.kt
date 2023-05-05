@@ -19,3 +19,7 @@ val MaruBrush = Brush.linearGradient(
     Offset.Zero,
     Offset.Infinite
 )
+
+val GreyBrush = Brush.linearGradient(
+    listOf(Color.LightGray, Color.LightGray)
+)

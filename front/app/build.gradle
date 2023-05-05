@@ -75,7 +75,7 @@ dependencies {
     implementation 'com.google.firebase:firebase-analytics-ktx'
 
     // Mapbox
-    implementation 'com.mapbox.maps:android:10.12.1'
+    implementation 'com.mapbox.maps:android:10.12.2'
     implementation 'com.google.android.gms:play-services-location:21.0.1'
 
     // appcompat resource
@@ -152,4 +152,5 @@ dependencies {
 
     // Goggle Login
     implementation 'com.google.android.gms:play-services-auth:20.5.0'
+
 }

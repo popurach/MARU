@@ -58,14 +58,15 @@ fun MainPage(
     val expandState: Boolean? =
         navigateViewModel.navigator?.previousBackStackEntry?.savedStateHandle?.get("expandState")
 
-    val coroutineContext = rememberCoroutineScope()
+    val isBottomSheetOpen = mapViewModel.bottomSheetOpen.observeAsState()
 
-    coroutineContext.launch {
-        if (expandState != null && expandState) {
-            navigateViewModel.navigator?.previousBackStackEntry?.savedStateHandle?.set(
-                key = "expandState",
-                value = false
-            )
+
+    if (expandState == true) {
+        navigateViewModel.navigator?.previousBackStackEntry?.savedStateHandle?.set(
+            key = "expandState",
+            value = false
+        )
+        rememberCoroutineScope().launch {
             scaffoldState.bottomSheetState.expand()
         }
     }
@@ -94,6 +95,16 @@ fun MainPage(
     LaunchedEffect(key1 = scaffoldState.drawerState.isOpen) {
         if (scaffoldState.drawerState.isClosed) {
             drawerViewModel.updateOpenState(false)
+        }
+    }
+    LaunchedEffect(key1 = isBottomSheetOpen.value) {
+        if (isBottomSheetOpen.value == true) {
+            scaffoldState.bottomSheetState.expand()
+        }
+    }
+    LaunchedEffect(key1 = scaffoldState.bottomSheetState.isExpanded) {
+        if (!scaffoldState.bottomSheetState.isExpanded) {
+            mapViewModel.updateBottomSheetState(false)
         }
     }
     BackHandler(isDrawerOpen.value) {
