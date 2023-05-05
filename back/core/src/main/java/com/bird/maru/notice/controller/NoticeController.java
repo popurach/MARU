@@ -1,6 +1,6 @@
 package com.bird.maru.notice.controller;
 
-import com.bird.maru.domain.model.type.CustomUserDetails;
+import com.bird.maru.auth.service.dto.CustomUserDetails;
 import com.bird.maru.notice.controller.dto.NoticeResponseDto;
 import com.bird.maru.notice.model.Notice;
 import com.bird.maru.notice.service.NoticeService;
