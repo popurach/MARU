@@ -27,10 +27,11 @@ import org.springframework.web.multipart.MultipartFile;
 @Slf4j
 public class AwsS3Service {
 
-    private final AmazonS3 amazonS3;
-    private final String bucketName;
     private static final String MEMBER_PATH = "images/members";
     private static final String SPOT_PATH = "images/spots";
+
+    private final AmazonS3 amazonS3;
+    private final String bucketName;
 
     public AwsS3Service(AmazonS3 amazonS3, @Value("${cloud.aws.s3.bucket}") String bucketName) {
         this.amazonS3 = amazonS3;
@@ -44,14 +45,35 @@ public class AwsS3Service {
      * @return Image 객체를 반환합니다. 이 객체는 {@code S3Object}에 대한 기본 정보(저장 경로, URL)를 담고 있습니다.
      */
     public Image uploadMemberProfileImage(MultipartFile image) {
-        Image uploadImage;
         try (InputStream input = image.getInputStream()) {
-            String key = createKey(MEMBER_PATH, Objects.requireNonNull(image.getOriginalFilename()));
-            uploadImage = upload(input, key, getObjectMetadata(image));
+            return upload(
+                    input,
+                    createKey(MEMBER_PATH, Objects.requireNonNull(image.getOriginalFilename())),
+                    getObjectMetadata(image)
+            );
         } catch (IOException e) {
             throw new IllegalArgumentException("업로드 하려는 파일을 읽을 수 없습니다.", e);
         }
-        return uploadImage;
+    }
+
+    /**
+     * 스팟 사진을 저장합니다.
+     *
+     * @param image 저장할 1개의 스팟 사진
+     * @return Image 객체를 반환합니다. 이 객체는 {@code S3Object}에 대한 기본 정보(저장 경로, URL)를 담고 있습니다.
+     */
+    public SpotImage uploadSpotImage(MultipartFile image) {
+        try (InputStream input = image.getInputStream()) {
+            Image uploaded = upload(
+                    input,
+                    createKey(SPOT_PATH, Objects.requireNonNull(image.getOriginalFilename())),
+                    getObjectMetadata(image)
+            );
+
+            return getImageWithGps(input, uploaded);
+        } catch (ImageProcessingException | IOException e) {
+            throw new IllegalArgumentException("업로드 하려는 파일을 읽을 수 없습니다.", e);
+        }
     }
 
     /**
@@ -62,53 +84,8 @@ public class AwsS3Service {
      * @return Image 객체를 반환합니다. 이 객체는 {@code S3Object}에 대한 기본 정보(저장 경로, URL)를 담고 있습니다.
      */
     public Image updateMemberProfileImage(MultipartFile image, Image imageInfo) {
-        try (InputStream input = image.getInputStream()) {
-            amazonS3.putObject(
-                    new PutObjectRequest(
-                            this.bucketName, imageInfo.getSavedPath(), input, getObjectMetadata(image)
-                    )
-            );
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
-
-        return Image.builder()
-                    .savedPath(imageInfo.getSavedPath())
-                    .url(amazonS3.getUrl(this.bucketName, imageInfo.getSavedPath()))
-                    .build();
-    }
-
-    /**
-     * 스팟 사진을 저장합니다.
-     *
-     * @param image 저장할 1개의 스팟 사진
-     * @return Image 객체를 반환합니다. 이 객체는 {@code S3Object}에 대한 기본 정보(저장 경로, URL)를 담고 있습니다.
-     */
-    public SpotImage uploadSpotImage(MultipartFile image) {
-        Image uploadImage;
-        Double lng = null;
-        Double lat = null;
-        try (InputStream input = image.getInputStream()) {
-            // GPS Metadata
-            Metadata metadata = ImageMetadataReader.readMetadata(input);
-            GpsDirectory gpsDirectory = metadata.getFirstDirectoryOfType(GpsDirectory.class);
-            if (gpsDirectory != null && gpsDirectory.getGeoLocation() != null) {
-                GeoLocation location = gpsDirectory.getGeoLocation();
-                lng = location.getLongitude();
-                lat = location.getLatitude();
-            } else {
-                log.warn("GPS 데이터를 불러올 수 없습니다.");
-            }
-            String key = createKey(SPOT_PATH, Objects.requireNonNull(image.getOriginalFilename()));
-            uploadImage = upload(input, key, getObjectMetadata(image));
-        } catch (ImageProcessingException | IOException e) {
-            throw new IllegalArgumentException("업로드 하려는 파일을 읽을 수 없습니다.", e);
-        }
-        return SpotImage.builder()
-                        .lng(lng)
-                        .lat(lat)
-                        .image(uploadImage)
-                        .build();
+        deleteFile(imageInfo.getSavedPath());
+        return uploadMemberProfileImage(image);
     }
 
     /**
@@ -144,10 +121,30 @@ public class AwsS3Service {
                         this.bucketName, key, input, objectMetadata
                 ).withCannedAcl(CannedAccessControlList.PublicRead)
         );
+
         return Image.builder()
                     .savedPath(key)
                     .url(amazonS3.getUrl(this.bucketName, key))
                     .build();
+    }
+
+    private SpotImage getImageWithGps(InputStream input, Image uploaded) throws ImageProcessingException, IOException {
+        Metadata metadata = ImageMetadataReader.readMetadata(input);
+        GpsDirectory gpsDirectory = metadata.getFirstDirectoryOfType(GpsDirectory.class);
+
+        if (gpsDirectory == null || gpsDirectory.getGeoLocation() == null) {
+            log.warn("GPS 데이터를 불러올 수 없습니다.");
+            return SpotImage.builder()
+                            .image(uploaded)
+                            .build();
+        }
+
+        GeoLocation location = gpsDirectory.getGeoLocation();
+        return SpotImage.builder()
+                        .lng(location.getLongitude())
+                        .lat(location.getLatitude())
+                        .image(uploaded)
+                        .build();
     }
 
     private String createKey(String path, String originalFilename) {
