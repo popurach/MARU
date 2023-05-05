@@ -32,7 +32,7 @@ public class TagJDBCRepository {
 
     public void bulkInsertSpotHasTags(Long spotId, List<Long> tagIds) {
         jdbcTemplate.batchUpdate("INSERT INTO spot_has_tag (spot_id, tag_id)"
-                                         + "VALUES (?, ?)",
+                                         + " VALUES (?, ?)",
                                  new BatchPreparedStatementSetter() {
 
                                      @Override
