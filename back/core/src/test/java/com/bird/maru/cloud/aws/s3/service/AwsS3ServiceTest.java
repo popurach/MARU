@@ -28,7 +28,7 @@ class AwsS3ServiceTest {
         // given
         MultipartFile image;
         try (InputStream input = new FileInputStream("resources/default_profile.png")) {
-            image = new MockMultipartFile("default_profile", input);
+            image = new MockMultipartFile("default_profile.png", input);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }

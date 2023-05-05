@@ -89,6 +89,11 @@ dependencies {
 
     // WebFlux 관련 의존성 추가 ; WebClient 활용
     implementation 'org.springframework.boot:spring-boot-starter-webflux'
+
+    // ImageMetadataReader
+    // https://mvnrepository.com/artifact/com.drewnoakes/metadata-extractor
+    implementation group: 'com.drewnoakes', name: 'metadata-extractor', version: '2.18.0'
+
 }
 
 tasks.named('test') {
