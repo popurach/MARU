@@ -69,7 +69,7 @@ public class AuctionLogServiceImpl implements AuctionLogService {
                                         .orElseThrow(() -> new ResourceNotFoundException("해당 리소스 존재하지 않습니다."));
 
         // 1. 현재 auctionLog에 입찰 기록이 있는지 확인
-        AuctionLog auctionLog = auctionLogRepository.findByLandmarkAndMember(member.getId(), landmarkId)
+        AuctionLog auctionLog = auctionLogCustomQueryRepository.findByLandmarkAndMember(member.getId(), landmarkId)
                                                     .orElseThrow(() -> new ResourceNotFoundException("해당 리소스 존재하지 않습니다."));
 
         if ((member.getPoint() + auctionLog.getPrice()) < price) {
