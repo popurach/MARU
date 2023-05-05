@@ -10,6 +10,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
+import kotlin.properties.Delegates
 
 @HiltViewModel
 class LandmarkOwnerViewModel @Inject constructor(
@@ -21,7 +22,13 @@ class LandmarkOwnerViewModel @Inject constructor(
     private val _landmarkName = MutableLiveData("")
     val landmarkName get() = _landmarkName
 
-    fun initLandmarkOwnerViewModel(landmarkId: Long, landmarkName: String? = null) {
+    var landmarkId by Delegates.notNull<Long>()
+
+    fun initLandmarkId(value: Long) {
+        landmarkId = value
+    }
+
+    fun initLandmarkOwnerViewModel(landmarkName: String? = null) {
         if (landmarkName == null) loadLandmarkName(landmarkId)
         else _landmarkName.value = landmarkName!!
         loadOwnerInfo(landmarkId)

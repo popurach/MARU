@@ -4,6 +4,7 @@ import android.util.Log
 import com.shoebill.maru.model.data.Stamp
 import com.shoebill.maru.model.data.landmark.Landmark
 import com.shoebill.maru.model.data.landmark.Owner
+import com.shoebill.maru.model.data.landmark.SpotImage
 import com.shoebill.maru.model.interfaces.LandmarkApi
 import javax.inject.Inject
 
@@ -42,4 +43,8 @@ class LandmarkRepository @Inject constructor(
         }
         return ""
     }
+
+    suspend fun getLandmarkImages(lastOffset: Long?, landmarkId: Long): List<SpotImage> =
+        landmarkApi.getImageUrls(lastOffset = lastOffset, id = landmarkId)
+
 }

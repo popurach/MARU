@@ -20,7 +20,9 @@ fun LandMarkPicture(
         contentDescription = "occupant image",
         modifier = Modifier
             .fillMaxSize()
-            .clickable { bottomSheetNavigatorViewModel.navController?.navigate("landmark/picture/list") },
+            .clickable {
+                bottomSheetNavigatorViewModel.navController?.navigate("landmark/${landmarkOwnerViewModel.landmarkId}/picture/list")
+            },
         contentScale = ContentScale.Crop
     )
 }

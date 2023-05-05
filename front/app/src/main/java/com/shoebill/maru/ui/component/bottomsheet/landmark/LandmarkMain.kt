@@ -37,14 +37,22 @@ fun LandmarkMain(
     bottomSheetNavigatorViewModel: BottomSheetNavigatorViewModel = hiltViewModel(),
     landmarkId: Long
 ) {
-    landmarkOwnerViewModel.initLandmarkOwnerViewModel(landmarkId)
+    landmarkOwnerViewModel.initLandmarkId(landmarkId)
+    landmarkOwnerViewModel.initLandmarkOwnerViewModel()
     val owner = landmarkOwnerViewModel.owner.observeAsState()
     val landmarkName = landmarkOwnerViewModel.landmarkName.observeAsState()
     Column(
         Modifier
             .fillMaxSize()
             .padding(top = 50.dp)
-            .clickable { bottomSheetNavigatorViewModel.navController!!.navigate("landmark/picture") },
+            .clickable {
+                if (owner.value!!.id > 0L) {
+                    bottomSheetNavigatorViewModel.navController!!.navigate("landmark/picture")
+                } else {
+                    bottomSheetNavigatorViewModel.navController!!.navigate("landmark/$landmarkId/picture/list")
+                }
+
+            },
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(50.dp)
     ) {

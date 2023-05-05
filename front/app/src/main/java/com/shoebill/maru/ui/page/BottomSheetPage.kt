@@ -105,26 +105,21 @@ fun BottomSheetPage(
                     }
                 }
             }
-            composable("landmark/picture/list") {
+            composable(
+                "landmark/{id}/picture/list",
+                arguments = listOf(navArgument("id") {
+                    type = NavType.LongType
+                    defaultValue = 0
+                })
+            ) {
                 CompositionLocalProvider(
                     LocalViewModelStoreOwner provides viewModelStoreOwner
                 ) {
                     BottomSheetFrame(hasFabCamera = true, backgroundColor = MaruBackground) {
-                        LandmarkPictureList()
+                        LandmarkPictureList(landmarkId = it.arguments!!.getLong("id"))
                     }
                 }
             }
         }
     }
-//    Column(
-//        horizontalAlignment = Alignment.CenterHorizontally,
-//        modifier = Modifier
-//            .heightIn(min = 40.dp, max = 670.dp)
-//    ) {
-////        BottomSheetIndicator()
-////        SpotList()
-//        BottomSheetFrame(hasFabCamera = true) {
-//            LandmarkPictureList()
-//        }
-//    }
 }
