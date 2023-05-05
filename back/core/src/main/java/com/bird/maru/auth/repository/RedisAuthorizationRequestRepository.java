@@ -1,5 +1,6 @@
 package com.bird.maru.auth.repository;
 
+import com.bird.maru.common.redis.RedisCacheKey;
 import java.time.Duration;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -12,17 +13,14 @@ import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
 import org.springframework.stereotype.Repository;
 
 /**
- * Authorization Code Grant 방식을 지원합니다. <br>
- * OAuth2.0 인증 과정에서 서버간 상태를 공유하기 위해 이 빈을 사용합니다. <br>
- * OAuth2AuthorizationRequestRedirectFilter에서 "/oauth2/authorization/*"로 들어오는 요청을 인터셉트하고, saveAuthorizationRequest를 호출합니다. <br>
- * OAuth2LoginAuthenticationFilter에서 "/login/oauth2/code/*"로 들어오는 요청을 인터셉트하고, removeAuthorizationRequest를 호출합니다.
+ * Authorization Code Grant 방식을 지원합니다. <br> OAuth2.0 인증 과정에서 서버간 상태를 공유하기 위해 이 빈을 사용합니다. <br> OAuth2AuthorizationRequestRedirectFilter에서
+ * "/oauth2/authorization/*"로 들어오는 요청을 인터셉트하고, saveAuthorizationRequest를 호출합니다. <br> OAuth2LoginAuthenticationFilter에서 "/login/oauth2/code/*"로 들어오는
+ * 요청을 인터셉트하고, removeAuthorizationRequest를 호출합니다.
  */
 @Repository
 @RequiredArgsConstructor
 @Slf4j
 public class RedisAuthorizationRequestRepository implements AuthorizationRequestRepository<OAuth2AuthorizationRequest> {
-
-    public static final String AUTHORIZATION_REQUEST_PREFIX = "authorization_request:";
 
     private final RedisTemplate<String, OAuth2AuthorizationRequest> redisTemplate;
 
@@ -71,7 +69,7 @@ public class RedisAuthorizationRequestRepository implements AuthorizationRequest
     }
 
     private String getRedisKey(String state) {
-        return AUTHORIZATION_REQUEST_PREFIX + state;
+        return RedisCacheKey.AUTHORIZATION_REQUEST.getKey(state);
     }
 
 }

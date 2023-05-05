@@ -2,15 +2,17 @@ package com.shoebill.maru.ui.component
 
 import android.Manifest
 import android.annotation.SuppressLint
-import android.content.Context
-import android.content.pm.PackageManager
 import android.widget.Toast
-import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.FabPosition
 import androidx.compose.material.FloatingActionButton
 import androidx.compose.material.Icon
 import androidx.compose.material.Scaffold
@@ -21,25 +23,30 @@ import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
-import androidx.core.content.ContextCompat
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.mapbox.maps.ResourceOptionsManager
 import com.shoebill.maru.R
+import com.shoebill.maru.util.checkAndRequestPermissions
 import com.shoebill.maru.viewmodel.MapViewModel
 
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 fun MapboxScreen(
-    viewModel: MapViewModel
+    viewModel: MapViewModel = hiltViewModel()
 ) {
+    viewModel.initFocusManager(LocalFocusManager.current)
     val context = LocalContext.current
 
     /** 요청할 권한 **/
     val permissions = arrayOf(
         Manifest.permission.ACCESS_COARSE_LOCATION,
-        Manifest.permission.ACCESS_FINE_LOCATION
+        Manifest.permission.ACCESS_FINE_LOCATION,
+        Manifest.permission.READ_EXTERNAL_STORAGE
     )
 
     val launcherMultiplePermissions = rememberLauncherForActivityResult(
@@ -59,7 +66,8 @@ fun MapboxScreen(
     Scaffold(
         content = { _ ->
             AndroidView(
-                modifier = Modifier.fillMaxHeight(),
+                modifier = Modifier
+                    .fillMaxHeight(),
                 factory = { context ->
                     ResourceOptionsManager.getDefault(
                         context,
@@ -76,6 +84,7 @@ fun MapboxScreen(
                     viewModel.trackCameraToUser(context)
                 },
                 modifier = Modifier
+                    .padding(bottom = 25.dp)
                     .size(50.dp),
                 shape = RoundedCornerShape(16.dp),
                 backgroundColor = Color.White,
@@ -97,22 +106,9 @@ fun MapboxScreen(
                     )
                 }
             )
-        }
+            Box(modifier = Modifier.height(50.dp))
+        },
+        floatingActionButtonPosition = FabPosition.End,
+        isFloatingActionButtonDocked = true
     )
-}
-
-fun checkAndRequestPermissions(
-    context: Context,
-    permissions: Array<String>,
-    launcher: ManagedActivityResultLauncher<Array<String>, Map<String, @JvmSuppressWildcards Boolean>>
-) {
-    /** 권한이 없는 경우 **/
-    if (!permissions.all {
-            ContextCompat.checkSelfPermission(
-                context,
-                it
-            ) == PackageManager.PERMISSION_GRANTED
-        }) {
-        launcher.launch(permissions)
-    }
 }

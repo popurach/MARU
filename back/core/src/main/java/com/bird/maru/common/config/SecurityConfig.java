@@ -1,8 +1,10 @@
 package com.bird.maru.common.config;
 
 import com.bird.maru.auth.service.TokenUserService;
+import com.bird.maru.common.filter.GoogleOAuth2LoginFilter;
 import com.bird.maru.common.filter.ImplicitOAuth2LoginAuthenticationFilter;
 import com.bird.maru.common.filter.JwtAuthenticationFilter;
+import com.bird.maru.common.filter.dto.GoogleRegistration;
 import com.bird.maru.common.handler.JwtAccessDeniedHandler;
 import com.bird.maru.common.handler.JwtAuthenticationEntryPoint;
 import com.bird.maru.common.util.JwtUtil;
@@ -31,6 +33,7 @@ public class SecurityConfig {
 //    private final AuthCodeUserService authCodeUserService;
 //    private final OAuth2AuthenticationSuccessHandler oAuth2AuthenticationSuccessHandler;
 //    private final OAuth2AuthenticationFailureHandler oAuth2AuthenticationFailureHandler;
+    private final GoogleRegistration googleRegistration;
     private final TokenUserService tokenUserService;
 
     @Bean
@@ -63,6 +66,11 @@ public class SecurityConfig {
                 LogoutFilter.class
         );
 
+        http.addFilterBefore(
+                new GoogleOAuth2LoginFilter(googleRegistration),
+                ImplicitOAuth2LoginAuthenticationFilter.class
+        );
+
         // JWT 필터, 인증/인가 실패 핸들러 등록
         http.addFilterAfter(new JwtAuthenticationFilter(jwtUtil), LogoutFilter.class);
         http.exceptionHandling(
@@ -72,7 +80,7 @@ public class SecurityConfig {
 
         // 인증/인가 설정 추가
         http.authorizeRequests(
-                request -> request.antMatchers("/health").permitAll()
+                request -> request.antMatchers("/api/health").permitAll()
                                   .anyRequest().authenticated()
         );
 

@@ -4,7 +4,6 @@ import static org.assertj.core.api.Assertions.*;
 
 import com.bird.maru.domain.model.type.Image;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
@@ -29,13 +28,13 @@ class AwsS3ServiceTest {
         // given
         MultipartFile image;
         try (InputStream input = new FileInputStream("resources/default_profile.png")) {
-            image = new MockMultipartFile("default_profile", input);
+            image = new MockMultipartFile("default_profile.png", input);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
 
         // when
-        Image actual = awsS3Service.uploadMemberProfile(image);
+        Image actual = awsS3Service.uploadMemberProfileImage(image);
 
         // then
         assertThat(actual.getSavedPath()).startsWith("images/members");

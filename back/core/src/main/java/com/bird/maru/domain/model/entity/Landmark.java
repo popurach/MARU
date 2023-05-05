@@ -21,7 +21,6 @@ import lombok.*;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Getter
-@Setter
 @Builder
 public class Landmark {
 
@@ -32,6 +31,7 @@ public class Landmark {
     @Column(name = "member_id")
     private Long memberId; // 현재 랜드마크의 대표 회원
 
+    @NotNull
     private String name;
 
     @Embedded
@@ -42,5 +42,9 @@ public class Landmark {
     @NotNull
     @Builder.Default
     private Integer visitCount = 0;
+
+    public void changeOwner(Long memberId) {
+        this.memberId = memberId;
+    }
 
 }

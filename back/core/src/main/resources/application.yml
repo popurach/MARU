@@ -6,20 +6,19 @@ spring:
         - s3-local
         - db-dev
         - global-dev
-        - jwt-dev
+        - security-local
       dev:
         - s3-server
         - db-dev
         - global-dev
-        - jwt-dev
+        - security-server
       prod:
         - s3-server
         - db-prod
         - global-prod
-        - jwt-prod
+        - security-server
     include:
       - s3
       - db
       - global
-      - jwt
       - security

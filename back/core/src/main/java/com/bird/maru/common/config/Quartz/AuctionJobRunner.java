@@ -18,7 +18,7 @@ public class AuctionJobRunner extends JobRunner{
     @Override
     protected void doRun(ApplicationArguments args) {
         JobDetail jobDetail = buildJobDetail(AuctionQuartzJob.class, "auctionJob", "batch", new HashMap());
-//        Trigger trigger = buildJobTrigger("0/10 * * * * ?"); // 10초마다 실행
+//        Trigger trigger = buildJobTrigger("0 */5 * ? * *"); // 5분마다 실행
         Trigger trigger = buildJobTrigger("0 0 0 ? * MON *"); // 매주 월요일 00:30마다 실행
 
         try{

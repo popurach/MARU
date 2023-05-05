@@ -1,20 +1,16 @@
 package com.bird.maru.auth.service;
 
+import com.bird.maru.auth.service.dto.CustomUserDetails;
+import com.bird.maru.common.util.RestUtil;
 import com.bird.maru.domain.model.entity.Member;
-import com.bird.maru.domain.model.type.CustomUserDetails;
 import com.bird.maru.domain.model.type.Provider;
 import com.bird.maru.member.repository.MemberRepository;
 import com.bird.maru.member.repository.query.MemberQueryRepository;
-import java.time.Duration;
 import java.util.Map;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.web.client.RestTemplateBuilder;
-import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.RequestEntity;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.client.RestTemplate;
 
 /**
  * Implicit Grant 방식을 지원합니다. <br>
@@ -59,42 +55,27 @@ public class TokenUserService {
     }
 
     private OAuth2User loadUserByGoogle(String accessToken) {
-        Map<String, Object> attributes = getUserInfo(googleUserInfoUri, accessToken);
+        Map<String, Object> attributes = RestUtil.getUserInfo(googleUserInfoUri, accessToken);
         return createUserDetails(attributes, Provider.GOOGLE);
     }
 
     private OAuth2User loadUserByNaver(String accessToken) {
-        Map<String, Object> attributes = getUserInfo(naverUserInfoUri, accessToken);
+        Map<String, Object> attributes = RestUtil.getUserInfo(naverUserInfoUri, accessToken);
         return createUserDetails(attributes, Provider.NAVER);
     }
 
     private OAuth2User loadUserByKakao(String accessToken) {
-        Map<String, Object> attributes = getUserInfo(kakaoUserInfoUri, accessToken);
+        Map<String, Object> attributes = RestUtil.getUserInfo(kakaoUserInfoUri, accessToken);
         return createUserDetails(attributes, Provider.KAKAO);
-    }
-
-    private Map<String, Object> getUserInfo(String userInfoUri, String accessToken) {
-        return getRestTemplate(accessToken)
-                .exchange(RequestEntity.get(userInfoUri).build(),
-                        new ParameterizedTypeReference<Map<String, Object>>() {})
-                .getBody();
-    }
-
-    private RestTemplate getRestTemplate(String accessToken) {
-        return new RestTemplateBuilder()
-                .setConnectTimeout(Duration.ofSeconds(5L))
-                .setReadTimeout(Duration.ofSeconds(5L))
-                .defaultHeader("Authorization", "Bearer " + accessToken)
-                .build();
     }
 
     private OAuth2User createUserDetails(Map<String, Object> attributes, Provider provider) {
         CustomUserDetails userDetails = CustomUserDetails.of(attributes, provider);
         memberQueryRepository.findByEmailAndProvider(userDetails.getEmail(), userDetails.getProvider())
                              .ifPresentOrElse(
-                                member -> userDetails.setId(member.getId()),
-                                () -> join(userDetails)
-                        );
+                                     member -> userDetails.setId(member.getId()),
+                                     () -> join(userDetails)
+                             );
         return userDetails;
     }
 

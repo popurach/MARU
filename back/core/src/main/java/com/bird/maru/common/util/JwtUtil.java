@@ -1,6 +1,6 @@
 package com.bird.maru.common.util;
 
-import com.bird.maru.domain.model.type.CustomUserDetails;
+import com.bird.maru.auth.service.dto.CustomUserDetails;
 import com.bird.maru.domain.model.type.Provider;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
@@ -11,6 +11,7 @@ import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.security.SignatureException;
 import java.security.Key;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -60,7 +61,7 @@ public class JwtUtil {
     public String resolveToken(HttpServletRequest request) {
         String authorization = request.getHeader("Authorization");
 
-        if (!StringUtils.hasText(authorization) || authorization.startsWith(TOKEN_PATTERN)) {
+        if (!StringUtils.hasText(authorization) || !authorization.startsWith(TOKEN_PATTERN)) {
             return null;
         }
 
@@ -91,7 +92,9 @@ public class JwtUtil {
         CustomUserDetails member = CustomUserDetails.builder()
                                                     .id(claims.get("id", Long.class))
                                                     .email(claims.get("email", String.class))
-                                                    .provider(claims.get("provider", Provider.class))
+                                                    .provider(Provider.convert(
+                                                            claims.get("provider", String.class)
+                                                    ))
                                                     .nickname(claims.get("nickname", String.class))
                                                     .authorities(authorities)
                                                     .build();
@@ -112,9 +115,14 @@ public class JwtUtil {
     }
 
     private List<? extends GrantedAuthority> getAuthorities(Claims claims) {
-        return Arrays.stream(
-                             claims.get(AUTHORITIES_CLAIM_KEY, String.class).split(",")
-                     )
+        String[] authorities = claims.get(AUTHORITIES_CLAIM_KEY, String.class)
+                                     .split(",");
+
+        if (!StringUtils.hasText(authorities[0])) {
+            return Collections.emptyList();
+        }
+
+        return Arrays.stream(authorities)
                      .map(SimpleGrantedAuthority::new)
                      .collect(Collectors.toList());
     }
@@ -123,7 +131,7 @@ public class JwtUtil {
         return Jwts.parserBuilder()
                    .setSigningKey(this.key)
                    .build()
-                   .parseClaimsJwt(token)
+                   .parseClaimsJws(token)
                    .getBody();
     }
 

@@ -3,7 +3,9 @@ package com.bird.maru.domain.model.entity;
 import com.bird.maru.domain.model.type.BaseDateTime;
 import com.bird.maru.domain.model.type.Coordinate;
 import com.bird.maru.domain.model.type.Image;
-import java.util.Objects;
+import java.util.ArrayList;
+import java.util.List;
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
@@ -14,6 +16,7 @@ import javax.persistence.Id;
 import javax.persistence.Index;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import lombok.AccessLevel;
@@ -63,12 +66,34 @@ public class Spot extends BaseDateTime {
     @Builder.Default
     private Boolean deleted = Boolean.FALSE;
 
+    @OneToMany(
+            mappedBy = "spot",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true,
+            fetch = FetchType.LAZY
+    )
+    @Builder.Default
+    private List<SpotHasTag> tags = new ArrayList<>();
+
     public boolean isLandmark() {
-        return landmark != null;
+        return this.landmark != null;
     }
 
-    public Landmark getLandmark() {
-        return Objects.requireNonNull(this.landmark);
+    public void addTag(Tag tag) {
+        this.tags.add(
+                SpotHasTag.builder()
+                          .spot(this)
+                          .tag(tag)
+                          .build()
+        );
+    }
+
+    public void likeCountUp() {
+        this.likeCount++;
+    }
+
+    public void likeCountDown() {
+        this.likeCount--;
     }
 
 }

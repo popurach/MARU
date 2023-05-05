@@ -1,8 +1,8 @@
 package com.bird.maru.domain.model.entity;
 
-import java.time.LocalDateTime;
-import javax.persistence.Column;
+import com.bird.maru.domain.model.type.BaseDateTime;
 import javax.persistence.Entity;
+import javax.persistence.EntityListeners;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -18,17 +18,19 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 @Entity
 @Table(
         name = "auction_logs",
-        indexes = @Index(name = "log_date_index", columnList = "created_date_time")
+        indexes = @Index(name = "log_date_index", columnList = "modified_date_time")
 )
+@EntityListeners(AuditingEntityListener.class)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Getter
 @Builder
-public class AuctionLog {
+public class AuctionLog extends BaseDateTime {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -36,28 +38,22 @@ public class AuctionLog {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumns({
-            @JoinColumn(name = "auction_created_date", referencedColumnName = "created_date", updatable = false),
-            @JoinColumn(name = "landmark_id", referencedColumnName = "landmark_id", updatable = false)
+            @JoinColumn(name = "auction_created_date", referencedColumnName = "created_date"),
+            @JoinColumn(name = "landmark_id", referencedColumnName = "landmark_id")
     })
+    @NotNull
     private Auction auction;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id", updatable = false)
+    @NotNull
     private Member member;
 
     @NotNull
     private Integer price;
 
-    @Column(name = "created_date_time", columnDefinition = "DATETIME")
-    @NotNull
-    private LocalDateTime createdDateTime;
-
-    public AuctionLog(AuctionLog auctionLogs) {
-        this.id = auctionLogs.getId();
-        this.auction = auctionLogs.getAuction();
-        this.member = auctionLogs.getMember();
-        this.price = auctionLogs.getPrice();
-        this.createdDateTime = auctionLogs.getCreatedDateTime();
+    public void bidding(int price) {
+        this.price = price;
     }
 
 }

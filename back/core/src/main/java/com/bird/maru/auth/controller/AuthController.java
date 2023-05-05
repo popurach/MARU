@@ -1,7 +1,7 @@
 package com.bird.maru.auth.controller;
 
 import com.bird.maru.auth.service.AuthService;
-import com.bird.maru.domain.model.type.CustomUserDetails;
+import com.bird.maru.auth.service.dto.CustomUserDetails;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -39,8 +39,11 @@ public class AuthController {
      * @throws AccessDeniedException Refresh Token이 탈취된 가능성이 있는 경우에 발생
      */
     @GetMapping("/api/auth/access-token")
-    public String regenerateAccessToken(@AuthenticationPrincipal CustomUserDetails member) throws AccessDeniedException {
-        return authService.regenerateAccessToken(member);
+    public ResponseEntity<Void> regenerateAccessToken(@AuthenticationPrincipal CustomUserDetails member) throws AccessDeniedException {
+        String accessToken = authService.regenerateAccessToken(member);
+        return ResponseEntity.ok()
+                             .headers(httpHeaders -> httpHeaders.add("Access-Token", accessToken))
+                             .build();
     }
 
     /**
