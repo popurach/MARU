@@ -150,9 +150,11 @@ public class SpotCustomQueryRepository {
                             ))
                             .from(spot)
                             .leftJoin(scrap).on(spot.id.eq(scrap.spot.id),
-                                                scrap.member.id.eq(memberId))
+                                                scrap.member.id.eq(memberId),
+                                                scrap.deleted.isFalse())
                             .leftJoin(like).on(spot.id.eq(like.spot.id),
-                                               like.member.id.eq(memberId))
+                                               like.member.id.eq(memberId),
+                                               like.deleted.isFalse())
                             .where(spot.id.eq(spotId),
                                    spot.deleted.isFalse()
                             ).fetchOne());
