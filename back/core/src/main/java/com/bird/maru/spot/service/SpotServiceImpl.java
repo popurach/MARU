@@ -1,6 +1,8 @@
 package com.bird.maru.spot.service;
 
 import com.bird.maru.cloud.aws.s3.service.AwsS3Service;
+import com.bird.maru.common.exception.ResourceNotFoundException;
+import com.bird.maru.domain.model.entity.Spot;
 import com.bird.maru.domain.model.entity.Tag;
 import com.bird.maru.domain.model.type.PointMoney;
 import com.bird.maru.landmark.repository.query.LandmarkQueryRepository;
@@ -14,6 +16,7 @@ import com.bird.maru.tag.repository.TagJDBCRepository;
 import com.bird.maru.tag.repository.query.TagQueryRepository;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -101,6 +104,17 @@ public class SpotServiceImpl implements SpotService {
                 landmarkId == null ? null : landmarkQueryRepository.getReferenceById(landmarkId),
                 memberQueryRepository.getReferenceById(memberId)
         )).getId();
+    }
+
+    @Override
+    public void deleteSpot(Long spotId, Long memberId) throws ResourceNotFoundException {
+        Optional<Spot> spot = spotRepository.findByIdAndMemberId(spotId, memberId);
+        spot.ifPresentOrElse(
+                Spot::deleteSpot,
+                () -> {
+                    throw new ResourceNotFoundException("리소스가 존재하지 않습니다.");
+                }
+        );
     }
 
 }

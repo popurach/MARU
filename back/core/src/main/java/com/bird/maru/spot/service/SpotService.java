@@ -8,4 +8,6 @@ public interface SpotService {
 
     Long insertSpotAndTags(MultipartFile spotImage, List<TagRequestDto> tags, Long landmarkId, Long memberId);
 
+    void deleteSpot(Long spotId, Long memberId);
+
 }

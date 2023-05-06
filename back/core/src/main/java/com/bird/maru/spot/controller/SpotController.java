@@ -1,6 +1,7 @@
 package com.bird.maru.spot.controller;
 
 import com.bird.maru.auth.service.dto.CustomUserDetails;
+import com.bird.maru.common.exception.ResourceNotFoundException;
 import com.bird.maru.common.util.NamedLockExecutor;
 import com.bird.maru.like.service.LikeService;
 import com.bird.maru.spot.controller.dto.SpotPostRequestDto;
@@ -10,9 +11,11 @@ import com.bird.maru.spot.service.SpotService;
 import com.bird.maru.spot.service.query.SpotQueryService;
 import java.util.List;
 import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -97,6 +100,19 @@ public class SpotController {
                                              spotPostRequestDto.getTags(),
                                              spotPostRequestDto.getLandmarkId(),
                                              member.getId());
+    }
+
+    /**
+     * 스팟 삭제 API
+     *
+     * @param spotId : 삭제할 spot id
+     * @param member : 현재 접근중인 주체
+     * @throws ResourceNotFoundException : 사용자가 삭제할 spot이 존재하지 않을 경우
+     */
+    @DeleteMapping("{spotId}")
+    @ResponseStatus(HttpStatus.OK)
+    public void deleteSpot(@NotNull @PathVariable Long spotId, @AuthenticationPrincipal CustomUserDetails member) throws ResourceNotFoundException {
+        spotService.deleteSpot(spotId, member.getId());
     }
 
 }
