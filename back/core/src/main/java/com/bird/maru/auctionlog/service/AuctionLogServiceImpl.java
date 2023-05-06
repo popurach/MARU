@@ -14,6 +14,7 @@ import com.bird.maru.landmark.repository.LandmarkRepository;
 import com.bird.maru.member.repository.MemberRepository;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,7 +27,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 @Slf4j
 public class AuctionLogServiceImpl implements AuctionLogService {
-    private final NamedLockConfig namedLockConfig;
+
     private final AuctionLogRepository auctionLogRepository;
     private final AuctionLogCustomQueryRepository auctionLogCustomQueryRepository;
     private final AuctionRepository auctionRepository;
@@ -51,7 +52,7 @@ public class AuctionLogServiceImpl implements AuctionLogService {
         Auction auction = auctionRepository.findByLandmarkAndFinished(landmarkId, Boolean.FALSE)
                                            .orElseThrow(() -> new ResourceNotFoundException("해당 리소스 존재하지 않습니다."));
         log.info("######### auction : {}, {}", auction.getCreatedDate(), auction.getLandmark().getId());
-        if(auction != null) {
+        if (auction != null) {
             log.info("################ 옥션 NULL 아님 ############");
             biddingWithAuction(auction, member, price);
         }
@@ -70,7 +71,7 @@ public class AuctionLogServiceImpl implements AuctionLogService {
 
         // 1. 현재 auctionLog에 입찰 기록이 있는지 확인
         AuctionLog auctionLog = auctionLogCustomQueryRepository.findByLandmarkAndMember(member.getId(), landmarkId)
-                                                    .orElseThrow(() -> new ResourceNotFoundException("해당 리소스 존재하지 않습니다."));
+                                                               .orElseThrow(() -> new ResourceNotFoundException("해당 리소스 존재하지 않습니다."));
 
         if ((member.getPoint() + auctionLog.getPrice()) < price) {
             throw new NotEnoughMoney("포인트가 부족합니다.");
@@ -108,7 +109,7 @@ public class AuctionLogServiceImpl implements AuctionLogService {
         Member member = memberRepository.findById(memberId)
                                         .orElseThrow(() -> new ResourceNotFoundException("해당 리소스 존재하지 않습니다."));
 
-        AuctionLog auctionLog = auctionLogCustomQueryRepository.findWithAuctionById(auctionLogId)
+        AuctionLog auctionLog = auctionLogCustomQueryRepository.findWithAuctionById(memberId, auctionLogId)
                                                                .orElseThrow(() -> new ResourceNotFoundException("해당 리소스 존재하지 않습니다."));
 
         // 포인트 돌려주기
@@ -121,11 +122,12 @@ public class AuctionLogServiceImpl implements AuctionLogService {
         }
 
         Auction auction = auctionLog.getAuction();
-        auctionLogRepository.findFirstByLandmarkId(auction.getLandmark().getId())
-                            .ifPresentOrElse(
-                                    log -> auction.setLastLogId(log.getId()),
-                                    () -> auction.changeLastLogId(null)
-                            );
+        Optional<AuctionLog> auctionLogMax = auctionLogCustomQueryRepository.findFirstByLandmarkId(auction.getLandmark().getId());
+        if (auctionLogMax.isPresent()) { // 최고 입찰 기록으로 update
+            auction.changeLastLogId(auctionLogMax.get().getId());
+        } else { // 최고 입찰 기록 x -> NULL
+            auction.changeLastLogId(null);
+        }
 
         // websocket 통신
 
@@ -142,7 +144,7 @@ public class AuctionLogServiceImpl implements AuctionLogService {
         Landmark landmark = auction.getLandmark();
         Long successfulBidId = auction.getLastLogId();
 
-        if (successfulBidId.equals(auctionLog.getId())) { // 낙찰자
+        if (successfulBidId != null && successfulBidId.equals(auctionLog.getId())) { // 낙찰자
             log.info("낙찰자 : {}", member.getId());
             landmark.changeOwner(member.getId()); // 랜드마크 대표 회원 정보 업데이트
             auction.setFinished(true); // 경매 현재 상태 -> 끝남
@@ -160,7 +162,7 @@ public class AuctionLogServiceImpl implements AuctionLogService {
     @Override
     public List<Integer> auctionRecord(Long landmarkId) {
         List<AuctionLog> auctionLogList = auctionLogCustomQueryRepository.auctionRecordTop10(landmarkId);
-        if(auctionLogList.isEmpty()) {
+        if (auctionLogList.isEmpty()) {
             return new ArrayList<>();
         }
         List<Integer> auctionRecords = auctionLogList.stream().map(
@@ -183,7 +185,6 @@ public class AuctionLogServiceImpl implements AuctionLogService {
         log.info("auction 정보 : {}, {}", auction.getCreatedDate(), auction.getLandmark().getId());
         log.info("member 정보 : {}", member.getNickname());
         log.info("입찰 가격 : {}", price);
-
 
         // 입찰 가격이 더 높은 경우
         // 4. auctionLog에 입찰 정보 등록

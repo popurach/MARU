@@ -11,6 +11,8 @@ spring:
     job:
       names: ${job.name:NONE}
       enabled: false # batch 자동 실행 막음
+    jdbc:
+      initialize-schema: always
 
 # Server Health Check
 management:
