@@ -14,7 +14,9 @@ import lombok.NoArgsConstructor;
 public class SpotImage {
 
     private Double lng;
+
     private Double lat;
+
     private Image image;
 
 }
