@@ -1,6 +1,7 @@
 package com.bird.maru.spot.service;
 
 import com.bird.maru.cloud.aws.s3.service.AwsS3Service;
+import com.bird.maru.common.exception.ResourceConflictException;
 import com.bird.maru.common.exception.ResourceNotFoundException;
 import com.bird.maru.domain.model.entity.Spot;
 import com.bird.maru.domain.model.entity.Tag;
@@ -106,13 +107,26 @@ public class SpotServiceImpl implements SpotService {
         )).getId();
     }
 
+    /**
+     * 스팟 삭제
+     *
+     * @param spotId   : 스팟 id
+     * @param memberId : 멤버 id
+     * @throws ResourceConflictException : 이미 삭제된 리소스를 삭제하려고 하면 발생합니다. - Conflict
+     * @throws ResourceNotFoundException : 존재하지 않는 리소스에 접근 시 발생합니다. - NotFound
+     */
     @Override
-    public void deleteSpot(Long spotId, Long memberId) throws ResourceNotFoundException {
+    public void deleteSpot(Long spotId, Long memberId) throws ResourceConflictException, ResourceNotFoundException {
         Optional<Spot> spot = spotRepository.findByIdAndMemberId(spotId, memberId);
         spot.ifPresentOrElse(
-                Spot::deleteSpot,
+                s -> {
+                    if (Boolean.TRUE.equals(s.getDeleted())) {
+                        throw new ResourceConflictException("이미 삭제된 리소스입니다.");
+                    }
+                    s.deleteSpot();
+                },
                 () -> {
-                    throw new ResourceNotFoundException("리소스가 존재하지 않습니다.");
+                    throw new ResourceConflictException("해당 리소스 존재하지 않습니다.");
                 }
         );
     }

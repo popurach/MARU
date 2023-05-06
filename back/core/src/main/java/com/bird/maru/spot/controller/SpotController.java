@@ -1,6 +1,7 @@
 package com.bird.maru.spot.controller;
 
 import com.bird.maru.auth.service.dto.CustomUserDetails;
+import com.bird.maru.common.exception.ResourceConflictException;
 import com.bird.maru.common.exception.ResourceNotFoundException;
 import com.bird.maru.common.util.NamedLockExecutor;
 import com.bird.maru.like.service.LikeService;
@@ -107,11 +108,13 @@ public class SpotController {
      *
      * @param spotId : 삭제할 spot id
      * @param member : 현재 접근중인 주체
-     * @throws ResourceNotFoundException : 사용자가 삭제할 spot이 존재하지 않을 경우
+     * @throws ResourceConflictException : 이미 삭제된 리소스를 삭제하려고 하면 발생합니다. - Conflict
+     * @throws ResourceNotFoundException : 존재하지 않는 리소스에 접근 시 발생합니다. - NotFound
      */
     @DeleteMapping("{spotId}")
     @ResponseStatus(HttpStatus.OK)
-    public void deleteSpot(@NotNull @PathVariable Long spotId, @AuthenticationPrincipal CustomUserDetails member) throws ResourceNotFoundException {
+    public void deleteSpot(@NotNull @PathVariable Long spotId, @AuthenticationPrincipal CustomUserDetails member)
+            throws ResourceConflictException, ResourceNotFoundException {
         spotService.deleteSpot(spotId, member.getId());
     }
 
