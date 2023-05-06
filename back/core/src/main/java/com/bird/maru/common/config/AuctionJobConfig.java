@@ -129,7 +129,7 @@ public class AuctionJobConfig {
         return new RepositoryItemReaderBuilder<AuctionLog>()
                 .name("auctionLogsReader")
                 .repository(auctionLogsRepository)
-                .methodName("findAllWithAuctionAndMember")
+                .methodName("findAll")
                 .pageSize(5)
                 .arguments(List.of())
                 .sorts(Collections.singletonMap("id", Sort.Direction.ASC))

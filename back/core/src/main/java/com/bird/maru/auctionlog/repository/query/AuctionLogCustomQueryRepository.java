@@ -15,9 +15,11 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 
 @Repository
+@Slf4j
 @RequiredArgsConstructor
 public class AuctionLogCustomQueryRepository {
 
@@ -37,11 +39,14 @@ public class AuctionLogCustomQueryRepository {
                            .fetch();
     }
 
-    public Optional<AuctionLog> findWithAuctionById(Long auctionLogId) {
+    public Optional<AuctionLog> findWithAuctionById(Long memberId, Long auctionLogId) {
         return Optional.ofNullable(
                 queryFactory.selectFrom(auctionLog)
                             .join(auctionLog.auction, auction).fetchJoin()
-                            .where(auctionLog.id.eq(auctionLogId))
+                            .where(
+                                    auctionLog.member.id.eq(memberId),
+                                    auctionLog.id.eq(auctionLogId)
+                            )
                             .fetchOne()
         );
     }
@@ -71,6 +76,17 @@ public class AuctionLogCustomQueryRepository {
                             .join(auctionLog.auction, auction)
                             .where(auctionLog.member.id.eq(memberId), auction.landmark.id.eq(landmarkId))
                             .fetchOne()
+        );
+    }
+
+    public Optional<AuctionLog> findFirstByLandmarkId(Long landmarkId) {
+        log.info("쿼리 DSL 들어옴 !!!!!!!! {}", landmarkId);
+        return Optional.ofNullable(
+                queryFactory.selectFrom(auctionLog)
+                            .join(auctionLog.auction, auction).fetchJoin()
+                            .where(auction.landmark.id.eq(landmarkId))
+                            .orderBy(auctionLog.price.desc())
+                            .fetchFirst()
         );
     }
 
