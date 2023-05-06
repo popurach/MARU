@@ -5,6 +5,7 @@ import com.bird.maru.common.exception.ResourceConflictException;
 import com.bird.maru.common.exception.ResourceNotFoundException;
 import com.bird.maru.common.util.NamedLockExecutor;
 import com.bird.maru.like.service.LikeService;
+import com.bird.maru.spot.controller.dto.SpotDetailResponseDto;
 import com.bird.maru.spot.controller.dto.SpotPostRequestDto;
 import com.bird.maru.spot.controller.dto.SpotSearchCondition;
 import com.bird.maru.spot.repository.query.dto.SpotSimpleDto;
@@ -116,6 +117,22 @@ public class SpotController {
     public void deleteSpot(@NotNull @PathVariable Long spotId, @AuthenticationPrincipal CustomUserDetails member)
             throws ResourceConflictException, ResourceNotFoundException {
         spotService.deleteSpot(spotId, member.getId());
+    }
+
+    /**
+     * 스팟 상세보기 API
+     *
+     * @param spotId : 스팟 id
+     * @param member : 현재 접근중인 주체
+     * @return SpotDetailResponseDto : 상세보기 dto
+     * @throws ResourceNotFoundException : 리소스 없음
+     */
+    @GetMapping("{spotId}")
+    @ResponseStatus(HttpStatus.OK)
+    public SpotDetailResponseDto findSpotDetail(
+            @NotNull @PathVariable Long spotId, @AuthenticationPrincipal CustomUserDetails member
+    ) throws ResourceNotFoundException {
+        return spotQueryService.findSpotDetail(spotId, member.getId());
     }
 
 }
