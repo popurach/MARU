@@ -16,6 +16,7 @@ import androidx.navigation.NavHostController
 import com.google.gson.JsonObject
 import com.mapbox.android.gestures.MoveGestureDetector
 import com.mapbox.geojson.Point
+import com.mapbox.maps.CameraBoundsOptions
 import com.mapbox.maps.CameraOptions
 import com.mapbox.maps.CoordinateBounds
 import com.mapbox.maps.MapView
@@ -72,6 +73,7 @@ class MapViewModel @Inject constructor(
     private lateinit var mapView: MapView
     lateinit var mapBoxMap: MapboxMap
     private lateinit var _focusManager: FocusManager
+
     private lateinit var pointAnnotationManager: PointAnnotationManager
 
     private val _isTracking = MutableLiveData(false)
@@ -171,12 +173,11 @@ class MapViewModel @Inject constructor(
                 projection.north(),
                 ceil(mapBoxMap.cameraState.zoom).toInt()
             )
-            // TODO 내 스팟인지 여부 설정해줘야함
             try {
                 val spotList = spotRepository.getSpotMarker(boundingBox, mine)
                 spotList.forEach {
                     val coordinate = Coordinate(it.geometry.coordinates[0], it.geometry.coordinates[1])
-                    addMarker(iconImage = spotImage!!, coordinate = coordinate, id = it.properties.id)
+                    addMarker(spotType = SpotType.SPOT, coordinate = coordinate, id = it.properties.id)
                 }
             } catch (e: Error) {
                 Log.e(TAG, "fail to load spot pos: $e")
@@ -226,6 +227,7 @@ class MapViewModel @Inject constructor(
                 cameraOptions {
                     zoom(19.0)
                     pitch(50.0)
+                    center(Point.fromLngLat(126.995340, 37.564916))
                 }
             }
             mapBoxMap.addOnMoveListener(object : OnMoveListener {
@@ -249,6 +251,17 @@ class MapViewModel @Inject constructor(
                 }
             })
         }
+        val boundsOptions = CameraBoundsOptions.Builder()
+            .bounds(
+                CoordinateBounds(
+                    Point.fromLngLat(126.75201, 37.72348),
+                    Point.fromLngLat(127.19696, 37.40671),
+                    false
+                )
+            )
+            .minZoom(10.0)
+            .build()
+        mapBoxMap.setBounds(boundsOptions)
         return mapView
     }
 
@@ -352,7 +365,7 @@ class MapViewModel @Inject constructor(
             withContext(Dispatchers.Main) {
                 // 현재 존재하는 모든 마커 삭제
                 listOfLandmark.forEach { landmark ->
-                    addMarker(landmarkImage!!, landmark.coordinate, landmark.visited, landmark.id)
+                    addMarker(SpotType.LANDMARK, landmark.coordinate, landmark.visited, landmark.id)
                 }
                 lastRequestPos = mapBoxMap.cameraState.center
 //                _landmarks.value = listOfLandmark
@@ -378,11 +391,12 @@ class MapViewModel @Inject constructor(
     }
 
     private fun addMarker(
-        iconImage: Bitmap,
+        spotType: Int,
         coordinate: Coordinate,
         isVisit: Boolean? = null,
         id: Long?
     ) {
+        val iconImage = if (spotType == SpotType.LANDMARK) landmarkImage!! else spotImage!!
         // Set options for the resulting symbol layer.
         val pointAnnotationOptions: PointAnnotationOptions = PointAnnotationOptions()
             .withPoint(Point.fromLngLat(coordinate.lng, coordinate.lat))
