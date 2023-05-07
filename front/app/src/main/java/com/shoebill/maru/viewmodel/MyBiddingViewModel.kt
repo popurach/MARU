@@ -27,6 +27,7 @@ class MyBiddingViewModel @Inject constructor(private val myBiddingRepository: My
 
     init {
         getMyBiddings()
+        getMyNonBiddings()
     }
 
     private fun getMyBiddings() {
