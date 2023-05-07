@@ -190,11 +190,12 @@ class MapViewModel @Inject constructor(
         _bottomSheetOpen.value = true
     }
 
-    fun spotClicked() {
-        // TODO: 바텀시트 연 후 스팟 상세 페이지로 이동
+    private fun spotClicked(spotId: Long) {
+        bottomSheetController.navigate("spot/detail/$spotId")
+        _bottomSheetOpen.value = true
     }
 
-    fun clusterClicked() {
+    private fun clusterClicked() {
         // TODO: 줌레벨 올리기
     }
 
@@ -210,11 +211,11 @@ class MapViewModel @Inject constructor(
                 "MARKER",
                 "markerClicked: $type"
             )
-            val id = it.getData()!!.asJsonObject!!.get("id")!!.asLong
+            val id = it.getData()!!.asJsonObject!!.get("id")?.asLong
             Log.d(TAG, "createMapView: $type $id")
             when (type) {
-                SpotType.LANDMARK -> landmarkClicked(id)
-                SpotType.SPOT -> spotClicked()
+                SpotType.LANDMARK -> if (id != null) landmarkClicked(id)
+                SpotType.SPOT -> if (id != null) spotClicked(id)
                 SpotType.CLUSTER -> clusterClicked()
             }
             true
@@ -224,10 +225,23 @@ class MapViewModel @Inject constructor(
             getMapboxMap().loadStyleUri("mapbox://styles/chartype/clgd8mwak000001sczpqlrb72") {
                 scalebar.enabled = false
                 compass.enabled = false
+
+                val boundsOptions = CameraBoundsOptions.Builder()
+                    .bounds(
+                        CoordinateBounds(
+                            Point.fromLngLat(126.75201, 37.72348),
+                            Point.fromLngLat(127.19696, 37.40671),
+                            false
+                        )
+                    )
+                    .minZoom(10.0)
+                    .build()
+                mapBoxMap.setBounds(boundsOptions)
+
                 cameraOptions {
+                    center(Point.fromLngLat(126.979384, 37.563573))
                     zoom(19.0)
                     pitch(50.0)
-                    center(Point.fromLngLat(126.995340, 37.564916))
                 }
             }
             mapBoxMap.addOnMoveListener(object : OnMoveListener {
@@ -251,17 +265,7 @@ class MapViewModel @Inject constructor(
                 }
             })
         }
-        val boundsOptions = CameraBoundsOptions.Builder()
-            .bounds(
-                CoordinateBounds(
-                    Point.fromLngLat(126.75201, 37.72348),
-                    Point.fromLngLat(127.19696, 37.40671),
-                    false
-                )
-            )
-            .minZoom(10.0)
-            .build()
-        mapBoxMap.setBounds(boundsOptions)
+
         return mapView
     }
 
