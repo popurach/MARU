@@ -37,6 +37,7 @@ fun SpotDetail(
     bottomSheetNavigatorViewModel: BottomSheetNavigatorViewModel = viewModel(),
     spotViewModel: SpotViewModel = hiltViewModel() // 3. spotRepository 가 필요해서 컴포넌트랑 생명주기가 다른게 이상함
 ) {
+    spotViewModel.initSpotId(spotId)
     val spotDetails = spotViewModel.spotDetails.observeAsState()
     spotViewModel.loadSpotDetailById(spotId) // 1. 이렇게 호출해서 spotViewModel 안에 spot detail 을 직접 초기화 해주는게 이상함
 

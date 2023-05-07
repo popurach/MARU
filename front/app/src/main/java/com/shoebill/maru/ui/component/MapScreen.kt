@@ -31,26 +31,30 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.mapbox.maps.ResourceOptionsManager
 import com.shoebill.maru.R
+import com.shoebill.maru.ui.theme.GreyBrush
+import com.shoebill.maru.ui.theme.MaruBrush
 import com.shoebill.maru.util.checkAndRequestPermissions
 import com.shoebill.maru.viewmodel.MapViewModel
-import com.shoebill.maru.viewmodel.MemberViewModel
 
 @Composable
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 fun MapboxScreen(
     mapViewModel: MapViewModel = hiltViewModel(),
-    memberViewModel: MemberViewModel = hiltViewModel()
 ) {
     mapViewModel.initFocusManager(LocalFocusManager.current)
-    mapViewModel.initMarkerImage(
+    val context = LocalContext.current
+    mapViewModel.initLandmarkImage(
         AppCompatResources.getDrawable(
-            LocalContext.current,
+            context,
             R.drawable.landmark
         )
     )
-    val context = LocalContext.current
-
-    val memberInfo = memberViewModel.memberInfo.observeAsState()
+    mapViewModel.initSpotImage(
+        AppCompatResources.getDrawable(
+            context,
+            R.drawable.spot_marker
+        )
+    )
 
     /** 요청할 권한 **/
     val permissions = arrayOf(
@@ -73,6 +77,8 @@ fun MapboxScreen(
         }
     }
 
+    val isTracking = mapViewModel.isTracking.observeAsState()
+
     Scaffold(
         content = { _ ->
             AndroidView(
@@ -92,7 +98,7 @@ fun MapboxScreen(
             FloatingActionButton(
                 onClick = {
                     checkAndRequestPermissions(context, permissions, launcherMultiplePermissions)
-                    mapViewModel.trackCameraToUser(context, memberInfo.value!!)
+                    mapViewModel.trackCameraToUser(context)
                 },
                 modifier = Modifier
                     .padding(bottom = 25.dp)
@@ -107,7 +113,7 @@ fun MapboxScreen(
                                 onDrawWithContent {
                                     drawContent()
                                     drawRect(
-                                        mapViewModel.myLocationColor,
+                                        brush = if (isTracking.value == true) MaruBrush else GreyBrush,
                                         blendMode = BlendMode.SrcAtop
                                     )
                                 }

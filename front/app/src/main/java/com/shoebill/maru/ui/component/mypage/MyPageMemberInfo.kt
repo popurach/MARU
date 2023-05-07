@@ -26,10 +26,12 @@ import coil.compose.AsyncImage
 import com.shoebill.maru.R
 import com.shoebill.maru.model.data.Member
 import com.shoebill.maru.viewmodel.MemberViewModel
+import com.shoebill.maru.viewmodel.NavigateViewModel
 
 @Composable
 fun MyPageMemberInfo(
     memberViewModel: MemberViewModel = hiltViewModel(),
+    navigateViewModel: NavigateViewModel = hiltViewModel()
 ) {
     val memberInfo = memberViewModel.memberInfo.observeAsState(initial = Member())
 
@@ -52,7 +54,7 @@ fun MyPageMemberInfo(
             contentDescription = "point",
             tint = Color.Unspecified
         )
-        Text(text = memberViewModel.getPoint(), modifier = Modifier
+        Text(text = memberViewModel.getPoint(navigateViewModel.navigator), modifier = Modifier
             .graphicsLayer(alpha = 0.99f)
             .drawWithCache {
                 onDrawWithContent {

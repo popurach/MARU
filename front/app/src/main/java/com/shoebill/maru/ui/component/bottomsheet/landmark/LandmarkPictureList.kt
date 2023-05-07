@@ -27,11 +27,11 @@ fun LandmarkPictureList(
     ) {
         items(pictureList.itemCount) { idx ->
             AsyncImage(
-                model = pictureList[idx]?.imageUrl,
+                model = pictureList[idx]!!.imageUrl,
                 contentDescription = "landmark picture",
                 modifier = Modifier
                     .size(120.dp)
-                    .clickable { bottomSheetNavigatorViewModel.navController?.navigate("spot/detail/$idx") },
+                    .clickable { bottomSheetNavigatorViewModel.navController?.navigate("spot/detail/${pictureList[idx]!!.id}") },
                 contentScale = ContentScale.Crop
             )
         }

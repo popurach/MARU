@@ -8,7 +8,6 @@ import android.graphics.drawable.Drawable
 import android.util.Log
 import androidx.appcompat.content.res.AppCompatResources.getDrawable
 import androidx.compose.ui.focus.FocusManager
-import androidx.compose.ui.graphics.Brush
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -17,7 +16,9 @@ import androidx.navigation.NavHostController
 import com.google.gson.JsonObject
 import com.mapbox.android.gestures.MoveGestureDetector
 import com.mapbox.geojson.Point
+import com.mapbox.maps.CameraBoundsOptions
 import com.mapbox.maps.CameraOptions
+import com.mapbox.maps.CoordinateBounds
 import com.mapbox.maps.MapView
 import com.mapbox.maps.MapboxMap
 import com.mapbox.maps.dsl.cameraOptions
@@ -39,11 +40,14 @@ import com.mapbox.maps.plugin.viewport.data.FollowPuckViewportStateOptions
 import com.mapbox.maps.plugin.viewport.state.FollowPuckViewportState
 import com.mapbox.maps.plugin.viewport.viewport
 import com.shoebill.maru.model.data.Coordinate
-import com.shoebill.maru.model.data.Member
 import com.shoebill.maru.model.data.Spot
+import com.shoebill.maru.model.data.request.BoundingBox
 import com.shoebill.maru.model.repository.LandmarkRepository
-import com.shoebill.maru.ui.theme.GreyBrush
-import com.shoebill.maru.ui.theme.MaruBrush
+import com.shoebill.maru.model.repository.SpotRepository
+import com.shoebill.maru.util.Filter.ALL
+import com.shoebill.maru.util.Filter.LANDMARK
+import com.shoebill.maru.util.Filter.MYSPOT
+import com.shoebill.maru.util.Filter.SPOT
 import com.shoebill.maru.util.SpotType
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -53,6 +57,7 @@ import kotlinx.coroutines.withContext
 import javax.inject.Inject
 import kotlin.math.abs
 import kotlin.math.asin
+import kotlin.math.ceil
 import kotlin.math.cos
 import kotlin.math.sin
 import kotlin.math.sqrt
@@ -63,16 +68,26 @@ const val TAG = "LANDMARK"
 @HiltViewModel
 class MapViewModel @Inject constructor(
     private val landmarkRepository: LandmarkRepository,
+    private val spotRepository: SpotRepository
 ) : ViewModel() {
     private lateinit var mapView: MapView
     lateinit var mapBoxMap: MapboxMap
-    private var isTracking = false
     private lateinit var _focusManager: FocusManager
+
     private lateinit var pointAnnotationManager: PointAnnotationManager
 
-    private var markerImage: Drawable? = null
+    private val _isTracking = MutableLiveData(false)
+    val isTracking get() = _isTracking
+
+    private var landmarkImage: Bitmap? = null
+    private var spotImage: Bitmap? = null
+    private var clusterImage: Bitmap? = null
 
     private var lastRequestPos: Point? = null
+    private var lastRequestZoom: Double = 0.0
+
+    private val _filterState = MutableLiveData(ALL)
+    val filterState get() = _filterState
 
     private lateinit var bottomSheetController: NavHostController
 
@@ -106,21 +121,68 @@ class MapViewModel @Inject constructor(
             ),
         )
     )
+
     val spotList: LiveData<List<Spot>> get() = _spotList
 
-    val myLocationColor: Brush
-        get() = if (isTracking) MaruBrush else GreyBrush
+    fun updateFilterState(value: Int) {
+        _filterState.value = value
+    }
 
     fun initFocusManager(fm: FocusManager) {
         _focusManager = fm
     }
 
-    fun initMarkerImage(image: Drawable?) {
-        markerImage = image
+    fun initLandmarkImage(image: Drawable?) {
+        landmarkImage = drawableToBitmap(image)
     }
+
+    fun initSpotImage(image: Drawable?) {
+        spotImage = drawableToBitmap(image)
+    }
+
+    fun initClusterImage(image: Drawable?) {
+        clusterImage = drawableToBitmap(image)
+    }
+
+    private fun drawableToBitmap(image: Drawable?): Bitmap = (image as BitmapDrawable).bitmap
 
     fun clearFocus() {
         _focusManager.clearFocus()
+    }
+
+//    fun loadMarker() {
+//        when (_filterState.value) {
+//            ALL -> {
+//                loadLandmarkPos()
+//                loadSpotPos()
+//            }
+//
+//            LANDMARK -> loadLandmarkPos()
+//            SPOT -> loadSpotPos()
+//            MYSPOT -> loadSpotPos(mine = true)
+//        }
+//    }
+
+    fun loadSpotPos(mine: Boolean = false) {
+        val projection = getProjection()
+        viewModelScope.launch {
+            val boundingBox = BoundingBox(
+                projection.west(),
+                projection.south(),
+                projection.east(),
+                projection.north(),
+                ceil(mapBoxMap.cameraState.zoom).toInt()
+            )
+            try {
+                val spotList = spotRepository.getSpotMarker(boundingBox, mine)
+                spotList.forEach {
+                    val coordinate = Coordinate(it.geometry.coordinates[0], it.geometry.coordinates[1])
+                    addMarker(spotType = SpotType.SPOT, coordinate = coordinate, id = it.properties.id)
+                }
+            } catch (e: Error) {
+                Log.e(TAG, "fail to load spot pos: $e")
+            }
+        }
     }
 
     private fun landmarkClicked(landmarkId: Long) {
@@ -128,11 +190,12 @@ class MapViewModel @Inject constructor(
         _bottomSheetOpen.value = true
     }
 
-    fun spotClicked() {
-        // TODO: 바텀시트 연 후 스팟 상세 페이지로 이동
+    private fun spotClicked(spotId: Long) {
+        bottomSheetController.navigate("spot/detail/$spotId")
+        _bottomSheetOpen.value = true
     }
 
-    fun clusterClicked() {
+    private fun clusterClicked() {
         // TODO: 줌레벨 올리기
     }
 
@@ -143,17 +206,16 @@ class MapViewModel @Inject constructor(
 
         // 마커 클릭 리스너 등록
         pointAnnotationManager.addClickListener(OnPointAnnotationClickListener {
-
             val type: Int = it.getData()!!.asJsonObject!!.get("type")!!.asInt
             Log.d(
                 "MARKER",
                 "markerClicked: $type"
             )
-            val id = it.getData()!!.asJsonObject!!.get("id")!!.asLong
+            val id = it.getData()!!.asJsonObject!!.get("id")?.asLong
             Log.d(TAG, "createMapView: $type $id")
             when (type) {
-                SpotType.LANDMARK -> landmarkClicked(id)
-                SpotType.SPOT -> spotClicked()
+                SpotType.LANDMARK -> if (id != null) landmarkClicked(id)
+                SpotType.SPOT -> if (id != null) spotClicked(id)
                 SpotType.CLUSTER -> clusterClicked()
             }
             true
@@ -163,7 +225,21 @@ class MapViewModel @Inject constructor(
             getMapboxMap().loadStyleUri("mapbox://styles/chartype/clgd8mwak000001sczpqlrb72") {
                 scalebar.enabled = false
                 compass.enabled = false
+
+                val boundsOptions = CameraBoundsOptions.Builder()
+                    .bounds(
+                        CoordinateBounds(
+                            Point.fromLngLat(126.75201, 37.72348),
+                            Point.fromLngLat(127.19696, 37.40671),
+                            false
+                        )
+                    )
+                    .minZoom(10.0)
+                    .build()
+                mapBoxMap.setBounds(boundsOptions)
+
                 cameraOptions {
+                    center(Point.fromLngLat(126.979384, 37.563573))
                     zoom(19.0)
                     pitch(50.0)
                 }
@@ -174,7 +250,7 @@ class MapViewModel @Inject constructor(
                 }
 
                 override fun onMoveBegin(detector: MoveGestureDetector) {
-                    if (isTracking) unTrackUser()
+                    if (_isTracking.value == true) unTrackUser()
                     _focusManager.clearFocus()
                 }
 
@@ -182,7 +258,9 @@ class MapViewModel @Inject constructor(
                     val curPoint = mapBoxMap.cameraState.center
                     if (isFarEnough(curPoint)) {
                         deletePin()
-                        loadLandmarkPos()
+                        if (_filterState.value == ALL || _filterState.value == LANDMARK) loadLandmarkPos()
+                        if (_filterState.value == ALL || _filterState.value == SPOT) loadSpotPos()
+                        if (_filterState.value == MYSPOT) loadSpotPos(mine = true)
                     }
                 }
             })
@@ -191,10 +269,10 @@ class MapViewModel @Inject constructor(
         return mapView
     }
 
-    fun trackCameraToUser(context: Context, memberInfo: Member) {
+    fun trackCameraToUser(context: Context) {
         clearFocus()
-        if (!isTracking) {
-            isTracking = true
+        if (_isTracking.value == false) {
+            _isTracking.value = true
             moveCameraLinearly()
             mapView.apply {
                 location.updateSettings {
@@ -259,19 +337,22 @@ class MapViewModel @Inject constructor(
     }
 
     private fun unTrackUser() {
-        isTracking = false
+        _isTracking.value = false
         mapView.location.updateSettings {
             enabled = false
         }
     }
 
-    fun loadLandmarkPos() {
+    private fun getProjection(): CoordinateBounds {
         val options = CameraOptions.Builder()
             .zoom(mapBoxMap.cameraState.zoom)
             .center(mapBoxMap.cameraState.center)
             .build()
-        val projection = mapBoxMap.coordinateBoundsForCamera(options)
+        return mapBoxMap.coordinateBoundsForCamera(options)
+    }
 
+    fun loadLandmarkPos() {
+        val projection = getProjection()
         viewModelScope.launch(
             Dispatchers.IO
         ) {
@@ -287,10 +368,8 @@ class MapViewModel @Inject constructor(
             val listOfLandmark = deferredListOfLandmark.await() ?: return@launch
             withContext(Dispatchers.Main) {
                 // 현재 존재하는 모든 마커 삭제
-                val bitmapDrawable = markerImage as BitmapDrawable
-                val bitmap = bitmapDrawable.bitmap
                 listOfLandmark.forEach { landmark ->
-                    addMarker(bitmap, landmark.coordinate, landmark.visited, landmark.id)
+                    addMarker(SpotType.LANDMARK, landmark.coordinate, landmark.visited, landmark.id)
                 }
                 lastRequestPos = mapBoxMap.cameraState.center
 //                _landmarks.value = listOfLandmark
@@ -316,11 +395,12 @@ class MapViewModel @Inject constructor(
     }
 
     private fun addMarker(
-        iconImage: Bitmap,
+        spotType: Int,
         coordinate: Coordinate,
         isVisit: Boolean? = null,
         id: Long?
     ) {
+        val iconImage = if (spotType == SpotType.LANDMARK) landmarkImage!! else spotImage!!
         // Set options for the resulting symbol layer.
         val pointAnnotationOptions: PointAnnotationOptions = PointAnnotationOptions()
             .withPoint(Point.fromLngLat(coordinate.lng, coordinate.lat))
@@ -338,9 +418,7 @@ class MapViewModel @Inject constructor(
         pointAnnotationManager.create(pointAnnotationOptions)
     }
 
-    private fun deletePin() {
-        val annotations = pointAnnotationManager.annotations
-        // 등록된 모든 마커를 제거합니다.
+    fun deletePin() {
         pointAnnotationManager.deleteAll()
     }
 }

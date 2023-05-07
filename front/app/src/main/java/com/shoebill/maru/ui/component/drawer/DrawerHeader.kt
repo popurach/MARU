@@ -118,7 +118,7 @@ fun DrawerHeader(
                 contentDescription = "point",
                 tint = Color.Unspecified
             )
-            Text(text = memberViewModel.getPoint(), modifier = Modifier
+            Text(text = memberViewModel.getPoint(navigateViewModel.navigator), modifier = Modifier
                 .graphicsLayer(alpha = 0.99f)
                 .drawWithCache {
                     onDrawWithContent {
