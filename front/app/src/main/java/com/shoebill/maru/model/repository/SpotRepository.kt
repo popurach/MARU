@@ -26,6 +26,6 @@ class SpotRepository @Inject constructor(
         if (response.isSuccessful) {
             return response.body()!!
         }
-        throw Error("${response.errorBody()}")
+        throw Error("${response.code()}")
     }
 }

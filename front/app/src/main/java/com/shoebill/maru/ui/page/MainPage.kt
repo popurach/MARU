@@ -107,6 +107,13 @@ fun MainPage(
             mapViewModel.updateBottomSheetState(false)
         }
     }
+    LaunchedEffect(key1 = mapViewModel.bottomSheetOpen.value) {
+        if (mapViewModel.bottomSheetOpen.value == true) {
+            scaffoldState.bottomSheetState.expand()
+        } else {
+            scaffoldState.bottomSheetState.collapse()
+        }
+    }
     BackHandler(isDrawerOpen.value) {
         drawerViewModel.updateOpenState(false)
     }
