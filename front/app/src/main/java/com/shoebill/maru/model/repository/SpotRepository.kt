@@ -21,4 +21,11 @@ class SpotRepository @Inject constructor(
             SpotClusterDTO(boundingBox, mine)
         )
 
+    suspend fun getSpotDetail(spotId: Long): Spot {
+        val response = spotApi.getSpotDetail(spotId)
+        if (response.isSuccessful) {
+            return response.body()!!
+        }
+        throw Error("${response.errorBody()}")
+    }
 }
