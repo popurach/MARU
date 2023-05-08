@@ -25,6 +25,7 @@ import com.mapbox.maps.dsl.cameraOptions
 import com.mapbox.maps.extension.style.expressions.dsl.generated.interpolate
 import com.mapbox.maps.extension.style.layers.properties.generated.IconAnchor
 import com.mapbox.maps.plugin.LocationPuck2D
+import com.mapbox.maps.plugin.animation.flyTo
 import com.mapbox.maps.plugin.annotation.annotations
 import com.mapbox.maps.plugin.annotation.generated.OnPointAnnotationClickListener
 import com.mapbox.maps.plugin.annotation.generated.PointAnnotationManager
@@ -236,25 +237,29 @@ class MapViewModel @Inject constructor(
     }
 
     private fun landmarkClicked(landmarkId: Long) {
-        bottomSheetController.navigate("landmark/main/$landmarkId")
+        bottomSheetController.navigate("landmark/main/$landmarkId") {
+            popUpTo("spot/list")
+        }
         _bottomSheetOpen.value = true
     }
 
     private fun spotClicked(spotId: Long) {
-        bottomSheetController.navigate("spot/detail/$spotId")
+        bottomSheetController.navigate("spot/detail/$spotId") {
+            popUpTo("spot/list")
+        }
         _bottomSheetOpen.value = true
     }
 
+
     private fun clusterClicked(point: Point) {
-        // TODO: 줌레벨 올리기
         val curZoomLevel = mapBoxMap.cameraState.zoom
-        if (curZoomLevel == 20.0) return
-        val nextZoomLevel = min(20.0, curZoomLevel + 1)
+        if (curZoomLevel == 22.0) return
+        val nextZoomLevel = min(22.0, curZoomLevel + 1.5)
         val cameraOptions = CameraOptions.Builder()
             .zoom(nextZoomLevel)
             .center(point)
             .build()
-        mapBoxMap.setCamera(cameraOptions)
+        mapBoxMap.flyTo(cameraOptions)
         deletePin()
         loadMarker()
     }
@@ -393,7 +398,7 @@ class MapViewModel @Inject constructor(
     }
 
     private fun isFarEnough(curPoint: Point): Boolean {
-        if (lastRequestPos == null) return true
+        lastRequestPos ?: return true
         val distance = getDistance(curPoint, lastRequestPos!!)
         if (distance > 2) return true
         return false
@@ -489,7 +494,7 @@ class MapViewModel @Inject constructor(
             .withPoint(Point.fromLngLat(coordinate.lng, coordinate.lat))
             .withIconImage(iconImage!!)
             .withIconAnchor(IconAnchor.BOTTOM)
-            .withIconSize(1.0)
+            .withIconSize(if (spotType == SpotType.LANDMARK) 2.0 else 1.5)
             .withData(
                 JsonObject().apply {
                     addProperty("type", spotType)
