@@ -21,7 +21,7 @@ interface SpotApi {
         @Part spotImage: MultipartBody.Part? = null,
         @Part tags: MultipartBody.Part? = null,
         @Part landmarkId: MultipartBody.Part? = null,
-    ): Long
+    ): Response<Long>
 
 
     @GET("api/spots/my")

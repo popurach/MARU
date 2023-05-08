@@ -30,8 +30,11 @@ import com.shoebill.maru.ui.component.common.GradientButton
 import com.shoebill.maru.ui.theme.MaruBackground
 import com.shoebill.maru.ui.theme.MaruBrush
 import com.shoebill.maru.viewmodel.CameraViewModel
+import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalLayoutApi::class)
+@OptIn(ExperimentalLayoutApi::class, DelicateCoroutinesApi::class)
 @Composable
 fun ImageUploadForm(
     bitmap: ImageBitmap,
@@ -81,7 +84,7 @@ fun ImageUploadForm(
                 }
                 FlowRow(horizontalArrangement = Arrangement.spacedBy(5.dp)) {
                     tagList.value.forEach { tag ->
-                        Chip(text = "# $tag")
+                        Chip(text = "# ${tag.name}")
                     }
                 }
             }
@@ -100,7 +103,10 @@ fun ImageUploadForm(
                         .height(48.dp),
                     onClick = {
                         // spot 등록 API 호출
-                        isModalOpen.value = true
+                        GlobalScope.launch {
+                            cameraViewModel.saveSpot()
+                            isModalOpen.value = true
+                        }
                     }
                 )
             }

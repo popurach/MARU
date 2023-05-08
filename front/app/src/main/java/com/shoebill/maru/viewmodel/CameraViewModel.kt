@@ -16,18 +16,25 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.google.android.gms.location.LocationServices
 import com.shoebill.maru.R
+import com.shoebill.maru.model.data.Tag
+import com.shoebill.maru.model.repository.SpotRepository
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Locale
 import java.util.concurrent.Executors
+import javax.inject.Inject
 
-class CameraViewModel() : ViewModel() {
+@HiltViewModel
+class CameraViewModel @Inject constructor(private val spotRepository: SpotRepository) :
+    ViewModel() {
     private val FILENAME = "yyyy-MM-dd-HH-mm-ss-SSS"
-    private val PHOTO_EXTENSION = ".png"
+    private val PHOTO_EXTENSION = ".jpg"
     private val _imageUrl = MutableLiveData("")
     private val _location = MutableLiveData<Location?>()
+    private val _landmarkId = MutableLiveData<Long?>(null)
     private var capturedFile: File? = null
 
     val location: LiveData<Location?> get() = _location
@@ -43,8 +50,8 @@ class CameraViewModel() : ViewModel() {
     private val _inputTag = MutableLiveData("")
     val inputTag get() = _inputTag
 
-    private val listOfTag: MutableList<String> = mutableListOf()
-    private val _tagList = MutableLiveData<List<String>>(listOf())
+    private val listOfTag: MutableList<Tag> = mutableListOf()
+    private val _tagList = MutableLiveData<List<Tag>>(listOf())
     val tagList get() = _tagList
 
     fun updateInputTag(value: String) {
@@ -53,7 +60,9 @@ class CameraViewModel() : ViewModel() {
 
     fun addTag() {
         if (_inputTag.value.isNullOrEmpty()) return
-        listOfTag.add(_inputTag.value!!)
+        listOfTag.add(
+            Tag(name = _inputTag.value!!)
+        )
         _tagList.value = listOfTag
         _inputTag.value = ""
     }
@@ -168,6 +177,21 @@ class CameraViewModel() : ViewModel() {
         }
         return if (mediaDir != null && mediaDir.exists())
             mediaDir else this.filesDir
+    }
+
+    suspend fun saveSpot() {
+        val response = spotRepository.saveSpot(
+            spotImage = capturedFile!!,
+            tags = _tagList.value,
+            landmarkId = _landmarkId.value
+        )
+
+        if (response.isSuccessful) {
+            Log.d("SPOT", "spot 등록 성공")
+        } else {
+            Log.d("SPOT", "saveSpot: spot 등록 실패")
+        }
+
     }
 }
 
