@@ -78,7 +78,7 @@ fun DeleteConfirmModal(
                         .clip(RoundedCornerShape(40.dp))
                         .background(Color.Transparent)
                         .clickable {
-                            auctionViewModel.deleteBidding(9) { success ->
+                            auctionViewModel.deleteBidding(66) { success ->
                                 if (success) {
                                     navigateToMyPage2(3, myPageViewModel, navigateViewModel)
                                 } else {

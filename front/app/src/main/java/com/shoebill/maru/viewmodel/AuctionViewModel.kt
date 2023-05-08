@@ -61,7 +61,7 @@ class AuctionViewModel @Inject constructor(
             try {
                 val result = auctionRepository.getAuctionInfo(landmarkId).toTypedArray()
                 _auctionInfo.value = if (result.isEmpty()) arrayOf(2, 4, 2, 5, 2) else result
-                Log.d("AUCTION", "getAuctionInfo: ${_auctionInfo.value}")
+                Log.d("AUCTION", "getAuctionInfo: ${_auctionInfo.value.contentDeepToString()}")
             } catch (e: Exception) {
                 Log.e("AUCTION", "Error while getting auction info: $e")
             }
@@ -69,7 +69,7 @@ class AuctionViewModel @Inject constructor(
     }
 
     fun createBidding(onComplete: (Boolean) -> Unit) {
-        val requestBody = AuctionBiddingRequest(6, _bid.value!!)
+        val requestBody = AuctionBiddingRequest(4, _bid.value!!)
         viewModelScope.launch {
             val success = viewModelScope.async {
                 auctionRepository.createBidding(requestBody)

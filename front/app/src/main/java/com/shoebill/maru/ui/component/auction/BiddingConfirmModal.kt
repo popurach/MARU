@@ -68,7 +68,6 @@ fun BiddingConfirmModal(
                 Text(
                     modifier = Modifier
                         .padding(bottom = 24.dp),
-//                        .padding(horizontal = 24.dp),
                     textAlign = TextAlign.Center,
                     text = "위의 입찰가로 경매에 참여하시겠습니까?",
                     fontSize = 14.sp,
@@ -82,7 +81,7 @@ fun BiddingConfirmModal(
                         .height(48.dp)
                         .clip(RoundedCornerShape(40.dp)),
                     onClick = {
-                        auctionViewModel.createBidding { success ->
+                        auctionViewModel.updateBidding { success ->
                             if (success) {
                                 navigateToMyPage(3, myPageViewModel, navigateViewModel)
                             } else {
