@@ -10,6 +10,10 @@ import javax.inject.Inject
 class SpotRepository @Inject constructor(
     private val spotApi: SpotApi
 ) {
+    suspend fun saveSpot(): Long {
+        return spotApi.saveSpot()
+    }
+
     suspend fun getMySpots(lastOffset: Long?): List<Spot> =
         spotApi.getMySpots(lastOffset = lastOffset, size = 20)
 

@@ -99,6 +99,7 @@ fun ImageUploadForm(
                         .fillMaxWidth()
                         .height(48.dp),
                     onClick = {
+                        // spot 등록 API 호출
                         isModalOpen.value = true
                     }
                 )

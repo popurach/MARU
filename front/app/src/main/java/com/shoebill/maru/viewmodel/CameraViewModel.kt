@@ -1,9 +1,11 @@
 package com.shoebill.maru.viewmodel
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.location.Location
 import android.media.MediaScannerConnection
 import android.net.Uri
+import android.util.Log
 import android.webkit.MimeTypeMap
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageCapture
@@ -12,6 +14,7 @@ import androidx.core.net.toFile
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.google.android.gms.location.LocationServices
 import com.shoebill.maru.R
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -25,6 +28,7 @@ class CameraViewModel() : ViewModel() {
     private val PHOTO_EXTENSION = ".png"
     private val _imageUrl = MutableLiveData("")
     private val _location = MutableLiveData<Location?>()
+    private var capturedFile: File? = null
 
     val location: LiveData<Location?> get() = _location
     fun setLocation(location: Location) {
@@ -63,6 +67,7 @@ class CameraViewModel() : ViewModel() {
         _tagList.value = listOfTag
     }
 
+    @SuppressLint("MissingPermission")
     fun takePhoto(
         context: Context,
         imageCapture: ImageCapture,
@@ -71,7 +76,17 @@ class CameraViewModel() : ViewModel() {
         onImageCaptured: (Uri, Boolean) -> Unit,
         onError: (ImageCaptureException) -> Unit,
     ) {
-        imageCapture.takePicture(context, scope, lensFacing, onImageCaptured, onError)
+
+        val fusedLocationClient = LocationServices.getFusedLocationProviderClient(context)
+
+        fusedLocationClient.lastLocation.addOnSuccessListener { location ->
+            location.also {
+                Log.d("TEST", "CameraPage: ${_location.value}")
+                setLocation(location)
+                Log.d("TEST", "CameraPage: ${_location.value}")
+                imageCapture.takePicture(context, scope, lensFacing, onImageCaptured, onError)
+            }
+        }
     }
 
     private fun ImageCapture.takePicture(
@@ -81,10 +96,12 @@ class CameraViewModel() : ViewModel() {
         onImageCaptured: (Uri, Boolean) -> Unit,
         onError: (ImageCaptureException) -> Unit,
     ) {
+        Log.d("TAKEPICTURE", "takePicture: called")
         val outputDirectory = context.getOutputDirectory()
         // Create output file to hold the image
         val photoFile = createFile(outputDirectory)
         val outputFileOptions = getOutputFileOptions(lensFacing, photoFile)
+        capturedFile = photoFile
 
         this.takePicture(
             outputFileOptions,
@@ -125,6 +142,11 @@ class CameraViewModel() : ViewModel() {
         val metadata = ImageCapture.Metadata().apply {
             // Mirror image when using the front camera
             isReversedHorizontal = lensFacing == CameraSelector.LENS_FACING_FRONT
+            Log.d("Location", "getOutputFileOptions: ${_location.value}")
+            _location.value?.let {
+                this.location = it
+                Log.d("Location", "getOutputFileOptions: ${_location.value} saved")
+            }
         }
         // Create output options object which contains file + metadata
 

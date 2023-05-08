@@ -72,7 +72,7 @@ fun ConfirmModal(
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(48.dp),
-                    onClick = {}
+                    onClick = {} // 해당 landmark 경매 페이지로 이동 ?
                 )
                 Box(
                     modifier = Modifier
@@ -81,7 +81,7 @@ fun ConfirmModal(
                         .fillMaxWidth()
                         .clip(RoundedCornerShape(10.dp))
                         .background(Color.Transparent)
-                        .clickable { onDismissRequest() },
+                        .clickable { onDismissRequest() }, // 메인 페이지 bottom sheet 해당 spot 을 띄움
                 ) {
                     GradientColoredText(
                         text = "괜찮아요",
