@@ -47,4 +47,8 @@ public class Landmark {
         this.memberId = memberId;
     }
 
+    public void addCount() {
+        this.visitCount++;
+    }
+
 }

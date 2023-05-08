@@ -2,14 +2,14 @@ package com.bird.maru.point.service;
 
 public interface PointService {
 
-    void landmarkVisiting(Long memberId);
+    Integer landmarkVisiting(Long memberId);
 
-    void landmarkOccupying(Long memberId);
+    Integer landmarkOccupying(Long memberId);
 
-    void landmarkPhoto(Long memberId);
+    Integer landmarkPhoto(Long memberId);
 
-    void spotMaking(Long memberId);
+    Integer spotMaking(Long memberId);
 
-    void photoLike(Long memberId);
+    Integer photoLike(Long memberId);
 
 }

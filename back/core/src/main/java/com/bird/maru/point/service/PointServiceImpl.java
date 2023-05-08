@@ -18,38 +18,48 @@ public class PointServiceImpl implements PointService {
     private final MemberQueryRepository memberQueryRepository;
 
     @Override
-    public void landmarkVisiting(Long memberId) {
+    public Integer landmarkVisiting(Long memberId) {
         Member member = memberQueryRepository.findById(memberId)
                                              .orElseThrow(() -> new ResourceNotFoundException("회원을 찾을 수 없습니다."));
-        member.gainPoint(PointMoney.LANDMARK_POINT.getValue());
+        int point = PointMoney.LANDMARK_POINT.getValue();
+        member.gainPoint(point);
+        return point;
     }
 
     @Override
-    public void landmarkOccupying(Long memberId) {
+    public Integer landmarkOccupying(Long memberId) {
         Member member = memberQueryRepository.findById(memberId)
                                              .orElseThrow(() -> new ResourceNotFoundException("회원을 찾을 수 없습니다."));
-        member.gainPoint(PointMoney.LANDMARK_OCCUPY_POINT.getValue());
+        int point =  PointMoney.LANDMARK_OCCUPY_POINT.getValue();
+        member.gainPoint(point);
+        return point;
     }
 
     @Override
-    public void landmarkPhoto(Long memberId) {
+    public Integer landmarkPhoto(Long memberId) {
         Member member = memberQueryRepository.findById(memberId)
                                              .orElseThrow(() -> new ResourceNotFoundException("회원을 찾을 수 없습니다."));
-        member.gainPoint(PointMoney.LANDMARK_PHOTO_POINT.getValue());
+        int point = PointMoney.LANDMARK_PHOTO_POINT.getValue();
+        member.gainPoint(point);
+        return point;
     }
 
     @Override
-    public void spotMaking(Long memberId) {
+    public Integer spotMaking(Long memberId) {
         Member member = memberQueryRepository.findById(memberId)
                                              .orElseThrow(() -> new ResourceNotFoundException("회원을 찾을 수 없습니다."));
-        member.gainPoint(PointMoney.SPOT_POINT.getValue());
+        int point = PointMoney.SPOT_POINT.getValue();
+        member.gainPoint(point);
+        return point;
     }
 
     @Override
-    public void photoLike(Long memberId) {
+    public Integer photoLike(Long memberId) {
         Member member = memberQueryRepository.findById(memberId)
                                              .orElseThrow(() -> new ResourceNotFoundException("회원을 찾을 수 없습니다."));
-        member.gainPoint(PointMoney.LIKE_POINT.getValue());
+        int point = PointMoney.LIKE_POINT.getValue();
+        member.gainPoint(point);
+        return point;
     }
 
 }

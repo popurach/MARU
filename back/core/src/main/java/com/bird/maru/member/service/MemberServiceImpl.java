@@ -4,6 +4,7 @@ import com.bird.maru.cloud.aws.s3.service.AwsS3Service;
 import com.bird.maru.common.exception.ResourceNotFoundException;
 import com.bird.maru.domain.model.entity.Member;
 import com.bird.maru.domain.model.type.Image;
+import com.bird.maru.domain.model.type.PointMoney;
 import com.bird.maru.member.controller.dto.MemberInfoUpdateDto;
 import com.bird.maru.member.repository.MemberRepository;
 import com.bird.maru.member.repository.query.MemberQueryRepository;
@@ -57,20 +58,6 @@ public class MemberServiceImpl implements MemberService {
         }
 
         return awsS3Service.updateMemberProfileImage(image, memberImage);
-    }
-
-    /**
-     * 기본 포인트 전략 - 기본 값 5000 원 지급 버전
-     *
-     * @param memberId   : 현재 접근중인 사용자
-     * @throws ResourceNotFoundException : 리소스 없음
-     */
-    @Override
-    public Integer gainPoint(Long memberId, Integer point) throws ResourceNotFoundException {
-        Member member = memberQueryRepository.findById(memberId)
-                                             .orElseThrow(() -> new ResourceNotFoundException("DB에 존재하지 않습니다."));
-        member.gainPoint(point);
-        return point;
     }
 
 }
