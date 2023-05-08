@@ -1,11 +1,13 @@
 package com.bird.maru.spot.service.query;
 
+import com.bird.maru.common.exception.ResourceNotFoundException;
 import com.bird.maru.common.util.RandomUtil;
 import com.bird.maru.common.util.TimeUtil;
 import com.bird.maru.domain.model.entity.Spot;
 import com.bird.maru.domain.model.entity.Tag;
 import com.bird.maru.like.service.query.LikeQueryService;
 import com.bird.maru.scrap.service.query.ScrapQueryService;
+import com.bird.maru.spot.controller.dto.SpotDetailResponseDto;
 import com.bird.maru.spot.controller.dto.SpotSearchCondition;
 import com.bird.maru.spot.mapper.SpotMapper;
 import com.bird.maru.spot.repository.query.SpotCustomQueryRepository;
@@ -15,6 +17,7 @@ import com.bird.maru.tag.repository.query.TagCustomQueryRepository;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -87,6 +90,24 @@ public class SpotQueryServiceImpl implements SpotQueryService {
     @Override
     public List<Spot> findLandmarkSpots(Long landmarkId, Long lastOffset, Integer size) {
         return spotCustomQueryRepository.findSpotByLandmark(landmarkId, lastOffset, size);
+    }
+
+    /**
+     * 스팟 상세 보기
+     *
+     * @param spotId   : 스팟 id
+     * @param memberId : 사용자 id
+     * @return SpotDetailResponseDto
+     * @throws ResourceNotFoundException : 리소스 없음
+     */
+    @Override
+    public SpotDetailResponseDto findSpotDetail(Long spotId, Long memberId) throws ResourceNotFoundException {
+        Optional<SpotDetailResponseDto> spotDetailResponseDto = spotCustomQueryRepository.findSpotDetail(spotId, memberId);
+        SpotDetailResponseDto spotDetail = spotDetailResponseDto.orElseThrow(
+                () -> new ResourceNotFoundException("해당 리소스 존재하지 않습니다."));
+        List<Tag> tags = tagCustomQueryRepository.findAllBySpotId(spotId);
+        spotDetail.setTags(tags);
+        return spotDetail;
     }
 
 }

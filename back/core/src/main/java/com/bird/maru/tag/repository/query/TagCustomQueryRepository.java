@@ -26,4 +26,12 @@ public class TagCustomQueryRepository {
                            .transform(groupBy(spotHasTag.spot.id).as(list(spotHasTag.tag)));
     }
 
+    public List<Tag> findAllBySpotId(Long spotId) {
+        return queryFactory.select(spotHasTag.tag)
+                           .from(spotHasTag)
+                           .join(spotHasTag.tag, tag)
+                           .where(spotHasTag.spot.id.eq(spotId))
+                           .fetch();
+    }
+
 }

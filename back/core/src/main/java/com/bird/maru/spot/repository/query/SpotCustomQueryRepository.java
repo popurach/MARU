@@ -1,5 +1,6 @@
 package com.bird.maru.spot.repository.query;
 
+import static com.bird.maru.domain.model.entity.QLike.like;
 import static com.bird.maru.domain.model.entity.QScrap.scrap;
 import static com.bird.maru.domain.model.entity.QSpot.spot;
 import static com.bird.maru.domain.model.entity.QSpotHasTag.spotHasTag;
@@ -10,11 +11,13 @@ import com.bird.maru.cluster.geo.Marker;
 import com.bird.maru.auction.controller.dto.AuctionSearchCondition;
 import com.bird.maru.common.util.TimeUtil;
 import com.bird.maru.domain.model.entity.Spot;
+import com.bird.maru.spot.controller.dto.SpotDetailResponseDto;
 import com.bird.maru.spot.controller.dto.SpotSearchCondition;
 import com.bird.maru.spot.repository.query.dto.SpotSimpleDto;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.JPQLQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -133,6 +136,28 @@ public class SpotCustomQueryRepository {
                                    spot.landmark.id.eq(landmarkId))
                             .fetchOne()
         ).isPresent();
+    }
+
+    public Optional<SpotDetailResponseDto> findSpotDetail(Long spotId, Long memberId) {
+        return Optional.ofNullable(
+                queryFactory.select(Projections.fields(SpotDetailResponseDto.class,
+                                                       Expressions.asNumber(spotId).as("id"),
+                                                       Expressions.asNumber(spot.landmark.id != null ? spot.landmark.id : null).as("landmarkId"),
+                                                       spot.image.url.as("imageUrl"),
+                                                       Expressions.asBoolean(scrap.spot.id.isNotNull()).as("scraped"),
+                                                       Expressions.asBoolean(like.spot.id.isNotNull()).as("liked"),
+                                                       spot.likeCount.as("likeCount")
+                            ))
+                            .from(spot)
+                            .leftJoin(scrap).on(spot.id.eq(scrap.spot.id),
+                                                scrap.member.id.eq(memberId),
+                                                scrap.deleted.isFalse())
+                            .leftJoin(like).on(spot.id.eq(like.spot.id),
+                                               like.member.id.eq(memberId),
+                                               like.deleted.isFalse())
+                            .where(spot.id.eq(spotId),
+                                   spot.deleted.isFalse()
+                            ).fetchOne());
     }
 
     private BooleanExpression ltSpotOffset(Long lastOffset) {
