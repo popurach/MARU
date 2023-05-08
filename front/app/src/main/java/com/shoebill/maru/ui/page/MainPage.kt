@@ -49,7 +49,10 @@ fun MainPage(
     memberViewModel: MemberViewModel = hiltViewModel(),
     navigateViewModel: NavigateViewModel = hiltViewModel(),
 ) {
-    memberViewModel.getMemberInfo(navigateViewModel)
+    LaunchedEffect(Unit) {
+        if (memberViewModel.memberInfo.value == null)
+            memberViewModel.getMemberInfo(navigateViewModel)
+    }
 
     val context = LocalContext.current
     val scaffoldState = rememberBottomSheetScaffoldState()

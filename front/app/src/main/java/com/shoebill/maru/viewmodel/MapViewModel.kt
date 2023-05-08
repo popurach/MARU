@@ -39,6 +39,7 @@ import com.mapbox.maps.plugin.viewport.data.FollowPuckViewportStateBearing
 import com.mapbox.maps.plugin.viewport.data.FollowPuckViewportStateOptions
 import com.mapbox.maps.plugin.viewport.state.FollowPuckViewportState
 import com.mapbox.maps.plugin.viewport.viewport
+import com.shoebill.maru.R
 import com.shoebill.maru.model.data.Coordinate
 import com.shoebill.maru.model.data.Spot
 import com.shoebill.maru.model.data.request.BoundingBox
@@ -59,6 +60,7 @@ import kotlin.math.abs
 import kotlin.math.asin
 import kotlin.math.ceil
 import kotlin.math.cos
+import kotlin.math.min
 import kotlin.math.sin
 import kotlin.math.sqrt
 
@@ -81,7 +83,7 @@ class MapViewModel @Inject constructor(
 
     private var landmarkImage: Bitmap? = null
     private var spotImage: Bitmap? = null
-    private var clusterImage: Bitmap? = null
+    private var clusterImage: MutableList<Bitmap> = mutableListOf()
 
     private var lastRequestPos: Point? = null
     private var lastRequestZoom: Double = 0.0
@@ -102,7 +104,7 @@ class MapViewModel @Inject constructor(
         _bottomSheetOpen.value = value
     }
 
-    private val _spotList = MutableLiveData<List<Spot>>(
+    private val _spotList = MutableLiveData(
         listOf(
             Spot(
                 0,
@@ -132,16 +134,40 @@ class MapViewModel @Inject constructor(
         _focusManager = fm
     }
 
-    fun initLandmarkImage(image: Drawable?) {
-        landmarkImage = drawableToBitmap(image)
-    }
+    fun initImages(context: Context) {
+        landmarkImage = drawableToBitmap(
+            getDrawable(
+                context,
+                R.drawable.landmark
+            )
+        )
+        spotImage = drawableToBitmap(
+            getDrawable(
+                context,
+                R.drawable.spot_marker
+            )
+        )
+        for (i in 2..9) {
+            val resId =
+                R.drawable::class.java.getField("cluster_$i").getInt(null)
+            clusterImage.add(
+                drawableToBitmap(
+                    getDrawable(
+                        context,
+                        resId
+                    )
+                )
+            )
+        }
+        clusterImage.add(
+            drawableToBitmap(
+                getDrawable(
+                    context,
+                    R.drawable.cluster_more_9
+                )
+            )
+        )
 
-    fun initSpotImage(image: Drawable?) {
-        spotImage = drawableToBitmap(image)
-    }
-
-    fun initClusterImage(image: Drawable?) {
-        clusterImage = drawableToBitmap(image)
     }
 
     private fun drawableToBitmap(image: Drawable?): Bitmap = (image as BitmapDrawable).bitmap
@@ -150,18 +176,18 @@ class MapViewModel @Inject constructor(
         _focusManager.clearFocus()
     }
 
-//    fun loadMarker() {
-//        when (_filterState.value) {
-//            ALL -> {
-//                loadLandmarkPos()
-//                loadSpotPos()
-//            }
-//
-//            LANDMARK -> loadLandmarkPos()
-//            SPOT -> loadSpotPos()
-//            MYSPOT -> loadSpotPos(mine = true)
-//        }
-//    }
+    private fun loadMarker() {
+        when (_filterState.value) {
+            ALL -> {
+                loadLandmarkPos()
+                loadSpotPos()
+            }
+
+            LANDMARK -> loadLandmarkPos()
+            SPOT -> loadSpotPos()
+            MYSPOT -> loadSpotPos(mine = true)
+        }
+    }
 
     fun loadSpotPos(mine: Boolean = false) {
         val projection = getProjection()
@@ -176,8 +202,27 @@ class MapViewModel @Inject constructor(
             try {
                 val spotList = spotRepository.getSpotMarker(boundingBox, mine)
                 spotList.forEach {
-                    val coordinate = Coordinate(it.geometry.coordinates[0], it.geometry.coordinates[1])
-                    addMarker(spotType = SpotType.SPOT, coordinate = coordinate, id = it.properties.id)
+                    addMarker(
+                        spotType = when (it.properties.geoType) {
+                            "POINT" -> SpotType.SPOT
+                            else -> when (it.properties.count) {
+                                2 -> SpotType.CLUSTER_2
+                                3 -> SpotType.CLUSTER_3
+                                4 -> SpotType.CLUSTER_4
+                                5 -> SpotType.CLUSTER_5
+                                6 -> SpotType.CLUSTER_6
+                                7 -> SpotType.CLUSTER_7
+                                8 -> SpotType.CLUSTER_8
+                                9 -> SpotType.CLUSTER_9
+                                else -> SpotType.CLUSTER_MORE_9
+                            }
+                        },
+                        coordinate = Coordinate(
+                            it.geometry.coordinates[0],
+                            it.geometry.coordinates[1]
+                        ),
+                        id = it.properties.id
+                    )
                 }
             } catch (e: Error) {
                 Log.e(TAG, "fail to load spot pos: $e")
@@ -195,8 +240,18 @@ class MapViewModel @Inject constructor(
         _bottomSheetOpen.value = true
     }
 
-    private fun clusterClicked() {
+    private fun clusterClicked(point: Point) {
         // TODO: 줌레벨 올리기
+        val curZoomLevel = mapBoxMap.cameraState.zoom
+        if (curZoomLevel == 20.0) return
+        val nextZoomLevel = min(20.0, curZoomLevel + 1)
+        val cameraOptions = CameraOptions.Builder()
+            .zoom(nextZoomLevel)
+            .center(point)
+            .build()
+        mapBoxMap.setCamera(cameraOptions)
+        deletePin()
+        loadMarker()
     }
 
     fun createMapView(context: Context): MapView {
@@ -216,7 +271,7 @@ class MapViewModel @Inject constructor(
             when (type) {
                 SpotType.LANDMARK -> if (id != null) landmarkClicked(id)
                 SpotType.SPOT -> if (id != null) spotClicked(id)
-                SpotType.CLUSTER -> clusterClicked()
+                else -> clusterClicked(it.point)
             }
             true
         })
@@ -258,9 +313,7 @@ class MapViewModel @Inject constructor(
                     val curPoint = mapBoxMap.cameraState.center
                     if (isFarEnough(curPoint)) {
                         deletePin()
-                        if (_filterState.value == ALL || _filterState.value == LANDMARK) loadLandmarkPos()
-                        if (_filterState.value == ALL || _filterState.value == SPOT) loadSpotPos()
-                        if (_filterState.value == MYSPOT) loadSpotPos(mine = true)
+                        loadMarker()
                     }
                 }
             })
@@ -400,16 +453,20 @@ class MapViewModel @Inject constructor(
         isVisit: Boolean? = null,
         id: Long?
     ) {
-        val iconImage = if (spotType == SpotType.LANDMARK) landmarkImage!! else spotImage!!
+        val iconImage = when (spotType) {
+            0 -> landmarkImage
+            1 -> spotImage
+            else -> clusterImage[spotType - 2]
+        }
         // Set options for the resulting symbol layer.
         val pointAnnotationOptions: PointAnnotationOptions = PointAnnotationOptions()
             .withPoint(Point.fromLngLat(coordinate.lng, coordinate.lat))
-            .withIconImage(iconImage)
+            .withIconImage(iconImage!!)
             .withIconAnchor(IconAnchor.BOTTOM)
             .withIconSize(1.0)
             .withData(
                 JsonObject().apply {
-                    addProperty("type", SpotType.LANDMARK)
+                    addProperty("type", spotType)
                     if (isVisit != null) addProperty("isVisit", isVisit)
                     if (id != null) addProperty("id", id)
                 }
