@@ -43,4 +43,8 @@ public class Scrap extends BaseDateTime {
     @Builder.Default
     private Boolean deleted = Boolean.FALSE;
 
+    public void toggleDeleted() {
+        this.deleted = !this.deleted;
+    }
+
 }
