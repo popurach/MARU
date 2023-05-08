@@ -64,21 +64,29 @@ public class AwsS3Service {
      * @return Image 객체를 반환합니다. 이 객체는 {@code S3Object}에 대한 기본 정보(저장 경로, URL)를 담고 있습니다.
      */
     public SpotImage uploadSpotImage(MultipartFile image) {
+        Coordinate coordinate;
+        Image uploaded;
+
         try (InputStream input = image.getInputStream()) {
-            Coordinate coordinate = getGpsInfo(input);
-            Image uploaded = upload(
+            coordinate = getGpsInfo(input);
+        } catch (ImageProcessingException | IOException e) {
+            throw new IllegalArgumentException("업로드 하려는 파일을 읽을 수 없습니다.", e);
+        }
+
+        try (InputStream input = image.getInputStream()) {
+            uploaded = upload(
                     input,
                     createKey(SPOT_PATH, Objects.requireNonNull(image.getOriginalFilename())),
                     getObjectMetadata(image)
             );
-
-            return SpotImage.builder()
-                            .coordinate(coordinate)
-                            .image(uploaded)
-                            .build();
-        } catch (ImageProcessingException | IOException e) {
+        } catch (IOException e) {
             throw new IllegalArgumentException("업로드 하려는 파일을 읽을 수 없습니다.", e);
         }
+
+        return SpotImage.builder()
+                        .coordinate(coordinate)
+                        .image(uploaded)
+                        .build();
     }
 
     /**
