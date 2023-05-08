@@ -14,15 +14,15 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.shoebill.maru.viewmodel.AuctionViewModel
+import com.shoebill.maru.viewmodel.AuctionScreenViewModel
 import com.shoebill.maru.viewmodel.CountdownViewModel
 
 
 @Composable
 fun AuctionScreen(
-    auctionViewModel: AuctionViewModel = hiltViewModel()
+    auctionScreenViewModel: AuctionScreenViewModel = hiltViewModel()
 ) {
-    val tabIndex = auctionViewModel.tabIndex.observeAsState(0).value
+    val tabIndex = auctionScreenViewModel.tabIndex.observeAsState(0).value
     val tabs = listOf("참여 중인 경매", "참여 가능한 경매")
 
     Column() {
@@ -48,7 +48,7 @@ fun AuctionScreen(
                         )
                     },
                     selected = tabIndex == index,
-                    onClick = { auctionViewModel.switchTab(index) },
+                    onClick = { auctionScreenViewModel.switchTab(index) },
                 )
             }
         }

@@ -6,6 +6,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.shoebill.maru.model.data.AuctionBiddingRequest
+import com.shoebill.maru.model.data.AuctionInfo
 import com.shoebill.maru.model.repository.AuctionRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.async
@@ -22,9 +23,6 @@ class AuctionViewModel @Inject constructor(
     private val _bid = MutableLiveData<Int>(23000)
     val bid get() = _bid
 
-    private val _tabIndex = MutableLiveData(0)
-    val tabIndex: LiveData<Int> get() = _tabIndex
-
     val unit: Int
         get() {
             val divideValue = _bid.value?.div(10)
@@ -37,11 +35,19 @@ class AuctionViewModel @Inject constructor(
     val downPrice: Int get() = if (_bid.value == null) 1000 else _bid.value!!.minus(unit)
     val upPrice: Int get() = if (_bid.value == null) 1000 else _bid.value!!.plus(unit)
 
-    private val _auctionInfo = MutableLiveData<Array<Int>>()
-    val auctionInfo: LiveData<Array<Int>> = _auctionInfo
+    private val _auctionHistory = MutableLiveData<Array<Int>>()
+    val auctionHistory: LiveData<Array<Int>> = _auctionHistory
 
-    init {
-        getAuctionInfo(2)
+    private val _auctionInfo = MutableLiveData<AuctionInfo>()
+    val auctionInfo: LiveData<AuctionInfo> = _auctionInfo
+
+    private val _biddingPrice = MutableLiveData<Int>()
+    val biddingPrice: LiveData<Int> = _biddingPrice
+
+    private var landmarkId: Long = 2
+
+    fun initLandmarkId(value: Long) {
+        landmarkId = value
     }
 
     fun increaseBid() {
@@ -52,18 +58,47 @@ class AuctionViewModel @Inject constructor(
         _bid.value = _bid.value!!.minus(unit)
     }
 
-    fun switchTab(newIndex: Int) {
-        _tabIndex.value = newIndex
-    }
+//    init {
+//        Log.d("AUCTION", "landmarkId: $landmarkId")
+//        getAuctionHistory(landmarkId)
+//        getAuctionInfo(landmarkId)
+//    }
 
-    private fun getAuctionInfo(landmarkId: Long) {
+    fun getAuctionHistory(landmarkId: Long) {
         viewModelScope.launch {
             try {
-                val result = auctionRepository.getAuctionInfo(landmarkId).toTypedArray()
-                _auctionInfo.value = if (result.isEmpty()) arrayOf(2, 4, 2, 5, 2) else result
-                Log.d("AUCTION", "getAuctionInfo: ${_auctionInfo.value.contentDeepToString()}")
+                val result = auctionRepository.getAuctionHistory(landmarkId).toTypedArray()
+                _auctionHistory.value = if (result.isEmpty()) arrayOf(2, 4, 2, 5, 2) else result
+                Log.d(
+                    "AUCTION",
+                    "getAuctionHistory: ${_auctionHistory.value.contentDeepToString()}"
+                )
             } catch (e: Exception) {
                 Log.e("AUCTION", "Error while getting auction info: $e")
+            }
+        }
+    }
+
+    fun getAuctionInfo(landmarkId: Long) {
+        viewModelScope.launch {
+            try {
+                val result = auctionRepository.getAuctionInfo(landmarkId)
+                _auctionInfo.value = result
+                Log.d("AUCTION", "getAuctionInfo: ${_auctionInfo.value}")
+            } catch (e: Exception) {
+                Log.e("AUCTION", "getAuctionInfo fail: $e")
+            }
+        }
+    }
+
+    fun getBiddingPrice(landmarkId: Long) {
+        viewModelScope.launch {
+            try {
+                val result = auctionRepository.getBiddingPrice(landmarkId)
+                _biddingPrice.value = result
+                Log.d("AUCTION", "getBiddingPrice: ${_biddingPrice.value}")
+            } catch (e: Exception) {
+                Log.e("AUCTION", "getBiddingPrice fail: $e")
             }
         }
     }

@@ -1,6 +1,7 @@
 package com.shoebill.maru.ui.page
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -33,6 +34,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.patrykandpatrick.vico.compose.chart.Chart
 import com.patrykandpatrick.vico.compose.chart.line.lineChart
@@ -46,14 +48,27 @@ import com.shoebill.maru.ui.component.auction.DeleteConfirmModal
 import com.shoebill.maru.ui.component.common.GradientButton
 import com.shoebill.maru.ui.theme.Pretendard
 import com.shoebill.maru.viewmodel.AuctionViewModel
+import com.shoebill.maru.viewmodel.NavigateViewModel
 import java.text.DecimalFormat
 
 @Composable
 fun AuctionPage(
-    auctionViewModel: AuctionViewModel = viewModel(),
+    id: Long,
+    auctionViewModel: AuctionViewModel = hiltViewModel(),
+    navigateViewModel: NavigateViewModel = viewModel()
 ) {
-    val auctionInfo = auctionViewModel.auctionInfo.observeAsState(arrayOf(1, 1, 1, 1, 1))
-    val chartEntryModel = entryModelOf(*(auctionInfo.value))
+    auctionViewModel.initLandmarkId(id)
+
+    val auctionInfo = auctionViewModel.auctionInfo.observeAsState()
+    auctionViewModel.getAuctionInfo(id)
+
+    val auctionHistory = auctionViewModel.auctionHistory.observeAsState(arrayOf())
+    auctionViewModel.getAuctionHistory(id)
+
+    val biddingPrice = auctionViewModel.biddingPrice.observeAsState()
+    auctionViewModel.getBiddingPrice(id)
+
+    val chartEntryModel = entryModelOf(*(auctionHistory.value))
     val gradient = Brush.horizontalGradient(listOf(Color(0xFF6039DF), Color(0xFFA14AB7)))
     val bid = auctionViewModel.bid.observeAsState()
     val dec = DecimalFormat("#,###")
@@ -74,9 +89,10 @@ fun AuctionPage(
                 modifier = Modifier
                     .align(Alignment.TopStart)
                     .padding(start = 16.dp)
-                    .size(30.dp),
+                    .size(30.dp)
+                    .clickable { navigateViewModel.navigator?.navigateUp() },
                 painter = painterResource(id = R.drawable.ic_arrow_back_24),
-                contentDescription = "뒤로가기"
+                contentDescription = "뒤로가기",
             )
             Text(
                 modifier = Modifier.align(Alignment.TopCenter),
@@ -85,28 +101,30 @@ fun AuctionPage(
                 text = "경매장"
             )
         }
-        Text(
-            modifier = Modifier
-                .padding(top = 30.dp)
-                .graphicsLayer(alpha = 0.99f)
-                .drawWithCache {
-                    onDrawWithContent {
-                        drawContent()
-                        drawRect(
-                            Brush.linearGradient(
-                                listOf(
-                                    Color(0xFF6039DF),
-                                    Color(0xFFA14AB7)
-                                )
-                            ),
-                            blendMode = BlendMode.SrcAtop
-                        )
-                    }
-                },
-            text = "서울현대박물관",
-            fontSize = 28.sp,
-            fontWeight = FontWeight.Bold
-        )
+        auctionInfo.value?.let {
+            Text(
+                modifier = Modifier
+                    .padding(top = 30.dp)
+                    .graphicsLayer(alpha = 0.99f)
+                    .drawWithCache {
+                        onDrawWithContent {
+                            drawContent()
+                            drawRect(
+                                Brush.linearGradient(
+                                    listOf(
+                                        Color(0xFF6039DF),
+                                        Color(0xFFA14AB7)
+                                    )
+                                ),
+                                blendMode = BlendMode.SrcAtop
+                            )
+                        }
+                    },
+                text = it.name,
+                fontSize = 28.sp,
+                fontWeight = FontWeight.Bold
+            )
+        }
         Text(
             modifier = Modifier.padding(top = 25.dp),
             fontSize = 12.sp,
@@ -114,7 +132,7 @@ fun AuctionPage(
             text = "현재 최고 입찰가"
         )
         Text(
-            text = "$ 22,000",
+            text = "$ ${dec.format(biddingPrice.value)}",
             fontSize = 22.sp,
             fontWeight = FontWeight.Bold
         )

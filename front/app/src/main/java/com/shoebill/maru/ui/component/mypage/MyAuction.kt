@@ -1,7 +1,7 @@
 package com.shoebill.maru.ui.component.mypage
 
-import android.util.Log
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -17,6 +17,7 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -25,6 +26,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.items
 import com.shoebill.maru.ui.component.common.GradientColoredText
+import com.shoebill.maru.ui.theme.MaruBrush
 import com.shoebill.maru.viewmodel.MyBiddingViewModel
 
 @Composable
@@ -32,7 +34,6 @@ fun MyAuction(
     myBiddingViewModel: MyBiddingViewModel = hiltViewModel(),
 ) {
     val myBiddings = myBiddingViewModel.getMyBiddingPagination().collectAsLazyPagingItems()
-    Log.d("MYBIDDINGS", "MyAuction: $myBiddings")
 
     LazyColumn(
         modifier = Modifier
@@ -46,7 +47,7 @@ fun MyAuction(
                         horizontalArrangement = Arrangement.SpaceBetween,
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(vertical = 20.dp, horizontal = 30.dp)
+                            .padding(top = 20.dp, bottom = 20.dp, start = 30.dp, end = 20.dp)
                     ) {
                         GradientColoredText(
                             text = myBidding.landmark.name,
@@ -57,7 +58,7 @@ fun MyAuction(
                             Surface(
                                 color = Color.White,
                                 shape = RoundedCornerShape(16.dp),
-                                border = BorderStroke(1.dp, Color(0XFFCECECE)),
+                                border = BorderStroke(0.5.dp, Color(0XFFCECECE)),
                                 elevation = 2.dp,
                                 modifier = Modifier
                                     .padding(end = 5.dp)
@@ -73,12 +74,10 @@ fun MyAuction(
                                     color = Color(0XFFCECECE)
                                 )
                             }
-                            Surface(
-                                color = Color.Red,
-                                shape = RoundedCornerShape(16.dp),
-//                                border = BorderStroke(1.dp, Color(0XFFCECECE)),
-                                elevation = 2.dp,
+                            Box(
                                 modifier = Modifier
+                                    .shadow(elevation = 2.dp, RoundedCornerShape(16.dp))
+                                    .background(MaruBrush, RoundedCornerShape(16.dp))
                                     .clickable { }
                             ) {
                                 Text(
@@ -92,7 +91,6 @@ fun MyAuction(
                                 )
                             }
                         }
-
                     }
 
                     Divider(

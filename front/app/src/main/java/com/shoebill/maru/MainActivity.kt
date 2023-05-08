@@ -24,9 +24,11 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.shoebill.maru.ui.page.AuctionPage
 import com.shoebill.maru.ui.page.CameraPage
 import com.shoebill.maru.ui.page.LoginPage
@@ -125,9 +127,15 @@ fun MyApp(
             }
         }
 
-        composable("auction") {
+        composable(
+            "auction/{id}",
+            arguments = listOf(navArgument("id") {
+                type = NavType.LongType
+                defaultValue = 0L
+            })
+        ) {
             CompositionLocalProvider(LocalViewModelStoreOwner provides viewModelStoreOwner) {
-                AuctionPage()
+                AuctionPage(id = it.arguments?.getLong("id")!!)
             }
         }
 
