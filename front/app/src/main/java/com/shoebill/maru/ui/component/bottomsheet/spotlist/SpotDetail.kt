@@ -71,7 +71,7 @@ fun SpotDetail(
                         .align(Alignment.TopEnd),
                 ) {
                     Icon(
-                        painter = painterResource(id = R.drawable.unscrap_icon),
+                        painter = painterResource(id = if (spotDetails.value!!.scraped) R.drawable.scrap_icon else R.drawable.unscrap_icon),
                         contentDescription = "",
                         modifier = Modifier
                             .size(35.dp)
@@ -88,14 +88,17 @@ fun SpotDetail(
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Icon(
-                        painter = painterResource(id = R.drawable.unfavorite_icon),
+                        painter = painterResource(id = if (spotDetails.value!!.liked) R.drawable.favorite_icon else R.drawable.unfavorite_icon),
                         contentDescription = "favorite or not",
                         modifier = Modifier.size(30.dp),
                         tint = Color.White
                     )
-                    Text(text = "234", color = Color.White, fontSize = 10.sp)
+                    Text(
+                        text = spotDetails.value!!.likeCount.toString(),
+                        color = Color.White,
+                        fontSize = 10.sp
+                    )
                 }
-                val tags = listOf<String>("#도로", "#길거리", "#감성", "#인생샷스팟", "#인생샷")
                 val scrollState = rememberScrollState()
                 Box(
                     Modifier
@@ -106,9 +109,9 @@ fun SpotDetail(
                         Modifier.horizontalScroll(scrollState),
                         horizontalArrangement = Arrangement.spacedBy(5.dp)
                     ) {
-                        tags.forEach { tag ->
+                        spotDetails.value!!.tags?.forEach { tag ->
                             Chip(
-                                text = tag,
+                                text = tag.name,
                                 textColor = Color.White,
                                 color = Color.White.copy(alpha = 0.38f),
                                 border = BorderStroke(0.dp, Color.Transparent)
