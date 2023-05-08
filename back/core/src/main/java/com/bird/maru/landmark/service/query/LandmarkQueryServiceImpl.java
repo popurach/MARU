@@ -55,7 +55,7 @@ public class LandmarkQueryServiceImpl implements LandmarkQueryService {
     /**
      * 랜드마크 소유자 정보 조회 <br/> 삭제된 사용자이거나 랜드마크 소유자가 없을 경우 디폴트 정보 제공 <br/> 사용자 있다면 소유자의 사진 랜덤하게 함께 제공
      *
-     * @param id : pathVariable 로 landmark id 전달
+     * @param landmarkId : pathVariable 로 landmark id 전달
      * @return OwnerResponseDto
      * @throws ResourceNotFoundException : DB에 해당 리소스 존재하지 않음
      */
@@ -63,6 +63,7 @@ public class LandmarkQueryServiceImpl implements LandmarkQueryService {
     public OwnerResponseDto findOwnerData(Long landmarkId) throws ResourceNotFoundException {
         Long memberId = landmarkQueryRepository.findById(landmarkId)
                                                .orElseThrow(() -> new ResourceNotFoundException("해당 리소스 존재하지 않습니다.")).getMemberId();
+        if(memberId == null) memberId = 0L;
         Member member = memberQueryRepository.findById(memberId)
                                              .orElseThrow(() -> new ResourceNotFoundException("해당 리소스 존재하지 않습니다."));
         if (Boolean.TRUE.equals(member.getDeleted())) {
