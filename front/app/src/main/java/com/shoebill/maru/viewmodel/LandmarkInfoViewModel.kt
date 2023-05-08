@@ -13,7 +13,7 @@ import javax.inject.Inject
 import kotlin.properties.Delegates
 
 @HiltViewModel
-class LandmarkOwnerViewModel @Inject constructor(
+class LandmarkInfoViewModel @Inject constructor(
     private val landmarkRepository: LandmarkRepository
 ) : ViewModel() {
     private val _owner = MutableLiveData(Owner())
@@ -42,7 +42,7 @@ class LandmarkOwnerViewModel @Inject constructor(
         }
     }
 
-    private fun loadLandmarkName(landmarkId: Long) {
+    fun loadLandmarkName(landmarkId: Long) {
         viewModelScope.launch {
             _landmarkName.value = withContext(Dispatchers.IO) {
                 landmarkRepository.getLandmarkName(landmarkId)

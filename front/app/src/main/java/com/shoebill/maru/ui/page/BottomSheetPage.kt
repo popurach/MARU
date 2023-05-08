@@ -54,12 +54,18 @@ fun BottomSheetPage(
                     }
                 }
             }
-            composable("landmark/first") {
+            composable(
+                "landmark/first/{id}",
+                arguments = listOf(navArgument("id") {
+                    type = NavType.LongType
+                    defaultValue = 0
+                })
+            ) {
                 CompositionLocalProvider(
                     LocalViewModelStoreOwner provides viewModelStoreOwner
                 ) {
                     BottomSheetFrame(hasFabCamera = true, backgroundColor = MaruBackground) {
-                        LandmarkFirstVisit()
+                        LandmarkFirstVisit(it.arguments!!.getLong("id"))
                     }
                 }
             }

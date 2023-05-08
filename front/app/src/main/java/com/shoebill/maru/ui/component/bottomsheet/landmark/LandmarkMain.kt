@@ -29,18 +29,18 @@ import coil.compose.AsyncImage
 import com.shoebill.maru.R
 import com.shoebill.maru.ui.component.common.GradientColoredText
 import com.shoebill.maru.viewmodel.BottomSheetNavigatorViewModel
-import com.shoebill.maru.viewmodel.LandmarkOwnerViewModel
+import com.shoebill.maru.viewmodel.LandmarkInfoViewModel
 
 @Composable
 fun LandmarkMain(
-    landmarkOwnerViewModel: LandmarkOwnerViewModel = hiltViewModel(),
+    landmarkInfoViewModel: LandmarkInfoViewModel = hiltViewModel(),
     bottomSheetNavigatorViewModel: BottomSheetNavigatorViewModel = hiltViewModel(),
     landmarkId: Long
 ) {
-    landmarkOwnerViewModel.initLandmarkId(landmarkId)
-    landmarkOwnerViewModel.initLandmarkOwnerViewModel()
-    val owner = landmarkOwnerViewModel.owner.observeAsState()
-    val landmarkName = landmarkOwnerViewModel.landmarkName.observeAsState()
+    landmarkInfoViewModel.initLandmarkId(landmarkId)
+    landmarkInfoViewModel.initLandmarkOwnerViewModel()
+    val owner = landmarkInfoViewModel.owner.observeAsState()
+    val landmarkName = landmarkInfoViewModel.landmarkName.observeAsState()
     Column(
         Modifier
             .fillMaxSize()

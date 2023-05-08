@@ -88,6 +88,11 @@ class MapViewModel @Inject constructor(
     private var lastRequestPos: Point? = null
     private var lastRequestZoom: Double = 0.0
 
+    private val landmarkAnnotations = mutableListOf<PointAnnotationOptions>()
+    private val spotAnnotations = mutableListOf<PointAnnotationOptions>()
+
+    private val visitingLandmark = MutableLiveData<PointAnnotationOptions?>(null)
+
     private val _filterState = MutableLiveData(ALL)
     val filterState get() = _filterState
 
@@ -318,7 +323,6 @@ class MapViewModel @Inject constructor(
                 }
             })
         }
-
         return mapView
     }
 
@@ -328,6 +332,28 @@ class MapViewModel @Inject constructor(
             _isTracking.value = true
             moveCameraLinearly()
             mapView.apply {
+                location.addOnIndicatorPositionChangedListener { myPos ->
+                    val minDist = 0.1
+                    landmarkAnnotations.forEach { landmark ->
+                        val jsonObject = landmark.getData()!!.asJsonObject!!
+                        val landmarkPos = landmark.getPoint()
+                        val distance = getDistance(myPos, landmarkPos!!)
+                        // 멀어질 때
+                        if (visitingLandmark.value == landmark && distance > minDist) {
+                            visitingLandmark.value = null
+                        }
+                        // 랜드마크 범위에 들어갔을 때
+                        if (visitingLandmark.value != landmark && distance <= minDist) {
+                            Log.d("LANDMARK", jsonObject.toString())
+                            visitingLandmark.value = landmark
+                            val landmarkId =
+                                jsonObject.get("id")?.asLong
+                            val isVisit = jsonObject.get("isVisit")?.asBoolean!!
+                            _bottomSheetOpen.value = true
+                            bottomSheetController.navigate(if (isVisit) "landmark/main/$landmarkId" else "landmark/first/$landmarkId")
+                        }
+                    }
+                }
                 location.updateSettings {
                     enabled = true
                     pulsingEnabled = true
@@ -358,6 +384,7 @@ class MapViewModel @Inject constructor(
                             }
                         }.toJson(),
                     )
+
                 }
             }
         } else {
@@ -367,8 +394,7 @@ class MapViewModel @Inject constructor(
 
     private fun isFarEnough(curPoint: Point): Boolean {
         if (lastRequestPos == null) return true
-        val distance = distanceBetweenLastRequestPosAndCurPoint(curPoint)
-        Log.d("LANDMARK", "isFarEnough: $distance")
+        val distance = getDistance(curPoint, lastRequestPos!!)
         if (distance > 2) return true
         return false
     }
@@ -376,7 +402,6 @@ class MapViewModel @Inject constructor(
 
     private fun moveCameraLinearly() {
         val viewportPlugin = mapView.viewport
-        Log.d("moveCameraLinearly", "start moveCameraLinearly")
         val followPuckViewportState: FollowPuckViewportState =
             viewportPlugin.makeFollowPuckViewportState(
                 FollowPuckViewportStateOptions.Builder()
@@ -391,6 +416,7 @@ class MapViewModel @Inject constructor(
 
     private fun unTrackUser() {
         _isTracking.value = false
+        mapView.location.addOnIndicatorPositionChangedListener {}
         mapView.location.updateSettings {
             enabled = false
         }
@@ -430,22 +456,22 @@ class MapViewModel @Inject constructor(
         }
     }
 
-    private fun distanceBetweenLastRequestPosAndCurPoint(curPoint: Point): Double {
-        if (lastRequestPos == null) return 30.0
+    private fun getDistance(a: Point, b: Point): Double {
         val distance: Double
         val radius = 6371.0 // 지구 반지름(km)
         val toRadian = Math.PI / 180
-        val deltaLatitude = abs(curPoint.latitude() - lastRequestPos!!.latitude()) * toRadian
-        val deltaLongitude = abs(curPoint.longitude() - curPoint.longitude()) * toRadian
+        val deltaLatitude = abs(a.latitude() - b.latitude()) * toRadian
+        val deltaLongitude = abs(a.longitude() - b.longitude()) * toRadian
         val sinDeltaLat = sin(deltaLatitude / 2)
         val sinDeltaLng = sin(deltaLongitude / 2)
         val squareRoot = sqrt(
             sinDeltaLat * sinDeltaLat +
-                    cos(curPoint.latitude() * toRadian) * cos(lastRequestPos!!.latitude() * toRadian) * sinDeltaLng * sinDeltaLng
+                    cos(b.latitude() * toRadian) * cos(a.latitude() * toRadian) * sinDeltaLng * sinDeltaLng
         )
         distance = 2 * radius * asin(squareRoot)
         return distance
     }
+
 
     private fun addMarker(
         spotType: Int,
@@ -471,11 +497,15 @@ class MapViewModel @Inject constructor(
                     if (id != null) addProperty("id", id)
                 }
             )
+        if (spotType == SpotType.LANDMARK) landmarkAnnotations.add(pointAnnotationOptions)
+        else spotAnnotations.add(pointAnnotationOptions)
         // Add the resulting pointAnnotation to the map.
         pointAnnotationManager.create(pointAnnotationOptions)
     }
 
     fun deletePin() {
+        landmarkAnnotations.clear()
+        spotAnnotations.clear()
         pointAnnotationManager.deleteAll()
     }
 }

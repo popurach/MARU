@@ -30,6 +30,7 @@ class LandmarkRepository @Inject constructor(
     suspend fun getLandmarkOwner(landmarkId: Long): Owner {
         val response = landmarkApi.getLandmarkOwner(landmarkId)
         if (response.isSuccessful) {
+            Log.d("LANDMARK-OWNER", "${response.body()}")
             return response.body() ?: Owner()
         }
         Log.d("LANDMARK", "getLandmarkOwner fail ${response.errorBody()}")

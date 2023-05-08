@@ -8,44 +8,42 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.ExperimentalTextApi
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.shoebill.maru.ui.component.LottieDiamond
+import com.shoebill.maru.ui.component.common.GradientColoredText
+import com.shoebill.maru.ui.theme.MaruBrush
 import com.shoebill.maru.viewmodel.BottomSheetNavigatorViewModel
-import com.shoebill.maru.viewmodel.LandmarkLandingViewModel
+import com.shoebill.maru.viewmodel.LandmarkInfoViewModel
 
 @OptIn(ExperimentalTextApi::class)
 @Composable
-@Preview
 fun LandmarkFirstVisit(
-    landmarkLandingViewModel: LandmarkLandingViewModel = hiltViewModel(),
+    landmarkId: Long,
+    landmarkInfoViewModel: LandmarkInfoViewModel = hiltViewModel(),
     bottomSheetNavigatorViewModel: BottomSheetNavigatorViewModel = viewModel()
 ) {
+    landmarkInfoViewModel.loadLandmarkName(landmarkId)
+    val landmarkName = landmarkInfoViewModel.landmarkName.observeAsState()
+
     val firstLine = buildAnnotatedString {
         withStyle(
             SpanStyle(
-                brush = Brush.linearGradient(
-                    listOf(
-                        Color(0xFF6039DF),
-                        Color(0xFFA14AB7)
-                    )
-                ),
+                brush = MaruBrush,
                 fontWeight = FontWeight.Bold,
             )
         ) {
-            append(landmarkLandingViewModel.landmark.name) // "Hello"에 색상을 적용합니다.
+            append(landmarkName.value) // "Hello"에 색상을 적용합니다.
         }
         append(" 첫 방문을 축하합니다!")
     }
@@ -66,8 +64,8 @@ fun LandmarkFirstVisit(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(50.dp)
     ) {
-        Text(
-            text = landmarkLandingViewModel.coloredLandmarkName,
+        GradientColoredText(
+            text = landmarkName.value!!,
             fontSize = 32.sp,
             fontWeight = FontWeight.SemiBold
         )
