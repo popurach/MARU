@@ -69,11 +69,11 @@ public class AuctionJobConfig {
                                 .incrementer(new RunIdIncrementer())
                                 .start(auctionLogsStep)
                                 .on("FAILED").to(conditionalFailStep)
-//                                .next(createAuctionTableStep)
+                                .next(createAuctionTableStep)
                                 .from(auctionLogsStep)
                                 .on("*").to(conditionalCompletedStep)
                                 .next(finishAuctionTableStep)
-//                                .next(createAuctionTableStep)
+                                .next(createAuctionTableStep)
                                 .end()
                                 .build();
 
