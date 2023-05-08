@@ -404,7 +404,6 @@ class MapViewModel @Inject constructor(
         return false
     }
 
-
     private fun moveCameraLinearly() {
         val viewportPlugin = mapView.viewport
         val followPuckViewportState: FollowPuckViewportState =

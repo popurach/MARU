@@ -11,6 +11,7 @@ import javax.inject.Inject
 class LandmarkRepository @Inject constructor(
     private val landmarkApi: LandmarkApi
 ) {
+    private val TAG = "LANDMARK"
     suspend fun getVisitedLandmarks(lastOffset: Long?): List<Stamp> =
         landmarkApi.getVisitedLandmarks(lastOffset = lastOffset)
 
@@ -47,5 +48,14 @@ class LandmarkRepository @Inject constructor(
 
     suspend fun getLandmarkImages(lastOffset: Long?, landmarkId: Long): List<SpotImage> =
         landmarkApi.getImageUrls(lastOffset = lastOffset, id = landmarkId)
+
+    suspend fun visitLandmark(landmarkId: Long): Int {
+        val response = landmarkApi.visitLandmark(landmarkId)
+        if (response.isSuccessful) {
+            return response.body()!!
+        }
+        Log.d(TAG, "visit landmark fail: ${response.code()}")
+        return -1
+    }
 
 }

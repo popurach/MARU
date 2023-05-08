@@ -11,6 +11,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.ExperimentalTextApi
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -25,16 +26,19 @@ import com.shoebill.maru.ui.component.common.GradientColoredText
 import com.shoebill.maru.ui.theme.MaruBrush
 import com.shoebill.maru.viewmodel.BottomSheetNavigatorViewModel
 import com.shoebill.maru.viewmodel.LandmarkInfoViewModel
+import kotlinx.coroutines.DelicateCoroutinesApi
 
-@OptIn(ExperimentalTextApi::class)
+@OptIn(ExperimentalTextApi::class, DelicateCoroutinesApi::class)
 @Composable
 fun LandmarkFirstVisit(
     landmarkId: Long,
     landmarkInfoViewModel: LandmarkInfoViewModel = hiltViewModel(),
     bottomSheetNavigatorViewModel: BottomSheetNavigatorViewModel = viewModel()
 ) {
+    val context = LocalContext.current
     landmarkInfoViewModel.loadLandmarkName(landmarkId)
     val landmarkName = landmarkInfoViewModel.landmarkName.observeAsState()
+
 
     val firstLine = buildAnnotatedString {
         withStyle(
@@ -71,9 +75,11 @@ fun LandmarkFirstVisit(
         )
         Box(Modifier.size(250.dp)) {
             LottieDiamond(onClick = {
+                landmarkInfoViewModel.visitLandmark(context)
                 bottomSheetNavigatorViewModel.navController?.navigate("landmark/main") {
                     popUpTo("landmark/first") { inclusive = true }
                 }
+
             })
         }
         Column(Modifier.padding(top = 70.dp), horizontalAlignment = Alignment.CenterHorizontally) {
