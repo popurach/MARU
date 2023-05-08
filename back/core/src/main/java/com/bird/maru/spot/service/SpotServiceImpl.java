@@ -126,7 +126,7 @@ public class SpotServiceImpl implements SpotService {
                     s.deleteSpot();
                 },
                 () -> {
-                    throw new ResourceConflictException("해당 리소스 존재하지 않습니다.");
+                    throw new ResourceNotFoundException("해당 리소스 존재하지 않습니다.");
                 }
         );
     }
