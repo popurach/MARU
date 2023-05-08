@@ -12,6 +12,7 @@ import com.bird.maru.auction.controller.dto.AuctionSearchCondition;
 import com.bird.maru.common.util.TimeUtil;
 import com.bird.maru.domain.model.entity.Spot;
 import com.bird.maru.spot.controller.dto.SpotDetailResponseDto;
+import com.bird.maru.spot.controller.dto.SpotMapCondition;
 import com.bird.maru.spot.controller.dto.SpotSearchCondition;
 import com.bird.maru.spot.repository.query.dto.SpotSimpleDto;
 import com.querydsl.core.types.OrderSpecifier;
@@ -158,6 +159,24 @@ public class SpotCustomQueryRepository {
                             .where(spot.id.eq(spotId),
                                    spot.deleted.isFalse()
                             ).fetchOne());
+    }
+
+    public List<SpotSimpleDto> findSpotBasedMap(SpotMapCondition condition, Long memberId) {
+        return queryFactory.select(Projections.fields(SpotSimpleDto.class,
+                                                      spot.id.as("id"),
+                                                      Expressions.asNumber(spot.landmark.id != null ? spot.landmark.id : null).as("landmarkId"),
+                                                      spot.image.url.as("imageUrl"),
+                                                      Expressions.asBoolean(scrap.spot.id.isNotNull()).as("scraped")
+                           ))
+                           .from(spot)
+                           .leftJoin(scrap).on(spot.id.eq(scrap.spot.id),
+                                               scrap.member.id.eq(memberId),
+                                               scrap.deleted.isFalse())
+                           .where(ltSpotOffset(condition.getLastOffset()),
+                                  spot.deleted.isFalse())
+                           .orderBy(spot.id.desc())
+                           .limit(condition.getSize())
+                           .fetch();
     }
 
     private BooleanExpression ltSpotOffset(Long lastOffset) {

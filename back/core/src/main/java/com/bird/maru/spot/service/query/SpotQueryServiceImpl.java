@@ -8,6 +8,7 @@ import com.bird.maru.domain.model.entity.Tag;
 import com.bird.maru.like.service.query.LikeQueryService;
 import com.bird.maru.scrap.service.query.ScrapQueryService;
 import com.bird.maru.spot.controller.dto.SpotDetailResponseDto;
+import com.bird.maru.spot.controller.dto.SpotMapCondition;
 import com.bird.maru.spot.controller.dto.SpotSearchCondition;
 import com.bird.maru.spot.mapper.SpotMapper;
 import com.bird.maru.spot.repository.query.SpotCustomQueryRepository;
@@ -108,6 +109,30 @@ public class SpotQueryServiceImpl implements SpotQueryService {
         List<Tag> tags = tagCustomQueryRepository.findAllBySpotId(spotId);
         spotDetail.setTags(tags);
         return spotDetail;
+    }
+
+    /**
+     * 현재 지도 내 스팟 목록 조회 API
+     *
+     * @param condition : 지도 영역, 전체 스팟 | 내 스팟, 마지막 item index, 페이지 사이즈
+     * @param memberId  : 현재 사용자 id
+     * @return List<SpotSimpleDto> 스팟 목록
+     */
+    @Override
+    public List<SpotSimpleDto> findSpotsBasedMap(SpotMapCondition condition, Long memberId) {
+        List<SpotSimpleDto> spotBasedMap = spotCustomQueryRepository.findSpotBasedMap(condition, memberId);
+        if (spotBasedMap.isEmpty()) {
+            return spotBasedMap;
+        }
+        Map<Long, List<Tag>> tagMap = tagCustomQueryRepository.findAllWithTagBySpotIn(
+                spotBasedMap.stream().map(SpotSimpleDto::getId).collect(Collectors.toList())
+        );
+        for (SpotSimpleDto spot : spotBasedMap) {
+            if (tagMap.containsKey(spot.getId())) {
+                spot.setTags(tagMap.get(spot.getId()));
+            }
+        }
+        return spotBasedMap;
     }
 
 }
