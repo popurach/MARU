@@ -6,6 +6,7 @@ import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.amazonaws.services.s3.model.S3ObjectInputStream;
 import com.amazonaws.util.IOUtils;
+import com.bird.maru.domain.model.type.Coordinate;
 import com.bird.maru.domain.model.type.Image;
 import com.bird.maru.spot.service.dto.SpotImage;
 import com.drew.imaging.ImageMetadataReader;
@@ -64,13 +65,17 @@ public class AwsS3Service {
      */
     public SpotImage uploadSpotImage(MultipartFile image) {
         try (InputStream input = image.getInputStream()) {
+            Coordinate coordinate = getGpsInfo(input);
             Image uploaded = upload(
                     input,
                     createKey(SPOT_PATH, Objects.requireNonNull(image.getOriginalFilename())),
                     getObjectMetadata(image)
             );
 
-            return getImageWithGps(input, uploaded);
+            return SpotImage.builder()
+                            .coordinate(coordinate)
+                            .image(uploaded)
+                            .build();
         } catch (ImageProcessingException | IOException e) {
             throw new IllegalArgumentException("업로드 하려는 파일을 읽을 수 없습니다.", e);
         }
@@ -128,23 +133,19 @@ public class AwsS3Service {
                     .build();
     }
 
-    private SpotImage getImageWithGps(InputStream input, Image uploaded) throws ImageProcessingException, IOException {
+    private Coordinate getGpsInfo(InputStream input) throws ImageProcessingException, IOException {
         Metadata metadata = ImageMetadataReader.readMetadata(input);
         GpsDirectory gpsDirectory = metadata.getFirstDirectoryOfType(GpsDirectory.class);
 
         if (gpsDirectory == null || gpsDirectory.getGeoLocation() == null) {
-            log.warn("GPS 데이터를 불러올 수 없습니다.");
-            return SpotImage.builder()
-                            .image(uploaded)
-                            .build();
+            throw new ImageProcessingException("GPS 데이터를 불러올 수 없습니다.");
         }
 
         GeoLocation location = gpsDirectory.getGeoLocation();
-        return SpotImage.builder()
-                        .lng(location.getLongitude())
-                        .lat(location.getLatitude())
-                        .image(uploaded)
-                        .build();
+        return Coordinate.builder()
+                         .lng(location.getLongitude())
+                         .lat(location.getLatitude())
+                         .build();
     }
 
     private String createKey(String path, String originalFilename) {

@@ -84,8 +84,8 @@ public final class SpotMapper {
                    .member(member)
                    .image(image.getImage())
                    .coordinate(Coordinate.builder()
-                                         .lng(image.getLng())
-                                         .lat(image.getLat())
+                                         .lng(image.getCoordinate().getLng())
+                                         .lat(image.getCoordinate().getLat())
                                          .build())
                    .build();
     }

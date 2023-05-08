@@ -1,5 +1,6 @@
 package com.bird.maru.spot.service.dto;
 
+import com.bird.maru.domain.model.type.Coordinate;
 import com.bird.maru.domain.model.type.Image;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -13,9 +14,7 @@ import lombok.NoArgsConstructor;
 @Builder
 public class SpotImage {
 
-    private Double lng;
-
-    private Double lat;
+    private Coordinate coordinate;
 
     private Image image;
 
