@@ -80,6 +80,7 @@ class MemberViewModel @Inject constructor(
             launch {
                 val response = memberRepository.getMemberInfo()
                 if (response.isSuccessful) {
+                    Log.d("MEMBER", "회원 정보 조회 발생")
                     updateMemberInfo(response.body()!!)
                     // notice token update 필요
                     updateNoticeToken()
