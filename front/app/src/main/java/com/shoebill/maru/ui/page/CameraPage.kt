@@ -32,7 +32,7 @@ fun CameraPage(
     val isCapture = cameraViewModel.isCapture.observeAsState()
     BackHandler {
         if (isCapture.value == true) {
-            cameraViewModel.backToCameraScreen(false)
+            cameraViewModel.clearCameraViewModel(false)
         } else {
             navigateViewModel.navigator?.popBackStack()
         }

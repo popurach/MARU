@@ -67,11 +67,12 @@ class CameraViewModel @Inject constructor(private val spotRepository: SpotReposi
         _inputTag.value = ""
     }
 
-    fun backToCameraScreen(value: Boolean) {
+    fun clearCameraViewModel(value: Boolean) {
         _isCapture.value = value
         _imageUrl.value = null
         _inputTag.value = ""
         _location.value = null
+        _landmarkId.value = null
         listOfTag.clear()
         _tagList.value = listOfTag
     }

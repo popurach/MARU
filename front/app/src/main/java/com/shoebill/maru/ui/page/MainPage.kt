@@ -33,6 +33,7 @@ import com.shoebill.maru.ui.component.MapboxScreen
 import com.shoebill.maru.ui.component.common.FabCamera
 import com.shoebill.maru.ui.component.searchbar.SearchBar
 import com.shoebill.maru.util.checkAndRequestPermissions
+import com.shoebill.maru.viewmodel.CameraViewModel
 import com.shoebill.maru.viewmodel.DrawerViewModel
 import com.shoebill.maru.viewmodel.MapViewModel
 import com.shoebill.maru.viewmodel.MemberViewModel
@@ -48,10 +49,13 @@ fun MainPage(
     drawerViewModel: DrawerViewModel = viewModel(),
     memberViewModel: MemberViewModel = hiltViewModel(),
     navigateViewModel: NavigateViewModel = hiltViewModel(),
+    cameraViewModel: CameraViewModel = hiltViewModel(),
 ) {
     LaunchedEffect(Unit) {
         if (memberViewModel.memberInfo.value == null)
             memberViewModel.getMemberInfo(navigateViewModel)
+        if (cameraViewModel.imageUrl.value != null)
+            cameraViewModel.clearCameraViewModel(false)
     }
 
     val context = LocalContext.current
