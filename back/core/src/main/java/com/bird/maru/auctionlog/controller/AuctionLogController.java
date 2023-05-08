@@ -88,4 +88,11 @@ public class AuctionLogController {
         return auctionLogService.auctionRecord(id);
     }
 
+    /**
+     * @Param id : landmarkId
+     * */
+    @GetMapping("/landmarks/price/{id}")
+    public Integer searchLandmarkBestPriceById(@PathVariable Long id) {
+        return auctionLogService.auctionBestPrice(id);
+    }
 }

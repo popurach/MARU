@@ -15,4 +15,6 @@ public interface AuctionLogService {
 
     List<Integer> auctionRecord(Long landmarkId);
 
+    Integer auctionBestPrice(Long landmarkId);
+
 }

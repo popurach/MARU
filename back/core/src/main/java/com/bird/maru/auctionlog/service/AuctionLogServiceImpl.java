@@ -171,6 +171,20 @@ public class AuctionLogServiceImpl implements AuctionLogService {
         return auctionRecords;
     }
 
+    /**
+     * 해당 랜드마크 최고 입찰가를 반환
+     *
+     * @Param 랜드마크 PK
+     * */
+    @Override
+    public Integer auctionBestPrice(Long landmarkId) {
+        Optional<AuctionLog> auctionLog = auctionLogCustomQueryRepository.findFirstByLandmarkId(landmarkId);
+        if(auctionLog.isPresent()) {
+            return auctionLog.get().getPrice();
+        }
+        return 0;
+    }
+
     private void biddingWithAuction(Auction auction, Member member, int price) {
 
         if (auction.getLastLogId() != null) {
