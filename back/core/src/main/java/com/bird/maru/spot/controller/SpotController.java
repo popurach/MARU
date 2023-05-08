@@ -6,6 +6,7 @@ import com.bird.maru.common.exception.ResourceNotFoundException;
 import com.bird.maru.common.util.NamedLockExecutor;
 import com.bird.maru.like.service.LikeService;
 import com.bird.maru.spot.controller.dto.SpotDetailResponseDto;
+import com.bird.maru.spot.controller.dto.SpotMapCondition;
 import com.bird.maru.spot.controller.dto.SpotPostRequestDto;
 import com.bird.maru.spot.controller.dto.SpotSearchCondition;
 import com.bird.maru.spot.repository.query.dto.SpotSimpleDto;
@@ -15,6 +16,7 @@ import java.util.List;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -29,6 +31,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/spots")
 @RequiredArgsConstructor
+@Slf4j
 public class SpotController {
 
     private final SpotQueryService spotQueryService;
@@ -134,5 +137,21 @@ public class SpotController {
     ) throws ResourceNotFoundException {
         return spotQueryService.findSpotDetail(spotId, member.getId());
     }
+
+    /**
+     * 현재 지도 내 스팟 목록 조회 API
+     *
+     * @param condition : 지도 영역, 전체 스팟 | 내 스팟, 마지막 item index, 페이지 사이즈
+     * @param member    : 현재 사용자
+     * @return List<SpotSimpleDto> 스팟 목록
+     */
+    @GetMapping("/map")
+    @ResponseStatus(HttpStatus.OK)
+    public List<SpotSimpleDto> findSpotListBasedMap(
+            @Valid @ModelAttribute(name = "condition") SpotMapCondition condition, @AuthenticationPrincipal CustomUserDetails member
+    ) {
+        return spotQueryService.findSpotsBasedMap(condition, member.getId());
+    }
+
 
 }

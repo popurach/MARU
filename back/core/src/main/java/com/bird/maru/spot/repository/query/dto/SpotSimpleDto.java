@@ -11,7 +11,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
+@NoArgsConstructor
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Getter
 @Builder
@@ -48,6 +48,10 @@ public class SpotSimpleDto {
 
     public void checkScraped() {
         this.scraped = Boolean.TRUE;
+    }
+
+    public void setTags(List<Tag> tags) {
+        this.tags = tags;
     }
 
 }
