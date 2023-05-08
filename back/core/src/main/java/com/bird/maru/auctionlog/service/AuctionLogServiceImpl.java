@@ -3,14 +3,12 @@ package com.bird.maru.auctionlog.service;
 import com.bird.maru.auction.repository.AuctionRepository;
 import com.bird.maru.auctionlog.repository.AuctionLogRepository;
 import com.bird.maru.auctionlog.repository.query.AuctionLogCustomQueryRepository;
-import com.bird.maru.common.config.NamedLockConfig;
 import com.bird.maru.common.exception.NotEnoughMoney;
 import com.bird.maru.common.exception.ResourceNotFoundException;
 import com.bird.maru.domain.model.entity.Auction;
 import com.bird.maru.domain.model.entity.AuctionLog;
 import com.bird.maru.domain.model.entity.Landmark;
 import com.bird.maru.domain.model.entity.Member;
-import com.bird.maru.landmark.repository.LandmarkRepository;
 import com.bird.maru.member.repository.MemberRepository;
 import java.util.ArrayList;
 import java.util.List;
@@ -148,7 +146,6 @@ public class AuctionLogServiceImpl implements AuctionLogService {
         if (successfulBidId != null && successfulBidId.equals(auctionLog.getId())) { // 낙찰자
             log.info("낙찰자 : {}", member.getId());
             landmark.changeOwner(member.getId()); // 랜드마크 대표 회원 정보 업데이트
-            auction.setFinished(true); // 경매 현재 상태 -> 끝남
         } else { // 유찰자
             int price = auctionLog.getPrice(); // 유찰자의 입찰 가격
             member.gainPoint(price);
@@ -172,6 +169,20 @@ public class AuctionLogServiceImpl implements AuctionLogService {
                 auctionLog -> auctionLog.getPrice() != null ? auctionLog.getPrice() : 0
         ).collect(Collectors.toList());
         return auctionRecords;
+    }
+
+    /**
+     * 해당 랜드마크 최고 입찰가를 반환
+     *
+     * @Param 랜드마크 PK
+     * */
+    @Override
+    public Integer auctionBestPrice(Long landmarkId) {
+        Optional<AuctionLog> auctionLog = auctionLogCustomQueryRepository.findFirstByLandmarkId(landmarkId);
+        if(auctionLog.isPresent()) {
+            return auctionLog.get().getPrice();
+        }
+        return 0;
     }
 
     private void biddingWithAuction(Auction auction, Member member, int price) {
