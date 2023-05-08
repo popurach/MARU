@@ -120,7 +120,7 @@ fun SpotDetail(
                     ) {
                         tags?.forEach { tag ->
                             Chip(
-                                text = tag.name,
+                                text = "#${tag.name}",
                                 textColor = Color.White,
                                 color = Color.White.copy(alpha = 0.38f),
                                 border = BorderStroke(0.dp, Color.Transparent)
