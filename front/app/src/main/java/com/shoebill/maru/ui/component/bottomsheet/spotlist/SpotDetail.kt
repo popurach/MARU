@@ -95,7 +95,7 @@ fun SpotDetail(
                     )
                     Text(text = "234", color = Color.White, fontSize = 10.sp)
                 }
-                val tags = listOf<String>("#도로", "#길거리", "#감성", "#인생샷스팟", "#인생샷")
+                val tags = spotDetails.value?.tags
                 val scrollState = rememberScrollState()
                 Box(
                     Modifier
@@ -106,9 +106,9 @@ fun SpotDetail(
                         Modifier.horizontalScroll(scrollState),
                         horizontalArrangement = Arrangement.spacedBy(5.dp)
                     ) {
-                        tags.forEach { tag ->
+                        tags?.forEach { tag ->
                             Chip(
-                                text = tag,
+                                text = tag.name,
                                 textColor = Color.White,
                                 color = Color.White.copy(alpha = 0.38f),
                                 border = BorderStroke(0.dp, Color.Transparent)
