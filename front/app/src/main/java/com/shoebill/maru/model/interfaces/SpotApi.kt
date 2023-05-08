@@ -52,4 +52,14 @@ interface SpotApi {
     suspend fun getSpotDetail(
         @Path("id") id: Long
     ): Response<Spot>
+
+    @POST("/api/spots/{spotId}/like")
+    suspend fun toggleLike(
+        @Path("spotId") spotId: Long
+    ): Response<Unit>
+
+    @POST("/api/spots/{spotId}/scrap")
+    suspend fun toggleScrap(
+        @Path("spotId") spotId: Long
+    ): Response<Unit>
 }

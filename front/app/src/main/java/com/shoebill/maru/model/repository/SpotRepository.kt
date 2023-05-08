@@ -65,4 +65,8 @@ class SpotRepository @Inject constructor(
         }
         throw Error("${response.code()}")
     }
+
+    suspend fun toggleLike(spotId: Long) = spotApi.toggleLike(spotId)
+    suspend fun toggleScrap(spotId: Long) = spotApi.toggleScrap(spotId)
+    
 }
