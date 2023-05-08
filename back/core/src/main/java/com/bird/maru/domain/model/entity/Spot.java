@@ -96,4 +96,8 @@ public class Spot extends BaseDateTime {
         this.likeCount--;
     }
 
+    public void deleteSpot() {
+        this.deleted = Boolean.TRUE;
+    }
+
 }
