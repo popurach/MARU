@@ -38,7 +38,7 @@ fun OpenAuction(myBiddingViewModel: MyBiddingViewModel = hiltViewModel()) {
                         modifier = Modifier.padding(vertical = 15.dp)
                     ) {
                         GradientColoredText(
-                            text = myNonBidding.landmarkName,
+                            text = myNonBidding.name,
                             modifier = Modifier.padding(end = 15.dp),
                             fontSize = 20.sp,
                             fontWeight = FontWeight.Bold

@@ -41,7 +41,7 @@ fun MyPage(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(top = 40.dp, bottom = 40.dp),
+                .padding(top = 40.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(5.dp),
         ) {

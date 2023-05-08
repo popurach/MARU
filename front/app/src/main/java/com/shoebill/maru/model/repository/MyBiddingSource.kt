@@ -5,22 +5,26 @@ import androidx.paging.PagingState
 import com.shoebill.maru.model.data.myBiddings.MyBidding
 
 class MyBiddingSource(private val myBiddingRepository: MyBiddingRepository) :
-    PagingSource<Long, MyBidding>() {
+    PagingSource<Any, MyBidding>() {
 
-    override fun getRefreshKey(state: PagingState<Long, MyBidding>): Long? {
-        TODO("Not yet implemented")
+    override fun getRefreshKey(state: PagingState<Any, MyBidding>): Long? {
+        return null
     }
 
-    override suspend fun load(params: LoadParams<Long>): LoadResult<Long, MyBidding> {
+    override suspend fun load(params: LoadParams<Any>): LoadResult<Any, MyBidding> {
         return try {
-            val lastOffset = params.key ?: 0L
+            val myBiddingResponse = myBiddingRepository.getMyBiddings(params.key as Long?)
 
-            val myBiddingResponse = myBiddingRepository.getMyBiddings(lastOffset)
+            val nextKey = myBiddingResponse.lastOrNull()?.auctionLogId ?: return LoadResult.Page(
+                data = myBiddingResponse,
+                prevKey = null,
+                nextKey = null
+            )
 
             LoadResult.Page(
                 data = myBiddingResponse,
-                prevKey = if (lastOffset == 0L) null else myBiddingResponse.first().auctionLogId,
-                nextKey = myBiddingResponse.last().auctionLogId
+                prevKey = null,
+                nextKey = nextKey
             )
         } catch (e: Exception) {
             LoadResult.Error(e)

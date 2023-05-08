@@ -9,7 +9,7 @@ interface MyBiddingApi {
 
     @GET("api/auctions/my/biddings")
     suspend fun getMyBiddings(
-        @Query("lastOffset") lastOffset: Long,
+        @Query("lastOffset") lastOffset: Long?,
         @Query("size") size: Int = 20
     ): List<MyBidding>
 

@@ -7,7 +7,7 @@ import javax.inject.Inject
 
 class MyBiddingRepository @Inject constructor(private val myBiddingApi: MyBiddingApi) {
 
-    suspend fun getMyBiddings(lastOffset: Long): List<MyBidding> =
+    suspend fun getMyBiddings(lastOffset: Long?): List<MyBidding> =
         myBiddingApi.getMyBiddings(lastOffset)
 
     suspend fun getMyNonBiddings(lastOffset: Long): List<LandmarkInfo> =

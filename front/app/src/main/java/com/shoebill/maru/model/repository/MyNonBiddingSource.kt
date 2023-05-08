@@ -19,8 +19,8 @@ class MyNonBiddingSource(private val myBiddingRepository: MyBiddingRepository) :
 
             LoadResult.Page(
                 data = myNonBiddingResponse,
-                prevKey = if (lastOffset == 0L) null else myNonBiddingResponse.first().landmarkId,
-                nextKey = myNonBiddingResponse.last().landmarkId
+                prevKey = if (lastOffset == 0L) null else myNonBiddingResponse.first().id,
+                nextKey = myNonBiddingResponse.last().id
             )
         } catch (e: Exception) {
             LoadResult.Error(e)
