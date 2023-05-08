@@ -9,6 +9,7 @@ import com.bird.maru.domain.model.entity.Auction;
 import com.bird.maru.domain.model.entity.AuctionLog;
 import com.bird.maru.domain.model.entity.Landmark;
 import com.bird.maru.landmark.repository.LandmarkRepository;
+import com.bird.maru.point.service.PointService;
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.Collections;
@@ -56,6 +57,7 @@ public class AuctionJobConfig {
     private final AuctionRepository auctionRepository;
     private final AuctionLogCustomQueryRepository auctionLogCustomQueryRepository;
     private final AuctionLogService auctionService;
+    private final PointService pointService;
 
     @Bean
     public Job auctionLogsJob(
@@ -207,9 +209,14 @@ public class AuctionJobConfig {
         return item -> {
             namedLockExecutor.executeWithLock(
                     // Batch 작업 DB Named Lock 실시
-                    item.getCreatedDate().toString() + item.getLandmark().getId().toString(), 10, () -> item.setFinished(true)
+                    item.getCreatedDate().toString() + item.getLandmark().getId().toString(), 10,
+                    () -> {
+                        if(item.getLastLogId() != null) { // 점유자 포인트 반환
+                            pointService.landmarkOccupying(item.getLandmark().getMemberId());
+                        }
+                        item.setFinished(true);
+                    }
             );
-
             return item;
         };
     }
