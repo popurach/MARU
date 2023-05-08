@@ -22,7 +22,7 @@ public class PointController {
      * */
     @PutMapping("/landmark/visit")
     public void landmarkVisiting(@AuthenticationPrincipal CustomUserDetails member) {
-
+        pointService.landmarkVisiting(member.getId());
     }
 
     /**
@@ -30,7 +30,7 @@ public class PointController {
      * */
     @PutMapping("/landmark/occupy")
     public void landmarkOccupying(@AuthenticationPrincipal CustomUserDetails member) {
-
+        pointService.landmarkOccupying(member.getId());
     }
 
     /**
@@ -38,7 +38,7 @@ public class PointController {
      * */
     @PutMapping("landmark/photo")
     public void landmarkPhoto(@AuthenticationPrincipal CustomUserDetails member) {
-
+        pointService.landmarkPhoto(member.getId());
     }
 
     /**
@@ -46,7 +46,7 @@ public class PointController {
      * */
     @PutMapping("/spot")
     public void spotMaking(@AuthenticationPrincipal CustomUserDetails member) {
-
+        pointService.spotMaking(member.getId());
     }
 
     /**
@@ -54,7 +54,7 @@ public class PointController {
      * */
     @PutMapping("/like")
     public void photoLike(@AuthenticationPrincipal CustomUserDetails member) {
-
+        pointService.photoLike(member.getId());
     }
 
 }

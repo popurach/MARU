@@ -2,6 +2,8 @@ package com.bird.maru.point.service;
 
 public interface PointService {
 
+    void landmarkVisiting(Long memberId);
+
     void landmarkOccupying(Long memberId);
 
     void landmarkPhoto(Long memberId);
