@@ -112,7 +112,7 @@ fun ImageUploadForm(
             }
         }
         if (isModalOpen.value) {
-            ConfirmModal(bitmap) {
+            ConfirmModal(bitmap = bitmap) {
                 isModalOpen.value = false
             }
         }

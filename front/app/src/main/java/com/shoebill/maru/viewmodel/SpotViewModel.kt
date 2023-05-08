@@ -8,7 +8,6 @@ import androidx.lifecycle.viewModelScope
 import com.shoebill.maru.model.data.Spot
 import com.shoebill.maru.model.repository.SpotRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -26,7 +25,7 @@ class SpotViewModel @Inject constructor(
     }
 
     fun loadSpotDetailById(spotId: Long) {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch {
             try {
                 _spotDetails.value = spotRepository.getSpotDetail(spotId)
             } catch (e: Error) {

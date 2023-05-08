@@ -4,6 +4,7 @@ import com.shoebill.maru.model.data.Spot
 import com.shoebill.maru.model.data.request.SpotClusterDTO
 import com.shoebill.maru.model.data.spot.SpotMarker
 import okhttp3.MultipartBody
+import okhttp3.RequestBody
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.GET
@@ -19,7 +20,7 @@ interface SpotApi {
     @POST("/api/spots") // spot 등록
     suspend fun saveSpot(
         @Part spotImage: MultipartBody.Part? = null,
-        @Part tags: MultipartBody.Part? = null,
+        @Part("tags") tags: RequestBody? = null,
         @Part landmarkId: MultipartBody.Part? = null,
     ): Response<Long>
 

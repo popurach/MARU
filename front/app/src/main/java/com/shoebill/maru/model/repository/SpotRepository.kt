@@ -10,11 +10,13 @@ import com.shoebill.maru.model.data.spot.SpotMarker
 import com.shoebill.maru.model.interfaces.SpotApi
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
+import okhttp3.RequestBody
 import okhttp3.RequestBody.Companion.asRequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
 import retrofit2.Response
 import java.io.File
 import javax.inject.Inject
+
 
 class SpotRepository @Inject constructor(
     private val spotApi: SpotApi
@@ -28,12 +30,10 @@ class SpotRepository @Inject constructor(
 
         Log.d("SPOT", "saveSpot: ${spotImage.name}")
 
-        var tagParam: MultipartBody.Part? = null
-        if (tags != null) {
-            val tagJson = Gson().toJson(tags)
-            val tagsBody = tagJson.toRequestBody("application/json".toMediaTypeOrNull())
-            tagParam = MultipartBody.Part.createFormData("tags", null, tagsBody)
-        }
+        Log.d("SPOT", "${tags!!.size}")
+        val description: RequestBody = Gson().toJson(tags)
+            .toRequestBody("application/json".toMediaTypeOrNull())
+
 
         val landmarkIdParam = if (landmarkId != null) MultipartBody.Part.createFormData(
             name = "landmarkId",
@@ -42,7 +42,7 @@ class SpotRepository @Inject constructor(
 
         return spotApi.saveSpot(
             spotImage = spotImageParam,
-            tags = tagParam,
+            tags = description,
             landmarkId = landmarkIdParam
         )
     }
