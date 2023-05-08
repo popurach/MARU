@@ -31,7 +31,12 @@ class SpotRepository @Inject constructor(
         Log.d("SPOT", "saveSpot: ${spotImage.name}")
 
         Log.d("SPOT", "${tags!!.size}")
-        val description: RequestBody = Gson().toJson(tags)
+        val tagsList = ArrayList<String>()
+        for (tag in tags) {
+            tagsList.add(tag.name)
+        }
+
+        val tagsParam: RequestBody = Gson().toJson(tagsList)
             .toRequestBody("application/json".toMediaTypeOrNull())
 
 
@@ -42,7 +47,7 @@ class SpotRepository @Inject constructor(
 
         return spotApi.saveSpot(
             spotImage = spotImageParam,
-            tags = description,
+            tags = tagsParam,
             landmarkId = landmarkIdParam
         )
     }
@@ -68,5 +73,5 @@ class SpotRepository @Inject constructor(
 
     suspend fun toggleLike(spotId: Long) = spotApi.toggleLike(spotId)
     suspend fun toggleScrap(spotId: Long) = spotApi.toggleScrap(spotId)
-    
+
 }
