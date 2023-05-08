@@ -1,5 +1,8 @@
 package com.shoebill.maru.ui.component.mypage
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.Icon
@@ -87,10 +90,14 @@ fun MyPageTabs(
         }
     }
 
-    when (tabIndex.value) {
-        0 -> GalleryScreen()
-        1 -> StampScreen()
-        2 -> ScrapScreen()
-        3 -> AuctionScreen()
+    Box(modifier = Modifier
+        .fillMaxSize()
+        .background(Color.White)) {
+        when (tabIndex.value) {
+            0 -> GalleryScreen()
+            1 -> StampScreen()
+            2 -> ScrapScreen()
+            3 -> AuctionScreen()
+        }
     }
 }

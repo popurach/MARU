@@ -7,7 +7,8 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
 import androidx.lifecycle.ViewModel
-import com.shoebill.maru.model.data.Landmark
+import com.shoebill.maru.model.data.Coordinate
+import com.shoebill.maru.model.data.landmark.Landmark
 import com.shoebill.maru.ui.theme.MaruBrush
 
 @OptIn(ExperimentalTextApi::class)
@@ -17,11 +18,10 @@ class LandmarkLandingViewModel : ViewModel() {
 
     init {
         landmark = Landmark(
+            1,
             "서울현대백화점",
+            Coordinate(127.048196645563, 37.64765601365385),
             true,
-            "https://picsum.photos/id/29/200/300",
-            "Shoebill",
-            "나는 서울현대박물관의 주인 Shoebill이다. 나의 공간에서 잘 즐기다가도록 하여라."
         )
         coloredLandmarkName = buildAnnotatedString {
             withStyle(

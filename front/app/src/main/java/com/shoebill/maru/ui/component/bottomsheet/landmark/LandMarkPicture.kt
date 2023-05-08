@@ -8,19 +8,21 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import com.shoebill.maru.viewmodel.BottomSheetNavigatorViewModel
-import com.shoebill.maru.viewmodel.LandmarkOccupantPictureViewModel
+import com.shoebill.maru.viewmodel.LandmarkOwnerViewModel
 
 @Composable
 fun LandMarkPicture(
-    landmarkOccupantPictureViewModel: LandmarkOccupantPictureViewModel = hiltViewModel(),
+    landmarkOwnerViewModel: LandmarkOwnerViewModel = hiltViewModel(),
     bottomSheetNavigatorViewModel: BottomSheetNavigatorViewModel = hiltViewModel()
 ) {
     AsyncImage(
-        model = landmarkOccupantPictureViewModel.representImageUrl,
+        model = landmarkOwnerViewModel.owner.value!!.spotImageUrl,
         contentDescription = "occupant image",
         modifier = Modifier
             .fillMaxSize()
-            .clickable { bottomSheetNavigatorViewModel.navController?.navigate("landmark/picture/list") },
+            .clickable {
+                bottomSheetNavigatorViewModel.navController?.navigate("landmark/${landmarkOwnerViewModel.landmarkId}/picture/list")
+            },
         contentScale = ContentScale.Crop
     )
 }

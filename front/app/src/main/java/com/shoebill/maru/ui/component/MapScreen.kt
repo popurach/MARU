@@ -5,18 +5,19 @@ import android.annotation.SuppressLint
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.content.res.AppCompatResources
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.FabPosition
 import androidx.compose.material.FloatingActionButton
 import androidx.compose.material.Icon
 import androidx.compose.material.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.graphics.BlendMode
@@ -30,22 +31,36 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.mapbox.maps.ResourceOptionsManager
 import com.shoebill.maru.R
+import com.shoebill.maru.ui.theme.GreyBrush
+import com.shoebill.maru.ui.theme.MaruBrush
 import com.shoebill.maru.util.checkAndRequestPermissions
 import com.shoebill.maru.viewmodel.MapViewModel
 
-@OptIn(ExperimentalMaterialApi::class)
 @Composable
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 fun MapboxScreen(
-    viewModel: MapViewModel = hiltViewModel()
+    mapViewModel: MapViewModel = hiltViewModel(),
 ) {
-    viewModel.initFocusManager(LocalFocusManager.current)
+    mapViewModel.initFocusManager(LocalFocusManager.current)
     val context = LocalContext.current
+    mapViewModel.initLandmarkImage(
+        AppCompatResources.getDrawable(
+            context,
+            R.drawable.landmark
+        )
+    )
+    mapViewModel.initSpotImage(
+        AppCompatResources.getDrawable(
+            context,
+            R.drawable.spot_marker
+        )
+    )
 
     /** 요청할 권한 **/
     val permissions = arrayOf(
         Manifest.permission.ACCESS_COARSE_LOCATION,
-        Manifest.permission.ACCESS_FINE_LOCATION
+        Manifest.permission.ACCESS_FINE_LOCATION,
+        Manifest.permission.READ_EXTERNAL_STORAGE
     )
 
     val launcherMultiplePermissions = rememberLauncherForActivityResult(
@@ -62,17 +77,20 @@ fun MapboxScreen(
         }
     }
 
+    val isTracking = mapViewModel.isTracking.observeAsState()
+
     Scaffold(
         content = { _ ->
             AndroidView(
                 modifier = Modifier
+                    .padding(bottom = 25.dp)
                     .fillMaxHeight(),
                 factory = { context ->
                     ResourceOptionsManager.getDefault(
                         context,
                         context.getString(R.string.mapbox_public_token)
                     )
-                    viewModel.createMapView(context)
+                    mapViewModel.createMapView(context)
                 }
             )
         },
@@ -80,7 +98,7 @@ fun MapboxScreen(
             FloatingActionButton(
                 onClick = {
                     checkAndRequestPermissions(context, permissions, launcherMultiplePermissions)
-                    viewModel.trackCameraToUser(context)
+                    mapViewModel.trackCameraToUser(context)
                 },
                 modifier = Modifier
                     .padding(bottom = 25.dp)
@@ -95,7 +113,7 @@ fun MapboxScreen(
                                 onDrawWithContent {
                                     drawContent()
                                     drawRect(
-                                        viewModel.myLocationColor,
+                                        brush = if (isTracking.value == true) MaruBrush else GreyBrush,
                                         blendMode = BlendMode.SrcAtop
                                     )
                                 }

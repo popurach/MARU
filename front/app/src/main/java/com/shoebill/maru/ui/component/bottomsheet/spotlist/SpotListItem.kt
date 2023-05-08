@@ -56,7 +56,7 @@ fun SpotListItem(
             ) {
                 Icon(
                     painter = painterResource(
-                        id = if (spot.isScrap) {
+                        id = if (spot.scraped) {
                             R.drawable.scrap_icon
                         } else {
                             R.drawable.unscrap_icon
@@ -75,8 +75,8 @@ fun SpotListItem(
             horizontalArrangement = Arrangement.spacedBy(6.dp),
             modifier = Modifier.horizontalScroll(scrollState)
         ) {
-            spot.hashTags.forEach() { tag ->
-                Chip(text = tag)
+            spot.tags?.forEach() { tag ->
+                Chip(text = tag.name)
             }
         }
     }

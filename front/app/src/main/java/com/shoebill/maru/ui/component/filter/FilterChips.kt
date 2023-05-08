@@ -7,12 +7,12 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.shoebill.maru.util.Filter
 import com.shoebill.maru.viewmodel.MapViewModel
 
 @Composable
@@ -20,7 +20,7 @@ fun FilterChips(
     mapViewModel: MapViewModel = viewModel()
 ) {
     val textList = listOf("전체", "랜드 마크", "스팟", "MY 스팟")
-    val selectedChipIndex = remember { mutableStateOf(0) }
+    val filterState = mapViewModel.filterState.observeAsState()
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -35,11 +35,21 @@ fun FilterChips(
             for (index in 0..3) {
                 ChipListItem(
                     text = textList[index],
-                    isSelected = index == selectedChipIndex.value,
+                    isSelected = index == filterState.value,
                     onSelected = {
                         mapViewModel.clearFocus()
-                        selectedChipIndex.value = index
-                        // TODO filtering된 핀 목록 가져오기
+                        mapViewModel.updateFilterState(index)
+                        mapViewModel.deletePin()
+                        when (index) {
+                            Filter.ALL -> {
+                                mapViewModel.loadLandmarkPos()
+                                mapViewModel.loadSpotPos()
+                            }
+
+                            Filter.LANDMARK -> mapViewModel.loadLandmarkPos()
+                            Filter.SPOT -> mapViewModel.loadSpotPos()
+                            Filter.MYSPOT -> mapViewModel.loadSpotPos(mine = true)
+                        }
                     }
                 )
             }

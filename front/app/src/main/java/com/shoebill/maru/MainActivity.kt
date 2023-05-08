@@ -2,16 +2,19 @@ package com.shoebill.maru
 
 import android.content.IntentFilter
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
+import androidx.compose.material.ripple.LocalRippleTheme
+import androidx.compose.material.ripple.RippleAlpha
+import androidx.compose.material.ripple.RippleTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -33,7 +36,6 @@ import com.shoebill.maru.ui.page.NoticePage
 import com.shoebill.maru.ui.theme.MaruTheme
 import com.shoebill.maru.util.FcmMessageReceiver
 import com.shoebill.maru.util.PreferenceUtil
-import com.shoebill.maru.viewmodel.CameraViewModel
 import com.shoebill.maru.viewmodel.MapViewModel
 import com.shoebill.maru.viewmodel.NavigateViewModel
 import com.shoebill.maru.viewmodel.NoticeViewModel
@@ -70,10 +72,20 @@ class MainActivity : ComponentActivity() {
                         .padding(bottom = 45.dp),
                     color = MaterialTheme.colors.background
                 ) {
-                    MyApp(startDestination = if (prefUtil.isLogin()) "main" else "login")
+                    CompositionLocalProvider(LocalRippleTheme provides NoRippleTheme) {
+                        MyApp(startDestination = if (prefUtil.isLogin()) "main" else "login")
+                    }
                 }
             }
         }
+    }
+
+    private object NoRippleTheme : RippleTheme {
+        @Composable
+        override fun defaultColor() = Color.Unspecified
+
+        @Composable
+        override fun rippleAlpha(): RippleAlpha = RippleAlpha(0.0f, 0.0f, 0.0f, 0.0f)
     }
 }
 
@@ -120,14 +132,9 @@ fun MyApp(
         }
 
         composable("camera") { backStackEntry ->
-            val cameraViewModel: CameraViewModel = hiltViewModel()
             CompositionLocalProvider(LocalViewModelStoreOwner provides viewModelStoreOwner) {
-                CameraPage(onImageCaptured = { uri, fromGallery ->
-                    Log.d("CAMERA", "Image Uri Captured from Camera View")
-                    //Todo : use the uri as needed
-
-                }, onError = { imageCaptureException ->
-                    Log.d("CAMERA", "Image Capture Fail: $imageCaptureException ")
+                CameraPage(onImageCaptured = { _, _ ->
+                }, onError = {
                 })
             }
         }
