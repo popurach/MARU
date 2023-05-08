@@ -5,12 +5,9 @@ import com.bird.maru.common.exception.ResourceConflictException;
 import com.bird.maru.common.exception.ResourceNotFoundException;
 import com.bird.maru.domain.model.entity.Spot;
 import com.bird.maru.domain.model.entity.Tag;
-import com.bird.maru.domain.model.type.PointMoney;
 import com.bird.maru.landmark.repository.query.LandmarkQueryRepository;
 import com.bird.maru.member.repository.query.MemberQueryRepository;
-import com.bird.maru.member.service.MemberService;
 import com.bird.maru.point.service.PointService;
-import com.bird.maru.spot.controller.dto.TagRequestDto;
 import com.bird.maru.spot.mapper.SpotMapper;
 import com.bird.maru.spot.repository.SpotRepository;
 import com.bird.maru.spot.service.dto.SpotImage;
@@ -52,15 +49,17 @@ public class SpotServiceImpl implements SpotService {
      * @return Long : 추가된 spotId
      */
     @Override
-    public Long insertSpotAndTags(MultipartFile spotImage, List<TagRequestDto> tags, Long landmarkId, Long memberId) {
+    public Long insertSpotAndTags(MultipartFile spotImage, List<String> tags, Long landmarkId, Long memberId) {
         // 1. 스팟 사진 S3에 저장
         SpotImage image = awsS3Service.uploadSpotImage(spotImage);
         log.debug("S3 저장 성공");
 
         // 2. 태그 조회
-        List<Tag> existTags = tagQueryRepository.findAllByNames(
-                tags.stream().map(TagRequestDto::getName).collect(Collectors.toList())
-        );
+        List<Tag> existTags = new ArrayList<>();
+        if(!tags.isEmpty()) {
+            existTags = tagQueryRepository.findAllByNames(tags);
+
+        }
         log.debug("-------------이미 등록된 태그 조회-------------");
 
         Set<String> existTagNames = existTags.stream().map(Tag::getName).collect(Collectors.toSet());
@@ -68,8 +67,8 @@ public class SpotServiceImpl implements SpotService {
         log.debug("{} {}", existTagIds, existTagNames);
 
         // 3. 태그 등록
-        List<TagRequestDto> newTags = tags.stream()
-                                          .filter(tag -> !existTagNames.contains(tag.getName()))
+        List<String> newTags = tags.stream()
+                                          .filter(tag -> !existTagNames.contains(tag))
                                           .collect(Collectors.toList());
         List<Long> newTagIds = new ArrayList<>();
         if (!newTags.isEmpty()) {
@@ -77,7 +76,7 @@ public class SpotServiceImpl implements SpotService {
             log.debug("---------------태그 등록-------------------");
             log.debug("{}", newTags);
             // 4. 신규 태그 조회
-            newTagIds = tagQueryRepository.findAllByNames(newTags.stream().map(TagRequestDto::getName).collect(Collectors.toList()))
+            newTagIds = tagQueryRepository.findAllByNames(newTags)
                                           .stream().map(Tag::getId).collect(Collectors.toList());
             log.debug("-------------------신규 태그 조회--------------");
             log.debug("{}", newTagIds);
