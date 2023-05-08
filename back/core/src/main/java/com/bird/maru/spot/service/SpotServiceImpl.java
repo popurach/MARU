@@ -9,6 +9,7 @@ import com.bird.maru.domain.model.type.PointMoney;
 import com.bird.maru.landmark.repository.query.LandmarkQueryRepository;
 import com.bird.maru.member.repository.query.MemberQueryRepository;
 import com.bird.maru.member.service.MemberService;
+import com.bird.maru.point.service.PointService;
 import com.bird.maru.spot.controller.dto.TagRequestDto;
 import com.bird.maru.spot.mapper.SpotMapper;
 import com.bird.maru.spot.repository.SpotRepository;
@@ -34,7 +35,7 @@ import org.springframework.web.multipart.MultipartFile;
 public class SpotServiceImpl implements SpotService {
 
     private final AwsS3Service awsS3Service;
-    private final MemberService memberService;
+    private final PointService pointService;
     private final LandmarkQueryRepository landmarkQueryRepository;
     private final MemberQueryRepository memberQueryRepository;
     private final TagQueryRepository tagQueryRepository;
@@ -94,7 +95,7 @@ public class SpotServiceImpl implements SpotService {
             log.debug("-----------SpotHasTags 등록-----------------");
         }
         // 7. 포인트 획득
-        memberService.gainPoint(memberId, PointMoney.SPOT_POINT.getValue());
+        pointService.spotMaking(memberId);
         log.debug("--------------포인트 획득--------------------");
         return spotId;
     }
