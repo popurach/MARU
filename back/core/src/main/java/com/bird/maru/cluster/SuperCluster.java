@@ -5,6 +5,7 @@
  */
 package com.bird.maru.cluster;
 
+import com.bird.maru.cluster.geo.BoundingBox;
 import com.bird.maru.cluster.geo.Cluster;
 import com.bird.maru.cluster.geo.MainCluster;
 import com.bird.maru.cluster.geo.Marker;
@@ -203,20 +204,33 @@ public class SuperCluster {
      * 클러스터링 알고리즘 수행
      *
      * @param boundingBox : 현재 사용자의 지도 범위
-     * @param zoom        : 현재 사용자의 지도 줌 레벨
      */
-    public List<Feature> run(double[] boundingBox, int zoom) {
-        double minLng = ((boundingBox[0] + 180) % 360 + 360) % 360 - 180;
-        double minLat = Math.max(-90, Math.min(90, boundingBox[1]));
-        double maxLng = boundingBox[2] == 180 ? 180 : ((boundingBox[2] + 180) % 360 + 360) % 360 - 180;
-        double maxLat = Math.max(-90, Math.min(90, boundingBox[3]));
-
-        if (boundingBox[2] - boundingBox[0] >= 360) {
+    public List<Feature> run(BoundingBox boundingBox) {
+        double minLng = ((boundingBox.getWest() + 180) % 360 + 360) % 360 - 180;
+        double minLat = Math.max(-90, Math.min(90, boundingBox.getSouth()));
+        double maxLng = boundingBox.getEast() == 180 ? 180 : ((boundingBox.getEast() + 180) % 360 + 360) % 360 - 180;
+        double maxLat = Math.max(-90, Math.min(90, boundingBox.getNorth()));
+        int zoom = boundingBox.getZoom();
+        if (boundingBox.getEast() - boundingBox.getWest() >= 360) {
             minLng = -180;
             maxLng = 180;
         } else if (minLng > maxLng) {
-            List<Feature> easternHem = this.run(new double[] { minLng, minLat, 180, maxLat }, zoom);
-            List<Feature> westernHem = this.run(new double[] { -180, minLat, maxLng, maxLat }, zoom);
+//            List<Feature> easternHem = this.run(new double[] { minLng, minLat, 180, maxLat }, zoom);
+            List<Feature> easternHem = this.run(BoundingBox.builder()
+                                                           .west(minLng)
+                                                           .south(minLat)
+                                                           .east(180.0)
+                                                           .north(maxLat)
+                                                           .zoom(zoom)
+                                                           .build());
+            List<Feature> westernHem = this.run(BoundingBox.builder()
+                                                           .west(-180.0)
+                                                           .south(minLat)
+                                                           .east(maxLng)
+                                                           .north(maxLat)
+                                                           .zoom(zoom)
+                                                           .build());
+//            List<Feature> westernHem = this.run(new double[] { -180, minLat, maxLng, maxLat }, zoom);
             easternHem.addAll(westernHem);
             return easternHem;
         }

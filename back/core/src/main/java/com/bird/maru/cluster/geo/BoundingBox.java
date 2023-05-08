@@ -5,21 +5,19 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
-@Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
+@Getter
 @Builder
+@ToString
 public class BoundingBox {
 
     private Double west;
     private Double south;
     private Double east;
     private Double north;
-    private Integer zoomLevel;
-
-    public double[] getBoundingBox() {
-        return new double[] { west, south, east, north };
-    }
+    private Integer zoom;
 
 }
