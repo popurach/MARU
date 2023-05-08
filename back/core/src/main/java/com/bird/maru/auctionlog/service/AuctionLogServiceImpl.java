@@ -51,9 +51,7 @@ public class AuctionLogServiceImpl implements AuctionLogService {
         // 2. 현재 auction 테이블의 최고 입찰값 (없을 수도 있음) 가져오기
         Auction auction = auctionRepository.findByLandmarkAndFinished(landmarkId, Boolean.FALSE)
                                            .orElseThrow(() -> new ResourceNotFoundException("해당 리소스 존재하지 않습니다."));
-        log.info("######### auction : {}, {}", auction.getCreatedDate(), auction.getLandmark().getId());
         if (auction != null) {
-            log.info("################ 옥션 NULL 아님 ############");
             biddingWithAuction(auction, member, price);
         }
 
@@ -144,6 +142,9 @@ public class AuctionLogServiceImpl implements AuctionLogService {
         Landmark landmark = auction.getLandmark();
         Long successfulBidId = auction.getLastLogId();
 
+        if(auction.getFinished()) {
+            throw new ResourceNotFoundException("해당 리소스는 끝난 경매 기록입니다.");
+        }
         if (successfulBidId != null && successfulBidId.equals(auctionLog.getId())) { // 낙찰자
             log.info("낙찰자 : {}", member.getId());
             landmark.changeOwner(member.getId()); // 랜드마크 대표 회원 정보 업데이트
@@ -151,6 +152,8 @@ public class AuctionLogServiceImpl implements AuctionLogService {
         } else { // 유찰자
             int price = auctionLog.getPrice(); // 유찰자의 입찰 가격
             member.gainPoint(price);
+            // auctionLog 삭제
+            auctionLogRepository.delete(auctionLog);
         }
     }
 

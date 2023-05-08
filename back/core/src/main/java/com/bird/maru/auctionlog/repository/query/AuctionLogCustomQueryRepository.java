@@ -80,7 +80,6 @@ public class AuctionLogCustomQueryRepository {
     }
 
     public Optional<AuctionLog> findFirstByLandmarkId(Long landmarkId) {
-        log.info("쿼리 DSL 들어옴 !!!!!!!! {}", landmarkId);
         return Optional.ofNullable(
                 queryFactory.selectFrom(auctionLog)
                             .join(auctionLog.auction, auction).fetchJoin()

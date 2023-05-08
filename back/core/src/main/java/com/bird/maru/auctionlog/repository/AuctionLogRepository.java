@@ -1,7 +1,10 @@
 package com.bird.maru.auctionlog.repository;
 
 import com.bird.maru.domain.model.entity.AuctionLog;
+import java.util.List;
 import java.util.Optional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -30,4 +33,6 @@ public interface AuctionLogRepository extends JpaRepository<AuctionLog, Long> {
                     + "FROM AuctionLog al2 "
                     + "WHERE al2.auction.landmark.id = :landmarkId)")
     Optional<AuctionLog> findFirstByLandmarkId(@Param("landmarkId") Long landmarkId);
+
+    Page<AuctionLog> findAllByAuction_Finished(Boolean finished, Pageable pageable);
 }
