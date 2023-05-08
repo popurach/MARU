@@ -5,7 +5,6 @@ import android.annotation.SuppressLint
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.appcompat.content.res.AppCompatResources
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.height
@@ -43,18 +42,7 @@ fun MapboxScreen(
 ) {
     mapViewModel.initFocusManager(LocalFocusManager.current)
     val context = LocalContext.current
-    mapViewModel.initLandmarkImage(
-        AppCompatResources.getDrawable(
-            context,
-            R.drawable.landmark
-        )
-    )
-    mapViewModel.initSpotImage(
-        AppCompatResources.getDrawable(
-            context,
-            R.drawable.spot_marker
-        )
-    )
+    mapViewModel.initImages(context)
 
     /** 요청할 권한 **/
     val permissions = arrayOf(
