@@ -2,7 +2,7 @@ package com.bird.maru.common.util;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.bird.maru.domain.model.type.CustomUserDetails;
+import com.bird.maru.auth.service.dto.CustomUserDetails;
 import com.bird.maru.domain.model.type.Provider;
 import java.util.Collection;
 import org.junit.jupiter.api.DisplayName;

@@ -68,14 +68,18 @@ fun SpotDetail(
                 Box(
                     Modifier
                         .padding(top = 38.dp, end = 22.dp)
-                        .align(Alignment.TopEnd),
+                        .align(Alignment.TopEnd)
+                        .clickable {
+                            spotViewModel.toggleScrap(spotId)
+                        },
                 ) {
                     Icon(
-                        painter = painterResource(id = if (spotDetails.value!!.scraped) R.drawable.scrap_icon else R.drawable.unscrap_icon),
+                        // 스크랩 관련 로직 추가
+                        // 스크랩 api 호출 추가
+                        painter = painterResource(id = if (spotDetails.value?.scraped!!) R.drawable.scrap_icon else R.drawable.unscrap_icon),
                         contentDescription = "",
                         modifier = Modifier
-                            .size(35.dp)
-                            .clickable { },
+                            .size(35.dp),
                         tint = Color.White
                     )
                 }
@@ -84,21 +88,26 @@ fun SpotDetail(
                     Modifier
                         .padding(top = 96.dp, end = 24.dp)
                         .align(Alignment.TopEnd)
-                        .clickable { },
+                        .clickable {
+                            spotViewModel.toggleLike(spotId)
+                        },
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
+                    // 좋아요 여부에 따라 분기
                     Icon(
-                        painter = painterResource(id = if (spotDetails.value!!.liked) R.drawable.favorite_icon else R.drawable.unfavorite_icon),
+                        painter = painterResource(id = if (spotDetails.value?.liked!!) R.drawable.favorite_icon else R.drawable.unfavorite_icon),
                         contentDescription = "favorite or not",
                         modifier = Modifier.size(30.dp),
                         tint = Color.White
                     )
+                    // 좋아요 갯수?
                     Text(
-                        text = spotDetails.value!!.likeCount.toString(),
+                        text = spotDetails.value?.likeCount.toString(),
                         color = Color.White,
                         fontSize = 10.sp
                     )
                 }
+                val tags = spotDetails.value?.tags
                 val scrollState = rememberScrollState()
                 Box(
                     Modifier
@@ -109,7 +118,7 @@ fun SpotDetail(
                         Modifier.horizontalScroll(scrollState),
                         horizontalArrangement = Arrangement.spacedBy(5.dp)
                     ) {
-                        spotDetails.value!!.tags?.forEach { tag ->
+                        tags?.forEach { tag ->
                             Chip(
                                 text = tag.name,
                                 textColor = Color.White,

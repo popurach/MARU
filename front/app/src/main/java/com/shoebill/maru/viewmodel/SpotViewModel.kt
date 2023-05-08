@@ -33,4 +33,32 @@ class SpotViewModel @Inject constructor(
             }
         }
     }
+
+    fun toggleLike(spotId: Long) {
+        viewModelScope.launch {
+            val response = spotRepository.toggleLike(spotId)
+            if (response.isSuccessful) {
+                Log.d("SPOT", "toggleLike: 좋아요 토글 성공")
+                Log.d("SPOT", "toggleLike: ${_spotDetails.value?.liked}")
+                loadSpotDetailById(spotId)
+                Log.d("SPOT", "toggleLike: ${_spotDetails.value?.liked}")
+            } else {
+                Log.d("SPOT", "toggleLike: 좋아요 토글 실패")
+            }
+        }
+    }
+
+    fun toggleScrap(spotId: Long) {
+        viewModelScope.launch {
+            val response = spotRepository.toggleScrap(spotId)
+            if (response.isSuccessful) {
+                Log.d("SPOT", "toggleScrap: 스크램 토글 성공")
+                Log.d("SPOT", "toggleScrap: ${_spotDetails.value?.scraped}")
+                loadSpotDetailById(spotId)
+                Log.d("SPOT", "toggleScrap: ${_spotDetails.value?.scraped}")
+            } else {
+                Log.d("SPOT", "toggleScrap: 스크램 토글 실패")
+            }
+        }
+    }
 }

@@ -1,11 +1,13 @@
 package com.bird.maru.member.service;
 
 import com.bird.maru.cloud.aws.s3.service.AwsS3Service;
+import com.bird.maru.common.exception.ResourceNotFoundException;
 import com.bird.maru.domain.model.entity.Member;
 import com.bird.maru.domain.model.type.Image;
+import com.bird.maru.domain.model.type.PointMoney;
+import com.bird.maru.member.controller.dto.MemberInfoUpdateDto;
 import com.bird.maru.member.repository.MemberRepository;
 import com.bird.maru.member.repository.query.MemberQueryRepository;
-import java.util.NoSuchElementException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,11 +24,14 @@ public class MemberServiceImpl implements MemberService {
     private final AwsS3Service awsS3Service;
 
     @Override
-    public Member modifyMemberInfo(Long memberId, String nickname, MultipartFile image) {
+    public Member modifyMemberInfo(Long memberId, MemberInfoUpdateDto memberInfoUpdateDto) {
         Member member = memberQueryRepository.findById(memberId)
-                                             .orElseThrow(() -> new NoSuchElementException("회원을 찾을 수 없습니다."));
+                                             .orElseThrow(() -> new ResourceNotFoundException("회원을 찾을 수 없습니다."));
 
-        if (!StringUtils.hasText(nickname)) {
+        String nickname = memberInfoUpdateDto.getNickname();
+        MultipartFile image = memberInfoUpdateDto.getImage();
+
+        if (StringUtils.hasText(nickname)) {
             member.updateNickname(nickname);
         }
 
@@ -41,7 +46,7 @@ public class MemberServiceImpl implements MemberService {
     @Override
     public void registerNoticeToken(Long memberId, String noticeToken) {
         memberRepository.findById(memberId)
-                        .orElseThrow(() -> new NoSuchElementException("회원을 찾을 수 없습니다."))
+                        .orElseThrow(() -> new ResourceNotFoundException("회원을 찾을 수 없습니다."))
                         .changeNoticeToken(noticeToken);
     }
 

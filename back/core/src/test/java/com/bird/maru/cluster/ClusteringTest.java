@@ -40,7 +40,7 @@ class ClusteringTest {
                                  .south(37.5462956)
                                  .east(126.9807529)
                                  .north(37.5587141)
-                                 .zoomLevel(15)
+                                 .zoom(15)
                                  .build();
         // 서울내에 랜덤 좌표 생성
         markers = makeRandomSeoul();
@@ -60,7 +60,7 @@ class ClusteringTest {
 
 
         // when
-        List<Feature> features = cluster.run(boundingBox.getBoundingBox(), boundingBox.getZoomLevel());
+        List<Feature> features = cluster.run(boundingBox);
 
         // then
         features.forEach(f -> log.debug("{}", f));

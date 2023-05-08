@@ -1,7 +1,8 @@
 package com.bird.maru.common.handler;
 
+import com.bird.maru.common.redis.RedisCacheKey;
 import com.bird.maru.common.util.JwtUtil;
-import com.bird.maru.domain.model.type.CustomUserDetails;
+import com.bird.maru.auth.service.dto.CustomUserDetails;
 import java.io.IOException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -13,13 +14,10 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.util.UriComponentsBuilder;
 
 /**
- * Authorization Code Grant 방식을 지원합니다. <br>
- * OAuth 인증에 성공한 경우에 이 빈을 호출합니다.
+ * Authorization Code Grant 방식을 지원합니다. <br> OAuth 인증에 성공한 경우에 이 빈을 호출합니다.
  */
 //@Component
 public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
-
-    public static final String REFRESH_TOKEN_PREFIX = "member_refresh:";
 
     private final RedisTemplate<String, String> redisTemplate;
     private final JwtUtil jwtUtil;
@@ -48,17 +46,13 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
 
         redisTemplate.opsForValue()
                      .set(
-                             createRedisKey(refreshToken),
+                             RedisCacheKey.REFRESH_TOKEN.getKey(member.getId()),
                              refreshToken,
                              jwtUtil.getRefreshTokenExpirationTime()
                      );
 
         getRedirectStrategy()
                 .sendRedirect(request, response, getRedirectUrl(accessToken, refreshToken));
-    }
-
-    private String createRedisKey(String refreshToken) {
-        return REFRESH_TOKEN_PREFIX + refreshToken;
     }
 
     private String getRedirectUrl(String accessToken, String refreshToken) {

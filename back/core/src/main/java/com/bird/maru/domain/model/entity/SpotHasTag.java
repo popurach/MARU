@@ -1,6 +1,6 @@
 package com.bird.maru.domain.model.entity;
 
-import com.bird.maru.domain.model.type.id.LocationHasTagId;
+import com.bird.maru.domain.model.type.id.SpotHasTagId;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.Id;
@@ -16,7 +16,7 @@ import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name = "spot_has_tag")
-@IdClass(LocationHasTagId.class)
+@IdClass(SpotHasTagId.class)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Getter

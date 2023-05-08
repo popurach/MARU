@@ -2,7 +2,6 @@ package com.shoebill.maru.ui.page
 
 import android.annotation.SuppressLint
 import android.net.Uri
-import android.util.Log
 import androidx.activity.compose.BackHandler
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageCapture
@@ -17,7 +16,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.google.android.gms.location.LocationServices
 import com.shoebill.maru.ui.component.camera.CameraCapturedImage
 import com.shoebill.maru.ui.component.camera.CameraPreview
 import com.shoebill.maru.viewmodel.CameraViewModel
@@ -63,18 +61,6 @@ fun CameraPage(
             }
         }
     } else {
-        // gps 켜고
-        val context = LocalContext.current
-        val fusedLocationClient = LocationServices.getFusedLocationProviderClient(context)
-
-        fusedLocationClient.lastLocation.addOnSuccessListener { location ->
-            location.also {
-                Log.d("TEST", "CameraPage: ${cameraViewModel.location.value}")
-                cameraViewModel.setLocation(location)
-                Log.d("TEST", "CameraPage: ${cameraViewModel.location.value}")
-            }
-        }
-
         CameraCapturedImage()
     }
 

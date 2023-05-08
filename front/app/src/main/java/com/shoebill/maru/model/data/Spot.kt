@@ -11,6 +11,6 @@ data class Spot(
 )
 
 data class Tag(
-    val id: Long,
+    val id: Long? = null,
     val name: String,
 )

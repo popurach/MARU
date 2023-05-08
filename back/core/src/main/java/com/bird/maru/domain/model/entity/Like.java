@@ -13,10 +13,8 @@ import javax.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.ToString;
 
 @Entity
 @Table(name = "likes")
@@ -40,5 +38,15 @@ public class Like extends BaseDateTime {
     @NotNull
     @Builder.Default
     private Boolean deleted = Boolean.FALSE;
+
+    public void toggleDeleted() {
+        if (Boolean.TRUE.equals(this.deleted)) {
+            this.spot.likeCountUp();
+        } else {
+            this.spot.likeCountDown();
+        }
+
+        this.deleted = !this.deleted;
+    }
 
 }

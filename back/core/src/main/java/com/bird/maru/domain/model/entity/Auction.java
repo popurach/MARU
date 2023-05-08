@@ -8,6 +8,7 @@ import javax.persistence.EntityListeners;
 import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.IdClass;
+import javax.persistence.Index;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
@@ -18,7 +19,10 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 @Entity
-@Table(name = "auctions")
+@Table(
+        name = "auctions",
+        indexes = @Index(name = "auction_finished_index", columnList = "finished")
+)
 @EntityListeners(AuditingEntityListener.class)
 @IdClass(AuctionId.class)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)

@@ -1,7 +1,7 @@
 package com.bird.maru.auth.service;
 
 import com.bird.maru.domain.model.entity.Member;
-import com.bird.maru.domain.model.type.CustomUserDetails;
+import com.bird.maru.auth.service.dto.CustomUserDetails;
 import com.bird.maru.domain.model.type.Provider;
 import com.bird.maru.member.repository.MemberRepository;
 import com.bird.maru.member.repository.query.MemberQueryRepository;

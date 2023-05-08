@@ -31,6 +31,7 @@ public class Landmark {
     @Column(name = "member_id")
     private Long memberId; // 현재 랜드마크의 대표 회원
 
+    @NotNull
     private String name;
 
     @Embedded
@@ -44,6 +45,10 @@ public class Landmark {
 
     public void changeOwner(Long memberId) {
         this.memberId = memberId;
+    }
+
+    public void addCount() {
+        this.visitCount++;
     }
 
 }

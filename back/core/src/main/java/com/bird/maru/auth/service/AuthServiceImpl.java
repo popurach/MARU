@@ -1,7 +1,9 @@
 package com.bird.maru.auth.service;
 
+import com.bird.maru.auth.service.dto.CustomUserDetails;
+import com.bird.maru.common.redis.RedisCacheKey;
 import com.bird.maru.common.util.JwtUtil;
-import com.bird.maru.domain.model.type.CustomUserDetails;
+import com.bird.maru.spot.repository.query.SpotCustomQueryRepository;
 import java.time.Duration;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
@@ -10,15 +12,14 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-@Service
+@Service("authService")
 @Transactional
 @RequiredArgsConstructor
 public class AuthServiceImpl implements AuthService {
 
-    public static final String REFRESH_TOKEN_PREFIX = "member_refresh:";
-
     private final RedisTemplate<String, String> redisTemplate;
     private final JwtUtil jwtUtil;
+    private final SpotCustomQueryRepository spotCustomQueryRepository;
 
     @Override
     public Map<String, String> generateToken(CustomUserDetails member) {
@@ -52,6 +53,12 @@ public class AuthServiceImpl implements AuthService {
         this.redisTemplate.delete(createRedisKey(member.getId()));
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public boolean authorizeToAuction(Long memberId, Long landmarkId) {
+        return spotCustomQueryRepository.existsSpotByMemberAndLandmark(memberId, landmarkId);
+    }
+
     private boolean isDenied(CustomUserDetails member) {
         String refreshToken = this.redisTemplate.opsForValue()
                                                 .get(createRedisKey(member.getId()));
@@ -59,7 +66,7 @@ public class AuthServiceImpl implements AuthService {
     }
 
     private String createRedisKey(Long memberId) {
-        return REFRESH_TOKEN_PREFIX + memberId;
+        return RedisCacheKey.REFRESH_TOKEN.getKey(memberId);
     }
 
 }

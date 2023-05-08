@@ -2,6 +2,7 @@ package com.shoebill.maru.ui.page
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -36,6 +37,7 @@ import com.shoebill.maru.viewmodel.DrawerViewModel
 import com.shoebill.maru.viewmodel.MapViewModel
 import com.shoebill.maru.viewmodel.MemberViewModel
 import com.shoebill.maru.viewmodel.NavigateViewModel
+import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterialApi::class)
@@ -63,14 +65,15 @@ fun MainPage(
 
     val isBottomSheetOpen = mapViewModel.bottomSheetOpen.observeAsState()
 
+    rememberCoroutineScope().launch {
+        if (expandState == true) {
+            Log.d("EXPAND", "MainPage: expandState = true")
 
-    if (expandState == true) {
-        navigateViewModel.navigator?.previousBackStackEntry?.savedStateHandle?.set(
-            key = "expandState",
-            value = false
-        )
-        rememberCoroutineScope().launch {
-            scaffoldState.bottomSheetState.expand()
+            async { scaffoldState.bottomSheetState.expand() }
+            navigateViewModel.navigator?.previousBackStackEntry?.savedStateHandle?.set(
+                key = "expandState",
+                value = false
+            )
         }
     }
     val launcherMultiplePermissions = rememberLauncherForActivityResult(
