@@ -19,42 +19,42 @@ public class PointController {
 
     /**
      * 랜드마크 방문 시 포인트 부여
-     * */
+     */
     @PutMapping("/landmark/visit")
-    public void landmarkVisiting(@AuthenticationPrincipal CustomUserDetails member) {
-        pointService.landmarkVisiting(member.getId());
+    public Integer landmarkVisiting(@AuthenticationPrincipal CustomUserDetails member) {
+        return pointService.landmarkVisiting(member.getId());
     }
 
     /**
      * 랜드마크 점유 시 포인트 부여
-     * */
+     */
     @PutMapping("/landmark/occupy")
-    public void landmarkOccupying(@AuthenticationPrincipal CustomUserDetails member) {
-        pointService.landmarkOccupying(member.getId());
+    public Integer landmarkOccupying(@AuthenticationPrincipal CustomUserDetails member) {
+        return pointService.landmarkOccupying(member.getId());
     }
 
     /**
      * 랜드마크에 사진 등록 시 포인트 부여
-     * */
+     */
     @PutMapping("landmark/photo")
-    public void landmarkPhoto(@AuthenticationPrincipal CustomUserDetails member) {
-        pointService.landmarkPhoto(member.getId());
+    public Integer landmarkPhoto(@AuthenticationPrincipal CustomUserDetails member) {
+        return pointService.landmarkPhoto(member.getId());
     }
 
     /**
      * 스팟 생성 시 포인트 부여
-     * */
+     */
     @PutMapping("/spot")
-    public void spotMaking(@AuthenticationPrincipal CustomUserDetails member) {
-        pointService.spotMaking(member.getId());
+    public Integer spotMaking(@AuthenticationPrincipal CustomUserDetails member) {
+        return pointService.spotMaking(member.getId());
     }
 
     /**
      * 사진 좋아요 받을 시 포인트 부여
-     * */
+     */
     @PutMapping("/like")
-    public void photoLike(@AuthenticationPrincipal CustomUserDetails member) {
-        pointService.photoLike(member.getId());
+    public Integer photoLike(@AuthenticationPrincipal CustomUserDetails member) {
+        return pointService.photoLike(member.getId());
     }
 
 }

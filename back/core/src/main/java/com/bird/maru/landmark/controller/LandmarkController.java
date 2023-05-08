@@ -3,15 +3,14 @@ package com.bird.maru.landmark.controller;
 import com.bird.maru.auth.service.dto.CustomUserDetails;
 import com.bird.maru.common.exception.ResourceNotFoundException;
 import com.bird.maru.domain.model.entity.Member;
-import com.bird.maru.domain.model.type.PointMoney;
 import com.bird.maru.landmark.controller.dto.LandmarkResponseDto;
 import com.bird.maru.landmark.controller.dto.LandmarkSpotResponseDto;
 import com.bird.maru.landmark.controller.dto.LandmarkStampResponseDto;
 import com.bird.maru.landmark.controller.dto.OwnerResponseDto;
 import com.bird.maru.landmark.mapper.LandmarkMapper;
+import com.bird.maru.landmark.service.LandmarkService;
 import com.bird.maru.landmark.service.query.LandmarkQueryService;
 import com.bird.maru.member.mapper.MemberMapper;
-import com.bird.maru.member.service.MemberService;
 import com.bird.maru.member.service.query.MemberQueryService;
 import com.bird.maru.spot.mapper.SpotMapper;
 import com.bird.maru.spot.service.query.SpotQueryService;
@@ -36,8 +35,8 @@ import org.springframework.web.bind.annotation.RestController;
 public class LandmarkController {
 
     private final LandmarkQueryService landmarkQueryService;
+    private final LandmarkService landmarkService;
     private final MemberQueryService memberQueryService;
-    private final MemberService memberService;
     private final SpotQueryService spotQueryService;
     private final MemberMapper memberMapper;
 
@@ -93,12 +92,7 @@ public class LandmarkController {
     @PostMapping("/{id}")
     @ResponseStatus(HttpStatus.CREATED)
     public Integer visitLandmark(@PathVariable Long id, @AuthenticationPrincipal CustomUserDetails member) throws ResourceNotFoundException {
-        if (Boolean.TRUE.equals(memberQueryService.checkVisitLandmark(member.getId(), id))) {
-            return 0;
-        }
-        // 1. PointService -> PointServiceImpl -> SimplPointServiceImpl(extends PointServiceImpl)
-        // 2. MemberService에서 처리 [ 우선 이 방법 적용 ]
-        return memberService.gainPoint(member.getId(), PointMoney.LANDMARK_POINT.getValue());
+        return landmarkService.visitLandmark(id, member.getId());
     }
 
     /**
