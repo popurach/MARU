@@ -6,8 +6,8 @@ data class Spot(
     val imageUrl: String = "https://picsum.photos/id/1/1000/2000",
     val likeCount: Int = 0,
     val tags: List<Tag>? = null,
-    var liked: Boolean = false,
-    var scraped: Boolean = false,
+    val liked: Boolean = false,
+    val scraped: Boolean = false,
 )
 
 data class Tag(
