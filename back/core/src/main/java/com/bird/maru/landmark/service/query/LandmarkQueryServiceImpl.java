@@ -2,14 +2,19 @@ package com.bird.maru.landmark.service.query;
 
 import com.bird.maru.common.exception.ResourceNotFoundException;
 import com.bird.maru.domain.model.entity.Landmark;
+import com.bird.maru.domain.model.entity.Member;
 import com.bird.maru.landmark.controller.dto.LandmarkMapResponseDto;
 import com.bird.maru.landmark.controller.dto.LandmarkStampResponseDto;
+import com.bird.maru.landmark.controller.dto.OwnerResponseDto;
 import com.bird.maru.landmark.mapper.LandmarkMapper;
 import com.bird.maru.landmark.repository.query.LandmarkCustomQueryRepository;
 import com.bird.maru.landmark.repository.query.LandmarkQueryRepository;
+import com.bird.maru.member.mapper.MemberMapper;
+import com.bird.maru.member.repository.query.MemberQueryRepository;
 import com.bird.maru.member.repository.query.MemberRedisRepository;
 import com.bird.maru.spot.repository.query.SpotCustomQueryRepository;
 import com.bird.maru.spot.repository.query.dto.SpotSimpleDto;
+import com.bird.maru.spot.service.query.SpotQueryService;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -29,6 +34,9 @@ public class LandmarkQueryServiceImpl implements LandmarkQueryService {
     private final LandmarkCustomQueryRepository landmarkCustomQueryRepository;
     private final MemberRedisRepository memberRedisRepository;
     private final SpotCustomQueryRepository spotCustomQueryRepository;
+    private final MemberQueryRepository memberQueryRepository;
+    private final MemberMapper memberMapper;
+    private final SpotQueryService spotQueryService;
 
     /**
      * 랜드마크 조회
@@ -42,6 +50,40 @@ public class LandmarkQueryServiceImpl implements LandmarkQueryService {
         return landmarkQueryRepository.findById(id).orElseThrow(
                 () -> new ResourceNotFoundException("해당 리소스 존재하지 않습니다.")
         );
+    }
+
+    /**
+     * 랜드마크 소유자 정보 조회 <br/> 삭제된 사용자이거나 랜드마크 소유자가 없을 경우 디폴트 정보 제공 <br/> 사용자 있다면 소유자의 사진 랜덤하게 함께 제공
+     *
+     * @param landmarkId : pathVariable 로 landmark id 전달
+     * @return OwnerResponseDto
+     * @throws ResourceNotFoundException : DB에 해당 리소스 존재하지 않음
+     */
+    @Override
+    public OwnerResponseDto findOwnerData(Long landmarkId) throws ResourceNotFoundException {
+        Long memberId = landmarkQueryRepository.findById(landmarkId)
+                                               .orElseThrow(() -> new ResourceNotFoundException("해당 리소스 존재하지 않습니다.")).getMemberId();
+        if(memberId == null) memberId = 0L;
+        Member member = memberQueryRepository.findById(memberId)
+                                             .orElseThrow(() -> new ResourceNotFoundException("해당 리소스 존재하지 않습니다."));
+        if (Boolean.TRUE.equals(member.getDeleted())) {
+            return memberMapper.toOwnerResponseDto(
+                    memberQueryRepository.findById(0L).orElse(null),
+                    null
+            );
+        }
+        if (member.getId().equals(0L)) {
+            return memberMapper.toOwnerResponseDto(
+                    member,
+                    null
+            );
+        }
+
+        return memberMapper.toOwnerResponseDto(
+                member,
+                spotQueryService.findOwnerSpot(memberId, landmarkId)
+        );
+
     }
 
     /**

@@ -2,7 +2,6 @@ package com.bird.maru.landmark.controller;
 
 import com.bird.maru.auth.service.dto.CustomUserDetails;
 import com.bird.maru.common.exception.ResourceNotFoundException;
-import com.bird.maru.domain.model.entity.Member;
 import com.bird.maru.landmark.controller.dto.LandmarkResponseDto;
 import com.bird.maru.landmark.controller.dto.LandmarkSpotResponseDto;
 import com.bird.maru.landmark.controller.dto.LandmarkStampResponseDto;
@@ -10,8 +9,6 @@ import com.bird.maru.landmark.controller.dto.OwnerResponseDto;
 import com.bird.maru.landmark.mapper.LandmarkMapper;
 import com.bird.maru.landmark.service.LandmarkService;
 import com.bird.maru.landmark.service.query.LandmarkQueryService;
-import com.bird.maru.member.mapper.MemberMapper;
-import com.bird.maru.member.service.query.MemberQueryService;
 import com.bird.maru.spot.mapper.SpotMapper;
 import com.bird.maru.spot.service.query.SpotQueryService;
 import java.util.List;
@@ -36,9 +33,7 @@ public class LandmarkController {
 
     private final LandmarkQueryService landmarkQueryService;
     private final LandmarkService landmarkService;
-    private final MemberQueryService memberQueryService;
     private final SpotQueryService spotQueryService;
-    private final MemberMapper memberMapper;
 
     /**
      * 랜드마크 정보 조회 - 이름 반환
@@ -61,25 +56,7 @@ public class LandmarkController {
      */
     @GetMapping("/{id}/owner")
     public OwnerResponseDto findOwner(@PathVariable Long id) throws ResourceNotFoundException {
-        Long memberId = landmarkQueryService.findLandmark(id).getMemberId();
-        Member member = memberQueryService.findMember(memberId);
-        if (member.getDeleted().equals(Boolean.TRUE)) {
-            return memberMapper.toOwnerResponseDto(
-                    memberQueryService.findMember(0L),
-                    null
-            );
-        }
-        if (member.getId().equals(0L)) {
-            return memberMapper.toOwnerResponseDto(
-                    member,
-                    null
-            );
-        }
-
-        return memberMapper.toOwnerResponseDto(
-                member,
-                spotQueryService.findOwnerSpot(memberId, id)
-        );
+        return landmarkQueryService.findOwnerData(id);
     }
 
     /**
