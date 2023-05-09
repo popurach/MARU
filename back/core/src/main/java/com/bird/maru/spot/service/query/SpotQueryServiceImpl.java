@@ -128,13 +128,17 @@ public class SpotQueryServiceImpl implements SpotQueryService {
     public List<SpotSimpleDto> findSpotsBasedMap(SpotMapCondition condition, Long memberId) {
         List<Long> spotIds = spotCustomQueryRepository.findIdsBasedMap(condition, memberId);
         log.debug("{}", spotIds);
-        if(spotIds.isEmpty()) return new ArrayList<>();
+        if (spotIds.isEmpty()) {
+            return new ArrayList<>();
+        }
         List<SpotSimpleDto> spotBasedMap = spotCustomQueryRepository.findSpotBasedMap(spotIds);
         log.debug("{}", spotBasedMap);
         Set<Long> scrapSpotIds = scrapQueryRepository.findSpotIdsByMemberAndSpotIn(memberId, spotIds);
         log.debug("{}", scrapSpotIds);
         spotBasedMap.forEach(s -> {
-            if(scrapSpotIds.contains(s.getId())) s.checkScraped();
+            if (scrapSpotIds.contains(s.getId())) {
+                s.checkScraped();
+            }
         });
         return spotBasedMap;
     }
