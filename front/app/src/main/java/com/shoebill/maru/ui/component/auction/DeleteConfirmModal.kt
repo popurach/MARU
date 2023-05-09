@@ -31,6 +31,7 @@ import com.shoebill.maru.viewmodel.NavigateViewModel
 
 @Composable
 fun DeleteConfirmModal(
+    auctionLogId: Long,
     navigateViewModel: NavigateViewModel = viewModel(),
     auctionViewModel: AuctionViewModel = viewModel(),
     myPageViewModel: MyPageViewModel = viewModel(),
@@ -78,7 +79,8 @@ fun DeleteConfirmModal(
                         .clip(RoundedCornerShape(40.dp))
                         .background(Color.Transparent)
                         .clickable {
-                            auctionViewModel.deleteBidding(66) { success ->
+                            Log.d("AUCTION", "DeleteConfirmModal: $auctionLogId")
+                            auctionViewModel.deleteBidding(auctionLogId) { success ->
                                 if (success) {
                                     navigateToMyPage2(3, myPageViewModel, navigateViewModel)
                                 } else {

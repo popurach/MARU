@@ -38,6 +38,7 @@ fun BiddingConfirmModal(
     myPageViewModel: MyPageViewModel = viewModel(),
     onDismissRequest: () -> Unit
 ) {
+    val auctionInfo = auctionViewModel.auctionInfo.observeAsState()
     val bid = auctionViewModel.bid.observeAsState()
     val dec = DecimalFormat("#,###")
 
@@ -81,11 +82,23 @@ fun BiddingConfirmModal(
                         .height(48.dp)
                         .clip(RoundedCornerShape(40.dp)),
                     onClick = {
-                        auctionViewModel.updateBidding { success ->
-                            if (success) {
-                                navigateToMyPage(3, myPageViewModel, navigateViewModel)
-                            } else {
-                                Log.e("AUCTION", "createBidding fail")
+                        if (auctionInfo.value?.auctionLog == null) {
+                            auctionViewModel.createBidding { success ->
+                                if (success) {
+                                    navigateToMyPage(3, myPageViewModel, navigateViewModel)
+                                    auctionViewModel.exit()
+                                } else {
+                                    Log.e("AUCTION", "createBidding fail")
+                                }
+                            }
+                        } else {
+                            auctionViewModel.updateBidding { success ->
+                                if (success) {
+                                    navigateToMyPage(3, myPageViewModel, navigateViewModel)
+                                    auctionViewModel.exit()
+                                } else {
+                                    Log.e("AUCTION", "updateBidding fail")
+                                }
                             }
                         }
                     }

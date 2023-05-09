@@ -1,6 +1,8 @@
 package com.shoebill.maru.ui.page
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -33,6 +35,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.patrykandpatrick.vico.compose.chart.Chart
 import com.patrykandpatrick.vico.compose.chart.line.lineChart
@@ -46,19 +49,32 @@ import com.shoebill.maru.ui.component.auction.DeleteConfirmModal
 import com.shoebill.maru.ui.component.common.GradientButton
 import com.shoebill.maru.ui.theme.Pretendard
 import com.shoebill.maru.viewmodel.AuctionViewModel
+import com.shoebill.maru.viewmodel.NavigateViewModel
 import java.text.DecimalFormat
 
 @Composable
 fun AuctionPage(
-    auctionViewModel: AuctionViewModel = viewModel(),
+    id: Long,
+    auctionViewModel: AuctionViewModel = hiltViewModel(),
+    navigateViewModel: NavigateViewModel = viewModel()
 ) {
-    val auctionInfo = auctionViewModel.auctionInfo.observeAsState(arrayOf(1, 1, 1, 1, 1))
-    val chartEntryModel = entryModelOf(*(auctionInfo.value))
+    auctionViewModel.initLandmarkId(id)
+
+    val auctionInfo = auctionViewModel.auctionInfo.observeAsState()
+    val auctionHistory = auctionViewModel.auctionHistory.observeAsState(arrayOf())
+    val biddingPrice = auctionViewModel.biddingPrice.observeAsState()
+
+    val chartEntryModel = entryModelOf(*(auctionHistory.value))
     val gradient = Brush.horizontalGradient(listOf(Color(0xFF6039DF), Color(0xFFA14AB7)))
     val bid = auctionViewModel.bid.observeAsState()
     val dec = DecimalFormat("#,###")
     val isDeleteModalOpen = remember { mutableStateOf(false) }
     val isBiddingModalOpen = remember { mutableStateOf(false) }
+
+    BackHandler() {
+        auctionViewModel.exit()
+        navigateViewModel.navigator?.popBackStack()
+    }
 
     Column(
         modifier = Modifier
@@ -74,9 +90,13 @@ fun AuctionPage(
                 modifier = Modifier
                     .align(Alignment.TopStart)
                     .padding(start = 16.dp)
-                    .size(30.dp),
+                    .size(30.dp)
+                    .clickable {
+                        auctionViewModel.exit()
+                        navigateViewModel.navigator?.navigateUp()
+                    },
                 painter = painterResource(id = R.drawable.ic_arrow_back_24),
-                contentDescription = "뒤로가기"
+                contentDescription = "뒤로가기",
             )
             Text(
                 modifier = Modifier.align(Alignment.TopCenter),
@@ -85,28 +105,30 @@ fun AuctionPage(
                 text = "경매장"
             )
         }
-        Text(
-            modifier = Modifier
-                .padding(top = 30.dp)
-                .graphicsLayer(alpha = 0.99f)
-                .drawWithCache {
-                    onDrawWithContent {
-                        drawContent()
-                        drawRect(
-                            Brush.linearGradient(
-                                listOf(
-                                    Color(0xFF6039DF),
-                                    Color(0xFFA14AB7)
-                                )
-                            ),
-                            blendMode = BlendMode.SrcAtop
-                        )
-                    }
-                },
-            text = "서울현대박물관",
-            fontSize = 28.sp,
-            fontWeight = FontWeight.Bold
-        )
+        auctionInfo.value?.let {
+            Text(
+                modifier = Modifier
+                    .padding(top = 30.dp)
+                    .graphicsLayer(alpha = 0.99f)
+                    .drawWithCache {
+                        onDrawWithContent {
+                            drawContent()
+                            drawRect(
+                                Brush.linearGradient(
+                                    listOf(
+                                        Color(0xFF6039DF),
+                                        Color(0xFFA14AB7)
+                                    )
+                                ),
+                                blendMode = BlendMode.SrcAtop
+                            )
+                        }
+                    },
+                text = it.name,
+                fontSize = 28.sp,
+                fontWeight = FontWeight.Bold
+            )
+        }
         Text(
             modifier = Modifier.padding(top = 25.dp),
             fontSize = 12.sp,
@@ -114,7 +136,7 @@ fun AuctionPage(
             text = "현재 최고 입찰가"
         )
         Text(
-            text = "$ 22,000",
+            text = "$ ${dec.format(biddingPrice.value)}",
             fontSize = 22.sp,
             fontWeight = FontWeight.Bold
         )
@@ -132,9 +154,12 @@ fun AuctionPage(
                         ),
                     ),
                 ),
-                axisValuesOverrider = AxisValuesOverrider.fixed(),
+                axisValuesOverrider = AxisValuesOverrider.fixed(
+                    minY = -100f
+                ),
             ),
             model = chartEntryModel,
+            marker = rememberMarker()
         )
         Text(
             modifier = Modifier.padding(top = 25.dp),
@@ -153,10 +178,10 @@ fun AuctionPage(
         ) {
             Button(
                 onClick = { auctionViewModel.decreaseBid() },
-                enabled = auctionViewModel.downPrice != 22000,
+                enabled = auctionViewModel.downPrice != biddingPrice.value,
                 modifier = Modifier
                     .shadow(
-                        elevation = if (auctionViewModel.downPrice != 22000) 10.dp else 0.1.dp,
+                        elevation = if (auctionViewModel.downPrice != biddingPrice.value) 10.dp else 0.1.dp,
                         shape = RoundedCornerShape(28.dp),
                     )
                     .size(140.dp),
@@ -168,7 +193,9 @@ fun AuctionPage(
                             .padding(bottom = 7.dp)
                             .clip(RoundedCornerShape(999.dp))
                             .background(
-                                if (auctionViewModel.downPrice != 22000) Color(0xFFE8E6FE) else Color(
+                                if (auctionViewModel.downPrice != biddingPrice.value) Color(
+                                    0xFFE8E6FE
+                                ) else Color(
                                     0xFFE9E9E9
                                 )
                             )
@@ -183,7 +210,9 @@ fun AuctionPage(
                     }
                     Text(
                         text = dec.format(auctionViewModel.unit),
-                        color = if (auctionViewModel.downPrice != 22000) Color(0xFF424242) else Color(
+                        color = if (auctionViewModel.downPrice != biddingPrice.value) Color(
+                            0xFF424242
+                        ) else Color(
                             0xFF949494
                         ),
                         fontSize = 15.sp,
@@ -192,7 +221,7 @@ fun AuctionPage(
                         style = TextStyle(letterSpacing = (-0.2).sp),
                     )
                     Text(
-                        modifier = if (auctionViewModel.downPrice != 22000) Modifier
+                        modifier = if (auctionViewModel.downPrice != biddingPrice.value) Modifier
                             .graphicsLayer(alpha = 0.99f)
                             .drawWithCache {
                                 onDrawWithContent {
@@ -305,7 +334,7 @@ fun AuctionPage(
             )
         }
         if (isDeleteModalOpen.value) {
-            DeleteConfirmModal() {
+            DeleteConfirmModal(auctionInfo.value!!.auctionLog.id) {
                 isDeleteModalOpen.value = false
             }
         }
