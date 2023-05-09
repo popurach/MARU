@@ -79,11 +79,9 @@ fun MainPage(
     ) { permissionsMap ->
         val areGranted = permissionsMap.values.reduce { acc, next -> acc && next }
         /** 권한 요청시 동의 했을 경우 **/
-        /** 권한 요청시 동의 했을 경우 **/
         if (areGranted) {
             Toast.makeText(context, "권한이 동의되었습니다.", Toast.LENGTH_SHORT).show()
         }
-        /** 권한 요청시 거부 했을 경우 **/
         /** 권한 요청시 거부 했을 경우 **/
         else {
             Toast.makeText(context, "권한이 거부되었습니다.", Toast.LENGTH_SHORT).show()
