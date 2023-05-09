@@ -1,0 +1,37 @@
+{
+  "index": {
+    "analysis": {
+      "analyzer": {
+        "custom_analyzer": {
+          "type": "custom",
+          "tokenizer": "tokenizer_chain",
+          "filter": [ "lowercase", "nori_pos_filter", "edge_ngram_filter_front", "trim" ]
+        }
+      },
+      "tokenizer_chain": {
+        "type": "custom",
+        "tokenizer": [ "nori_tokenizer", "standard_tokenizer" ]
+      },
+      "nori_tokenizer": {
+        "type": "nori_tokenizer",
+        "decompound_mode": "mixed",
+        "discard_punctuation": "false"
+      },
+      "standard_tokenizer": {
+        "type": "standard"
+      },
+      "filter": {
+        "nori_pos_filter": {
+          "type": "nori_part_of_speech",
+          "stoptags": [ "E", "IC", "J", "MAG", "MM", "NA", "NR", "SC", "SE", "SF", "SH", "SL", "SN", "SP", "SSC", "SSO", "SY", "UNA", "UNKNOWN", "VA", "VCN", "VCP", "VSV", "VV", "VX", "XPN", "XR", "XSA", "XSN", "XSV" ]
+        },
+        "edge_ngram_filter_front": {
+          "type": "edgeNGram",
+          "min_gram": "1",
+          "max_gram": "5",
+          "side": "front"
+        }
+      }
+    }
+  }
+}
