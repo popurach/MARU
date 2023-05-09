@@ -176,8 +176,8 @@ public class SpotCustomQueryRepository {
                                                                                     spot.id.as("id"),
                                                                                     spot.image.url.as("imageUrl"),
                                                                                     list(Projections.constructor(Tag.class,
-                                                                                                                             tag.id,
-                                                                                                                             tag.name))
+                                                                                                                 tag.id,
+                                                                                                                 tag.name))
                            )));
     }
 
