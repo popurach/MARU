@@ -1,5 +1,7 @@
 package com.shoebill.maru.ui.page
 
+import androidx.activity.compose.BackHandler
+import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -60,13 +62,8 @@ fun AuctionPage(
     auctionViewModel.initLandmarkId(id)
 
     val auctionInfo = auctionViewModel.auctionInfo.observeAsState()
-    auctionViewModel.getAuctionInfo(id)
-
     val auctionHistory = auctionViewModel.auctionHistory.observeAsState(arrayOf())
-    auctionViewModel.getAuctionHistory(id)
-
     val biddingPrice = auctionViewModel.biddingPrice.observeAsState()
-    auctionViewModel.getBiddingPrice(id)
 
     val chartEntryModel = entryModelOf(*(auctionHistory.value))
     val gradient = Brush.horizontalGradient(listOf(Color(0xFF6039DF), Color(0xFFA14AB7)))
@@ -74,6 +71,12 @@ fun AuctionPage(
     val dec = DecimalFormat("#,###")
     val isDeleteModalOpen = remember { mutableStateOf(false) }
     val isBiddingModalOpen = remember { mutableStateOf(false) }
+
+    val onBackPressedDispatcher = LocalOnBackPressedDispatcherOwner.current?.onBackPressedDispatcher
+    BackHandler() {
+        auctionViewModel.exit()
+        onBackPressedDispatcher?.onBackPressed()
+    }
 
     Column(
         modifier = Modifier
@@ -90,7 +93,10 @@ fun AuctionPage(
                     .align(Alignment.TopStart)
                     .padding(start = 16.dp)
                     .size(30.dp)
-                    .clickable { navigateViewModel.navigator?.navigateUp() },
+                    .clickable {
+                        auctionViewModel.exit()
+                        navigateViewModel.navigator?.navigateUp()
+                    },
                 painter = painterResource(id = R.drawable.ic_arrow_back_24),
                 contentDescription = "뒤로가기",
             )
@@ -150,9 +156,12 @@ fun AuctionPage(
                         ),
                     ),
                 ),
-                axisValuesOverrider = AxisValuesOverrider.fixed(),
+                axisValuesOverrider = AxisValuesOverrider.fixed(
+                    minY = -100f
+                ),
             ),
             model = chartEntryModel,
+            marker = rememberMarker()
         )
         Text(
             modifier = Modifier.padding(top = 25.dp),
@@ -171,10 +180,10 @@ fun AuctionPage(
         ) {
             Button(
                 onClick = { auctionViewModel.decreaseBid() },
-                enabled = auctionViewModel.downPrice != 22000,
+                enabled = auctionViewModel.downPrice != biddingPrice.value,
                 modifier = Modifier
                     .shadow(
-                        elevation = if (auctionViewModel.downPrice != 22000) 10.dp else 0.1.dp,
+                        elevation = if (auctionViewModel.downPrice != biddingPrice.value) 10.dp else 0.1.dp,
                         shape = RoundedCornerShape(28.dp),
                     )
                     .size(140.dp),
@@ -186,7 +195,9 @@ fun AuctionPage(
                             .padding(bottom = 7.dp)
                             .clip(RoundedCornerShape(999.dp))
                             .background(
-                                if (auctionViewModel.downPrice != 22000) Color(0xFFE8E6FE) else Color(
+                                if (auctionViewModel.downPrice != biddingPrice.value) Color(
+                                    0xFFE8E6FE
+                                ) else Color(
                                     0xFFE9E9E9
                                 )
                             )
@@ -201,7 +212,9 @@ fun AuctionPage(
                     }
                     Text(
                         text = dec.format(auctionViewModel.unit),
-                        color = if (auctionViewModel.downPrice != 22000) Color(0xFF424242) else Color(
+                        color = if (auctionViewModel.downPrice != biddingPrice.value) Color(
+                            0xFF424242
+                        ) else Color(
                             0xFF949494
                         ),
                         fontSize = 15.sp,
@@ -210,7 +223,7 @@ fun AuctionPage(
                         style = TextStyle(letterSpacing = (-0.2).sp),
                     )
                     Text(
-                        modifier = if (auctionViewModel.downPrice != 22000) Modifier
+                        modifier = if (auctionViewModel.downPrice != biddingPrice.value) Modifier
                             .graphicsLayer(alpha = 0.99f)
                             .drawWithCache {
                                 onDrawWithContent {
@@ -323,7 +336,7 @@ fun AuctionPage(
             )
         }
         if (isDeleteModalOpen.value) {
-            DeleteConfirmModal() {
+            DeleteConfirmModal(auctionInfo.value!!.myBidding.id) {
                 isDeleteModalOpen.value = false
             }
         }

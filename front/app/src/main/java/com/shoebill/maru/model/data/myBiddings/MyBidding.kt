@@ -1,6 +1,6 @@
 package com.shoebill.maru.model.data.myBiddings
 
 data class MyBidding(
-    val auctionLogId: Long,
+    val id: Long,
     val landmark: LandmarkInfo
 )

@@ -15,7 +15,7 @@ class MyBiddingSource(private val myBiddingRepository: MyBiddingRepository) :
         return try {
             val myBiddingResponse = myBiddingRepository.getMyBiddings(params.key as Long?)
 
-            val nextKey = myBiddingResponse.lastOrNull()?.auctionLogId ?: return LoadResult.Page(
+            val nextKey = myBiddingResponse.lastOrNull()?.id ?: return LoadResult.Page(
                 data = myBiddingResponse,
                 prevKey = null,
                 nextKey = null
