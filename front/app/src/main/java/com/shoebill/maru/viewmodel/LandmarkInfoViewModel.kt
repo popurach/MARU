@@ -1,6 +1,7 @@
 package com.shoebill.maru.viewmodel
 
 import android.content.Context
+import android.util.Log
 import android.widget.Toast
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -12,7 +13,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
-import kotlin.properties.Delegates
 
 @HiltViewModel
 class LandmarkInfoViewModel @Inject constructor(
@@ -24,15 +24,11 @@ class LandmarkInfoViewModel @Inject constructor(
     private val _landmarkName = MutableLiveData("")
     val landmarkName get() = _landmarkName
 
-    var landmarkId by Delegates.notNull<Long>()
+    var landmarkId: Long? = null
 
-    fun initLandmarkId(value: Long) {
-        landmarkId = value
-    }
-
-    fun initLandmarkOwnerViewModel(landmarkName: String? = null) {
-        if (landmarkName == null) loadLandmarkName(landmarkId)
-        else _landmarkName.value = landmarkName!!
+    fun initLandmarkInfo(landmarkId: Long) {
+        this.landmarkId = landmarkId
+        loadLandmarkName(landmarkId)
         loadOwnerInfo(landmarkId)
     }
 
@@ -55,7 +51,8 @@ class LandmarkInfoViewModel @Inject constructor(
     fun visitLandmark(context: Context) {
         viewModelScope.launch {
             val point = withContext(Dispatchers.IO) {
-                landmarkRepository.visitLandmark(landmarkId)
+                Log.d(TAG, "landmarkId: $landmarkId")
+                landmarkRepository.visitLandmark(landmarkId!!)
             }
             withContext(Dispatchers.Main) {
                 Toast.makeText(context, "$point 포인트 획득!", Toast.LENGTH_SHORT).show()

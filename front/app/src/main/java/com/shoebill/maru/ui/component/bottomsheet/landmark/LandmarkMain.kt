@@ -37,8 +37,7 @@ fun LandmarkMain(
     bottomSheetNavigatorViewModel: BottomSheetNavigatorViewModel = hiltViewModel(),
     landmarkId: Long
 ) {
-    landmarkInfoViewModel.initLandmarkId(landmarkId)
-    landmarkInfoViewModel.initLandmarkOwnerViewModel()
+    landmarkInfoViewModel.initLandmarkInfo(landmarkId)
     val owner = landmarkInfoViewModel.owner.observeAsState()
     val landmarkName = landmarkInfoViewModel.landmarkName.observeAsState()
     Column(
@@ -46,7 +45,7 @@ fun LandmarkMain(
             .fillMaxSize()
             .padding(top = 50.dp)
             .clickable {
-                if (owner.value!!.id > 0L) {
+                if (owner.value!!.id > 0L || owner.value!!.spotImageUrl != null) {
                     bottomSheetNavigatorViewModel.navController!!.navigate("landmark/picture")
                 } else {
                     bottomSheetNavigatorViewModel.navController!!.navigate("landmark/$landmarkId/picture/list")

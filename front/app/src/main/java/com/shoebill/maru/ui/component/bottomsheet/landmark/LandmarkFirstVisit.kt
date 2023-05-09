@@ -36,9 +36,8 @@ fun LandmarkFirstVisit(
     bottomSheetNavigatorViewModel: BottomSheetNavigatorViewModel = viewModel()
 ) {
     val context = LocalContext.current
-    landmarkInfoViewModel.loadLandmarkName(landmarkId)
+    landmarkInfoViewModel.initLandmarkInfo(landmarkId)
     val landmarkName = landmarkInfoViewModel.landmarkName.observeAsState()
-
 
     val firstLine = buildAnnotatedString {
         withStyle(
@@ -76,10 +75,9 @@ fun LandmarkFirstVisit(
         Box(Modifier.size(250.dp)) {
             LottieDiamond(onClick = {
                 landmarkInfoViewModel.visitLandmark(context)
-                bottomSheetNavigatorViewModel.navController?.navigate("landmark/main") {
-                    popUpTo("landmark/first") { inclusive = true }
+                bottomSheetNavigatorViewModel.navController?.navigate("landmark/main/$landmarkId") {
+                    popUpTo("landmark/first/$landmarkId") { inclusive = true }
                 }
-
             })
         }
         Column(Modifier.padding(top = 70.dp), horizontalAlignment = Alignment.CenterHorizontally) {

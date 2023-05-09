@@ -250,7 +250,6 @@ class MapViewModel @Inject constructor(
         _bottomSheetOpen.value = true
     }
 
-
     private fun clusterClicked(point: Point) {
         val curZoomLevel = mapBoxMap.cameraState.zoom
         if (curZoomLevel == 22.0) return
@@ -259,9 +258,14 @@ class MapViewModel @Inject constructor(
             .zoom(nextZoomLevel)
             .center(point)
             .build()
-        mapBoxMap.flyTo(cameraOptions)
-        deletePin()
-        loadMarker()
+        viewModelScope.launch {
+            withContext(Dispatchers.Main) {
+                mapBoxMap.flyTo(cameraOptions)
+                deletePin()
+            }
+            loadMarker()
+        }
+
     }
 
     fun createMapView(context: Context): MapView {
@@ -272,12 +276,7 @@ class MapViewModel @Inject constructor(
         // 마커 클릭 리스너 등록
         pointAnnotationManager.addClickListener(OnPointAnnotationClickListener {
             val type: Int = it.getData()!!.asJsonObject!!.get("type")!!.asInt
-            Log.d(
-                "MARKER",
-                "markerClicked: $type"
-            )
             val id = it.getData()!!.asJsonObject!!.get("id")?.asLong
-            Log.d(TAG, "createMapView: $type $id")
             when (type) {
                 SpotType.LANDMARK -> if (id != null) landmarkClicked(id)
                 SpotType.SPOT -> if (id != null) spotClicked(id)
@@ -389,7 +388,6 @@ class MapViewModel @Inject constructor(
                             }
                         }.toJson(),
                     )
-
                 }
             }
         } else {
@@ -488,7 +486,6 @@ class MapViewModel @Inject constructor(
             1 -> spotImage
             else -> clusterImage[spotType - 2]
         }
-        // Set options for the resulting symbol layer.
         val pointAnnotationOptions: PointAnnotationOptions = PointAnnotationOptions()
             .withPoint(Point.fromLngLat(coordinate.lng, coordinate.lat))
             .withIconImage(iconImage!!)
@@ -503,7 +500,6 @@ class MapViewModel @Inject constructor(
             )
         if (spotType == SpotType.LANDMARK) landmarkAnnotations.add(pointAnnotationOptions)
         else spotAnnotations.add(pointAnnotationOptions)
-        // Add the resulting pointAnnotation to the map.
         pointAnnotationManager.create(pointAnnotationOptions)
     }
 

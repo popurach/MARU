@@ -55,10 +55,13 @@ fun BottomSheetPage(
                 }
             }
             composable(
-                "landmark/first/{id}",
-                arguments = listOf(navArgument("id") {
+                "landmark/first/{landmarkId}",
+                arguments = listOf(navArgument("landmarkId") {
                     type = NavType.LongType
-                    defaultValue = 0
+                    defaultValue =
+                        navigatorViewModel.navigator?.previousBackStackEntry?.savedStateHandle?.get(
+                            "landmarkId"
+                        ) ?: 1
                 })
             ) {
                 CompositionLocalProvider(
@@ -91,7 +94,10 @@ fun BottomSheetPage(
                 "landmark/main/{landmarkId}",
                 arguments = listOf(navArgument("landmarkId") {
                     type = NavType.LongType
-                    defaultValue = 0
+                    defaultValue =
+                        navigatorViewModel.navigator?.previousBackStackEntry?.savedStateHandle?.get(
+                            "landmarkId"
+                        ) ?: 1
                 })
             ) {
                 CompositionLocalProvider(
