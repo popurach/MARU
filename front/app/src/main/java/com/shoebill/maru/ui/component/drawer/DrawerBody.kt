@@ -23,7 +23,7 @@ fun DrawerBody(
     Column(
         Modifier
             .fillMaxWidth()
-            .padding(top = 25.dp, start = 20.dp),
+            .padding(top = 25.dp, start = 30.dp),
         verticalArrangement = Arrangement.spacedBy(20.dp)
     ) {
         Text(text = "고객센터", color = Color.Gray)

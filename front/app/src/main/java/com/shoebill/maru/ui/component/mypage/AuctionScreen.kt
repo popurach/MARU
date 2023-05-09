@@ -11,6 +11,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -45,6 +46,7 @@ fun AuctionScreen(
                         Text(
                             text = title,
                             color = if (tabIndex == index) Color(0xFF6039DF) else Color.Black,
+                            fontWeight = if (tabIndex == index) FontWeight.SemiBold else FontWeight.Normal,
                             fontSize = 14.sp,
                             fontFamily = Pretendard,
                             letterSpacing = -(0.3).sp

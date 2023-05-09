@@ -52,7 +52,7 @@ fun SpotDetail(
                 )
                 Box(Modifier.padding(top = 38.dp, start = 22.dp)) {
                     Icon(
-                        painter = painterResource(id = R.drawable.back_arrow_icon),
+                        painter = painterResource(id = R.drawable.arrow_back),
                         contentDescription = "back",
                         tint = Color.White,
                         modifier = Modifier
