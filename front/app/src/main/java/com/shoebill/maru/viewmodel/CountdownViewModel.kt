@@ -2,8 +2,8 @@ package com.shoebill.maru.viewmodel
 
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.DelicateCoroutinesApi
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.util.Calendar
@@ -19,7 +19,7 @@ class CountdownViewModel : ViewModel() {
     val secondsLeft = mutableStateOf(calculateSecondsLeft())
 
     init {
-        GlobalScope.launch {
+        viewModelScope.launch {
             while (true) {
                 delay(1000)
                 updateTime()

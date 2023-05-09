@@ -1,7 +1,6 @@
 package com.shoebill.maru.ui.page
 
 import androidx.activity.compose.BackHandler
-import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -72,10 +71,9 @@ fun AuctionPage(
     val isDeleteModalOpen = remember { mutableStateOf(false) }
     val isBiddingModalOpen = remember { mutableStateOf(false) }
 
-    val onBackPressedDispatcher = LocalOnBackPressedDispatcherOwner.current?.onBackPressedDispatcher
     BackHandler() {
         auctionViewModel.exit()
-        onBackPressedDispatcher?.onBackPressed()
+        navigateViewModel.navigator?.popBackStack()
     }
 
     Column(
@@ -336,7 +334,7 @@ fun AuctionPage(
             )
         }
         if (isDeleteModalOpen.value) {
-            DeleteConfirmModal(auctionInfo.value!!.myBidding.id) {
+            DeleteConfirmModal(auctionInfo.value!!.auctionLog.id) {
                 isDeleteModalOpen.value = false
             }
         }

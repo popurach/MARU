@@ -14,6 +14,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.shoebill.maru.ui.theme.Pretendard
 import com.shoebill.maru.viewmodel.AuctionScreenViewModel
 import com.shoebill.maru.viewmodel.CountdownViewModel
 
@@ -44,7 +45,9 @@ fun AuctionScreen(
                         Text(
                             text = title,
                             color = if (tabIndex == index) Color(0xFF6039DF) else Color.Black,
-                            fontSize = 15.sp
+                            fontSize = 14.sp,
+                            fontFamily = Pretendard,
+                            letterSpacing = -(0.3).sp
                         )
                     },
                     selected = tabIndex == index,

@@ -82,7 +82,7 @@ fun BiddingConfirmModal(
                         .height(48.dp)
                         .clip(RoundedCornerShape(40.dp)),
                     onClick = {
-                        if (auctionInfo.value?.myBidding == null) {
+                        if (auctionInfo.value?.auctionLog == null) {
                             auctionViewModel.createBidding { success ->
                                 if (success) {
                                     navigateToMyPage(3, myPageViewModel, navigateViewModel)
