@@ -6,6 +6,7 @@ import com.bird.maru.common.util.TimeUtil;
 import com.bird.maru.domain.model.entity.Spot;
 import com.bird.maru.domain.model.entity.Tag;
 import com.bird.maru.like.service.query.LikeQueryService;
+import com.bird.maru.scrap.repository.query.ScrapQueryRepository;
 import com.bird.maru.scrap.service.query.ScrapQueryService;
 import com.bird.maru.spot.controller.dto.SpotDetailResponseDto;
 import com.bird.maru.spot.controller.dto.SpotMapCondition;
@@ -16,17 +17,21 @@ import com.bird.maru.spot.repository.query.SpotQueryRepository;
 import com.bird.maru.spot.repository.query.dto.SpotSimpleDto;
 import com.bird.maru.tag.repository.query.TagCustomQueryRepository;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
+@Slf4j
 public class SpotQueryServiceImpl implements SpotQueryService {
 
     private final SpotQueryRepository spotQueryRepository;
@@ -34,6 +39,7 @@ public class SpotQueryServiceImpl implements SpotQueryService {
     private final LikeQueryService likeQueryService;
     private final ScrapQueryService scrapQueryService;
     private final TagCustomQueryRepository tagCustomQueryRepository;
+    private final ScrapQueryRepository scrapQueryRepository;
 
     /**
      * 먼저 조건에 맞는 Spot ID의 목록을 조회합니다. 이후 조회한 Spot ID의 목록으로 Tag를 포함한 Spot 목록을 조회합니다. 그 결과를 DTO 변환한 후에 좋아요 여부와 스크랩 여부를 확인합니다. 이 비즈니스 로직을 수행하는 과정에서 총 4번의
@@ -120,18 +126,20 @@ public class SpotQueryServiceImpl implements SpotQueryService {
      */
     @Override
     public List<SpotSimpleDto> findSpotsBasedMap(SpotMapCondition condition, Long memberId) {
-        List<SpotSimpleDto> spotBasedMap = spotCustomQueryRepository.findSpotBasedMap(condition, memberId);
-        if (spotBasedMap.isEmpty()) {
-            return spotBasedMap;
+        List<Long> spotIds = spotCustomQueryRepository.findIdsBasedMap(condition, memberId);
+        log.debug("{}", spotIds);
+        if (spotIds.isEmpty()) {
+            return new ArrayList<>();
         }
-        Map<Long, List<Tag>> tagMap = tagCustomQueryRepository.findAllWithTagBySpotIn(
-                spotBasedMap.stream().map(SpotSimpleDto::getId).collect(Collectors.toList())
-        );
-        for (SpotSimpleDto spot : spotBasedMap) {
-            if (tagMap.containsKey(spot.getId())) {
-                spot.setTags(tagMap.get(spot.getId()));
+        List<SpotSimpleDto> spotBasedMap = spotCustomQueryRepository.findSpotBasedMap(spotIds);
+        log.debug("{}", spotBasedMap);
+        Set<Long> scrapSpotIds = scrapQueryRepository.findSpotIdsByMemberAndSpotIn(memberId, spotIds);
+        log.debug("{}", scrapSpotIds);
+        spotBasedMap.forEach(s -> {
+            if (scrapSpotIds.contains(s.getId())) {
+                s.checkScraped();
             }
-        }
+        });
         return spotBasedMap;
     }
 
