@@ -42,6 +42,12 @@ public class SpotSimpleDto {
         this.imageUrl = imageUrl;
     }
 
+    public SpotSimpleDto(Long id, URL imageUrl, List<Tag> tags) {
+        this.id = id;
+        this.imageUrl = imageUrl;
+        this.tags = tags;
+    }
+
     public void checkLiked() {
         this.liked = Boolean.TRUE;
     }

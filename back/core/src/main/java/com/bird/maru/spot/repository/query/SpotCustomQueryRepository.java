@@ -5,12 +5,16 @@ import static com.bird.maru.domain.model.entity.QScrap.scrap;
 import static com.bird.maru.domain.model.entity.QSpot.spot;
 import static com.bird.maru.domain.model.entity.QSpotHasTag.spotHasTag;
 import static com.bird.maru.domain.model.entity.QTag.tag;
+import static com.querydsl.core.group.GroupBy.groupBy;
+import static com.querydsl.core.group.GroupBy.list;
 
 import com.bird.maru.cluster.geo.BoundingBox;
 import com.bird.maru.cluster.geo.Marker;
 import com.bird.maru.auction.controller.dto.AuctionSearchCondition;
 import com.bird.maru.common.util.TimeUtil;
 import com.bird.maru.domain.model.entity.Spot;
+import com.bird.maru.domain.model.entity.Tag;
+import com.bird.maru.domain.model.type.MapFilterType;
 import com.bird.maru.spot.controller.dto.SpotDetailResponseDto;
 import com.bird.maru.spot.controller.dto.SpotMapCondition;
 import com.bird.maru.spot.controller.dto.SpotSearchCondition;
@@ -161,22 +165,40 @@ public class SpotCustomQueryRepository {
                             ).fetchOne());
     }
 
-    public List<SpotSimpleDto> findSpotBasedMap(SpotMapCondition condition, Long memberId) {
-        return queryFactory.select(Projections.fields(SpotSimpleDto.class,
-                                                      spot.id.as("id"),
-                                                      Expressions.asNumber(spot.landmark.id != null ? spot.landmark.id : null).as("landmarkId"),
-                                                      spot.image.url.as("imageUrl"),
-                                                      Expressions.asBoolean(scrap.spot.id.isNotNull()).as("scraped")
-                           ))
-                           .from(spot)
-                           .leftJoin(scrap).on(spot.id.eq(scrap.spot.id),
-                                               scrap.member.id.eq(memberId),
-                                               scrap.deleted.isFalse())
+    public List<SpotSimpleDto> findSpotBasedMap(List<Long> spotIds) {
+        return queryFactory.selectFrom(spotHasTag)
+                           .join(tag).on(spotHasTag.tag.id.eq(tag.id))
+                           .rightJoin(spot).on(spotHasTag.spot.id.eq(spot.id))
+                           .where(spot.id.in(spotIds))
+                           .orderBy(spot.id.desc())
+                           .transform(groupBy(spot.id).list(Projections.constructor(SpotSimpleDto.class,
+                                                                                    spot.id.as("id"),
+                                                                                    spot.image.url.as("imageUrl"),
+                                                                                    list(Projections.constructor(Tag.class,
+                                                                                                                             tag.id,
+                                                                                                                             tag.name))
+                           )));
+    }
+
+    public List<Long> findIdsBasedMap(SpotMapCondition condition, Long memberId) {
+        return queryFactory.selectDistinct(spot.id)
+                           .from(spotHasTag)
+                           .join(tag).on(spotHasTag.tag.id.eq(tag.id))
+                           .rightJoin(spot).on(spotHasTag.spot.id.eq(spot.id))
                            .where(ltSpotOffset(condition.getLastOffset()),
-                                  spot.deleted.isFalse())
+                                  eqTagId(condition.getTagId()),
+                                  containsLng(condition.getWest(), condition.getEast()),
+                                  containsLat(condition.getSouth(), condition.getNorth()),
+                                  isMine(condition.getFilter(), memberId),
+                                  spot.deleted.isFalse(),
+                                  spot.landmark.id.isNull())
                            .orderBy(spot.id.desc())
                            .limit(condition.getSize())
                            .fetch();
+    }
+
+    private BooleanExpression isMine(MapFilterType filterType, Long memberId) {
+        return MapFilterType.ALL.equals(filterType) ? null : spot.member.id.eq(memberId);
     }
 
     private BooleanExpression ltSpotOffset(Long lastOffset) {
@@ -219,6 +241,18 @@ public class SpotCustomQueryRepository {
         }
 
         return spot.landmark.id.gt(lastOffset);
+    }
+
+    private BooleanExpression eqTagId(Long tagId) {
+        return tagId == null ? null : tag.id.eq(tagId);
+    }
+
+    private BooleanExpression containsLng(Double west, Double east) {
+        return spot.coordinate.lng.between(west, east);
+    }
+
+    private BooleanExpression containsLat(Double south, Double north) {
+        return spot.coordinate.lat.between(south, north);
     }
 
 }
