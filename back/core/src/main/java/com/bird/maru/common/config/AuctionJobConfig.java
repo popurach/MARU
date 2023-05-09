@@ -13,6 +13,7 @@ import com.bird.maru.point.service.PointService;
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.concurrent.Flow;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -61,6 +62,7 @@ public class AuctionJobConfig {
 
     @Bean
     public Job auctionLogsJob(
+            Step landmarksStep,
             Step auctionLogsStep,
             Step conditionalFailStep,
             Step conditionalCompletedStep,
@@ -69,7 +71,8 @@ public class AuctionJobConfig {
     ) {
         return jobBuilderFactory.get("auctionLogsJob")
                                 .incrementer(new RunIdIncrementer())
-                                .start(auctionLogsStep)
+                                .start(landmarksStep)
+                                .next(auctionLogsStep)
                                 .on("FAILED").to(conditionalFailStep)
                                 .next(createAuctionTableStep)
                                 .from(auctionLogsStep)
@@ -82,24 +85,66 @@ public class AuctionJobConfig {
     }
 
     /**
+     * 랜드마크 점유자 포인트 지급 및 점유자 null 처리
+     */
+    @JobScope
+    @Bean
+    public Step landmarksStep(
+            ItemReader<Landmark> landmarkReader,
+            ItemProcessor<Landmark, Landmark> landmarkProcessor,
+            ItemWriter<Landmark> landmarkWriter
+    ) {
+        return stepBuilderFactory.get("auctionLogsStep")
+                                 .<Landmark, Landmark>chunk(5)
+                                 .reader(landmarkReader)
+                                 .processor(landmarkProcessor)
+                                 .writer(landmarkWriter)
+                                 .build();
+    }
+
+    @StepScope
+    @Bean
+    public ItemProcessor<Landmark, Landmark> landmarkProcessor() {
+        log.info("== landmarkProcessor 실행중 ==");
+        return item -> {
+            namedLockExecutor.executeWithLock(
+                    // Batch 작업 DB Named Lock 실시
+                    item.getId().toString(), 10, () -> {
+                        if (item.getMemberId()!=0L) {
+                            pointService.landmarkOccupying(item.getMemberId());
+                        }
+                        item.changeOwner(0L);
+                    }
+            );
+            return item;
+        };
+    }
+
+    @StepScope
+    @Bean
+    public RepositoryItemWriter<Landmark> landmarkWriter() {
+        log.info("== landmark All Finished Completely ==");
+        return new RepositoryItemWriterBuilder<Landmark>()
+                .repository(landmarkRepository)
+                .methodName("save")
+                .build();
+    }
+
+    /**
      * 경매 입찰 테이블(auctionLog) 확인 후 낙찰, 유찰 처리
      */
     @JobScope
     @Bean
     public Step auctionLogsStep(
             ItemReader<AuctionLog> auctionLogsReader,
-            ItemProcessor<AuctionLog, AuctionLog> auctionLogsProcessor
+            ItemProcessor<AuctionLog, AuctionLog> auctionLogsProcessor,
+            ItemWriter<AuctionLog> auctionLogsWriter
     ) {
         return stepBuilderFactory.get("auctionLogsStep")
                                  .<AuctionLog, AuctionLog>chunk(5)
                                  .reader(auctionLogsReader)
-                                 .writer(new ItemWriter() {
-                                     @Override
-                                     public void write(List items) {
-                                         items.forEach(System.out::println);
-                                     }
-                                 })
                                  .processor(auctionLogsProcessor)
+                                 .writer(auctionLogsWriter)
                                  .build();
     }
 
@@ -159,6 +204,16 @@ public class AuctionJobConfig {
         };
     }
 
+    @StepScope
+    @Bean
+    public RepositoryItemWriter<AuctionLog> auctionLogsWriter() {
+        log.info("== auctionLogs All Finished Completely ==");
+        return new RepositoryItemWriterBuilder<AuctionLog>()
+                .repository(auctionLogsRepository)
+                .methodName("save")
+                .build();
+    }
+
     /**
      * Auction 테이블 finished 0 -> 1로 모두 변경
      */
@@ -185,10 +240,16 @@ public class AuctionJobConfig {
         return new RepositoryItemReaderBuilder<Auction>()
                 .name("auctionsReader")
                 .repository(auctionRepository)
-                .methodName("findByFinished")
+//                .methodName("findAllByFinished")
+                .methodName("findAll")
                 .pageSize(5)
-                .arguments(false)
-                .sorts(Collections.singletonMap("createdDate", Sort.Direction.ASC))
+//                .arguments(false)
+                .arguments(List.of())
+//                .sorts(Collections.singletonMap("landmarkId", Sort.Direction.ASC))
+                .sorts(new LinkedHashMap<String, Direction>() {{
+                    put("createdDate", Sort.Direction.ASC);
+                    put("landmarkId", Sort.Direction.ASC);
+                }})
                 .build();
     }
 
@@ -196,25 +257,15 @@ public class AuctionJobConfig {
     @Bean
     public ItemProcessor<Auction, Auction> auctionsProcessor() {
         log.info("== auctionsProcessor 실행중 ==");
-//        return new ItemProcessor<Auction, Auction>() {
-//            @Override
-//            public Auction process(Auction auction) throws Exception {
-//                log.info("완료 처리 할 auction : {} {}", auction.getLastLogId(), auction.getFinished());
-////                auction.changeFinished();
-//                auction.setFinished(true);
-//                log.info("완료 처리!!! auction : {} {}", auction.getLastLogId(), auction.getFinished());
-//                return auction;
-//            }
-//        };
         return item -> {
             namedLockExecutor.executeWithLock(
                     // Batch 작업 DB Named Lock 실시
-                    item.getCreatedDate().toString() + item.getLandmark().getId().toString(), 10,
+                    item.getLandmark().getId().toString(), 10,
                     () -> {
-                        if(item.getLastLogId() != null) { // 점유자 포인트 반환
-                            pointService.landmarkOccupying(item.getLandmark().getMemberId());
+                        log.info("{} {} {}", item.getCreatedDate(), item.getLandmark().getName(), item.getLastLogId());
+                        if (!item.getFinished()) {
+                            item.setFinished(true);
                         }
-                        item.setFinished(true);
                     }
             );
             return item;
@@ -238,14 +289,13 @@ public class AuctionJobConfig {
     @Bean
     public Step createAuctionTableStep(
             ItemReader<Landmark> landmarkReader,
-            ItemProcessor<Landmark, Auction> landmarkProcessor,
+            ItemProcessor<Landmark, Auction> landmarkAuctionProcessor,
             ItemWriter<Auction> auctionsWriter
-//            ItemWriter<Auction> landmarkWriter
     ) {
         return stepBuilderFactory.get("createAuctionTable")
                                  .<Landmark, Auction>chunk(5)
                                  .reader(landmarkReader)
-                                 .processor(landmarkProcessor)
+                                 .processor(landmarkAuctionProcessor)
                                  .writer(auctionsWriter)
                                  .build();
     }
@@ -266,7 +316,7 @@ public class AuctionJobConfig {
 
     @StepScope
     @Bean
-    public ItemProcessor<Landmark, Auction> landmarkProcessor() {
+    public ItemProcessor<Landmark, Auction> landmarkAuctionProcessor() {
         return new ItemProcessor<Landmark, Auction>() {
             @Override
             public Auction process(Landmark landmark) throws Exception {
@@ -277,14 +327,5 @@ public class AuctionJobConfig {
             }
         };
     }
-
-//    @StepScope
-//    @Bean
-//    public RepositoryItemWriter<Auction> landmarkWriter() {
-//        return new RepositoryItemWriterBuilder<Auction>()
-//                .repository(auctionRepository)
-//                .methodName("save")
-//                .build();
-//    }
 
 }
