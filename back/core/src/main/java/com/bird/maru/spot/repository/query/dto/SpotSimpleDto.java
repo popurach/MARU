@@ -2,6 +2,7 @@ package com.bird.maru.spot.repository.query.dto;
 
 import com.bird.maru.domain.model.entity.Tag;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.List;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -45,7 +46,8 @@ public class SpotSimpleDto {
     public SpotSimpleDto(Long id, URL imageUrl, List<Tag> tags) {
         this.id = id;
         this.imageUrl = imageUrl;
-        this.tags = tags;
+        if(tags.get(0).getId() == null) this.tags = new ArrayList<>();
+        else this.tags = tags;
     }
 
     public void checkLiked() {
