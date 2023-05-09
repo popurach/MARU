@@ -12,7 +12,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.shoebill.maru.util.Filter
 import com.shoebill.maru.viewmodel.MapViewModel
 
 @Composable
@@ -39,17 +38,7 @@ fun FilterChips(
                     onSelected = {
                         mapViewModel.clearFocus()
                         mapViewModel.updateFilterState(index)
-                        mapViewModel.deletePin()
-                        when (index) {
-                            Filter.ALL -> {
-                                mapViewModel.loadLandmarkPos()
-                                mapViewModel.loadSpotPos()
-                            }
-
-                            Filter.LANDMARK -> mapViewModel.loadLandmarkPos()
-                            Filter.SPOT -> mapViewModel.loadSpotPos()
-                            Filter.MYSPOT -> mapViewModel.loadSpotPos(mine = true)
-                        }
+                        mapViewModel.loadMarker()
                     }
                 )
             }

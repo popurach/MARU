@@ -184,6 +184,7 @@ class MapViewModel @Inject constructor(
     }
 
     fun loadMarker() {
+        _canSearch.value = false
         deletePin()
         _canSearch.value = false
         when (_filterState.value) {
@@ -330,6 +331,7 @@ class MapViewModel @Inject constructor(
 
     fun trackCameraToUser(context: Context) {
         clearFocus()
+        _canSearch.value = false
         if (_isTracking.value == false) {
             _isTracking.value = true
             moveCameraLinearly()
@@ -404,7 +406,7 @@ class MapViewModel @Inject constructor(
         val followPuckViewportState: FollowPuckViewportState =
             viewportPlugin.makeFollowPuckViewportState(
                 FollowPuckViewportStateOptions.Builder()
-                    .zoom(16.5)
+                    .zoom(17.0)
                     .pitch(mapBoxMap.cameraState.pitch)
                     .bearing(FollowPuckViewportStateBearing.Constant(mapBoxMap.cameraState.bearing))
                     .build()
