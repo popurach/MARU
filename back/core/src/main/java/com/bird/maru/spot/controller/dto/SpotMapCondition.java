@@ -33,5 +33,7 @@ public class SpotMapCondition {
     private Long lastOffset;
     @Builder.Default
     private Integer size = 20;
+    @Nullable
+    private Long tagId;
 
 }
