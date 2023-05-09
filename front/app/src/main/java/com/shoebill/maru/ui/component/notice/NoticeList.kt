@@ -17,6 +17,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.paging.LoadState
 import androidx.paging.compose.collectAsLazyPagingItems
@@ -60,7 +61,7 @@ fun NoticeList(noticeViewModel: NoticeViewModel = hiltViewModel()) {
                                 Box {
                                     Row(
                                         verticalAlignment = Alignment.CenterVertically,
-                                        modifier = Modifier.padding(vertical = 15.dp)
+                                        modifier = Modifier.padding(vertical = 20.dp)
                                     ) {
                                         Image(
                                             painter = painterResource(
@@ -68,13 +69,14 @@ fun NoticeList(noticeViewModel: NoticeViewModel = hiltViewModel()) {
                                                 else R.drawable.notice_visit_icon
                                             ),
                                             modifier = Modifier
-                                                .padding(start = 20.dp, end = 20.dp)
-                                                .size(40.dp),
+                                                .padding(start = 30.dp, end = 25.dp)
+                                                .size(30.dp),
                                             contentDescription = null
                                         )
                                         Text(
                                             text = notice.content,
-                                            modifier = Modifier.padding(end = 15.dp)
+                                            modifier = Modifier.padding(end = 30.dp),
+                                            fontSize = 15.sp
                                         )
                                     }
 
@@ -95,13 +97,5 @@ fun NoticeList(noticeViewModel: NoticeViewModel = hiltViewModel()) {
                 }
             }
         }
-    }
-}
-
-
-@Composable
-fun NoticeListItem(message: String) {
-    Row(verticalAlignment = Alignment.CenterVertically) {
-
     }
 }

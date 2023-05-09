@@ -95,7 +95,7 @@ fun AuctionPage(
                         auctionViewModel.exit()
                         navigateViewModel.navigator?.navigateUp()
                     },
-                painter = painterResource(id = R.drawable.ic_arrow_back_24),
+                painter = painterResource(id = R.drawable.arrow_back),
                 contentDescription = "뒤로가기",
             )
             Text(

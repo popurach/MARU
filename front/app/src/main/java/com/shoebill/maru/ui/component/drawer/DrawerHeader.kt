@@ -48,8 +48,8 @@ fun DrawerHeader(
     noticeViewModel: NoticeViewModel = hiltViewModel(),
     myPageViewModel: MyPageViewModel = viewModel(),
 ) {
-    val iconSize = 18.dp
-    val fontSize = 12.sp
+    val iconSize = 22.dp
+    val fontSize = 13.sp
     val memberInfo = memberViewModel.memberInfo.observeAsState(initial = Member())
     val isNewMessage = noticeViewModel.isNew.observeAsState(false)
     val profileEditModalShown = remember { mutableStateOf(false) }
@@ -72,7 +72,6 @@ fun DrawerHeader(
     }
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(5.dp),
         modifier = Modifier
             .padding(top = 6.dp, bottom = 40.dp)
 
@@ -89,6 +88,7 @@ fun DrawerHeader(
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
                     .clip(CircleShape)
+                    .size(70.dp)
             )
             Icon(
                 painter = painterResource(id = R.drawable.btn_profile_edit),
@@ -96,7 +96,7 @@ fun DrawerHeader(
                 tint = Color.Unspecified,
                 modifier = Modifier
                     .align(Alignment.BottomEnd)
-                    .offset(3.dp, 3.dp)
+                    .offset((-5).dp, (-5).dp)
                     .size(30.dp)
             )
         }
@@ -106,7 +106,7 @@ fun DrawerHeader(
         }
 
         // nickname
-        Text(text = memberInfo.value.nickname, fontSize = 18.sp, fontWeight = FontWeight.Bold)
+        Text(text = memberInfo.value.nickname, fontSize = 18.sp, fontWeight = FontWeight.SemiBold)
 
         // point
         Row(
@@ -138,8 +138,8 @@ fun DrawerHeader(
         }
     }
     Row(
-        horizontalArrangement = Arrangement.spacedBy(20.dp),
-        modifier = Modifier.padding(bottom = 40.dp)
+        horizontalArrangement = Arrangement.spacedBy(23.dp),
+        modifier = Modifier.padding(bottom = 25.dp)
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
