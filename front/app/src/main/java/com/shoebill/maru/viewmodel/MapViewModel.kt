@@ -82,12 +82,14 @@ class MapViewModel @Inject constructor(
     private val _isTracking = MutableLiveData(false)
     val isTracking get() = _isTracking
 
+    private val _canSearch = MutableLiveData(false)
+    val canSearch get() = _canSearch
+
     private var landmarkImage: Bitmap? = null
     private var spotImage: Bitmap? = null
     private var clusterImage: MutableList<Bitmap> = mutableListOf()
 
-    private var lastRequestPos: Point? = null
-    private var lastRequestZoom: Double = 0.0
+    private var lastRequestPos: Point = Point.fromLngLat(-74.005974, 40.712776)
 
     private val landmarkAnnotations = mutableListOf<PointAnnotationOptions>()
     private val spotAnnotations = mutableListOf<PointAnnotationOptions>()
@@ -173,7 +175,6 @@ class MapViewModel @Inject constructor(
                 )
             )
         )
-
     }
 
     private fun drawableToBitmap(image: Drawable?): Bitmap = (image as BitmapDrawable).bitmap
@@ -182,7 +183,9 @@ class MapViewModel @Inject constructor(
         _focusManager.clearFocus()
     }
 
-    private fun loadMarker() {
+    fun loadMarker() {
+        deletePin()
+        _canSearch.value = false
         when (_filterState.value) {
             ALL -> {
                 loadLandmarkPos()
@@ -252,8 +255,8 @@ class MapViewModel @Inject constructor(
 
     private fun clusterClicked(point: Point) {
         val curZoomLevel = mapBoxMap.cameraState.zoom
-        if (curZoomLevel == 22.0) return
-        val nextZoomLevel = min(22.0, curZoomLevel + 1.5)
+        if (curZoomLevel == 16.5) return
+        val nextZoomLevel = min(16.0, curZoomLevel + 1.5)
         val cameraOptions = CameraOptions.Builder()
             .zoom(nextZoomLevel)
             .center(point)
@@ -261,7 +264,6 @@ class MapViewModel @Inject constructor(
         viewModelScope.launch {
             withContext(Dispatchers.Main) {
                 mapBoxMap.flyTo(cameraOptions)
-                deletePin()
             }
             loadMarker()
         }
@@ -319,11 +321,7 @@ class MapViewModel @Inject constructor(
                 }
 
                 override fun onMoveEnd(detector: MoveGestureDetector) {
-                    val curPoint = mapBoxMap.cameraState.center
-                    if (isFarEnough(curPoint)) {
-                        deletePin()
-                        loadMarker()
-                    }
+                    _canSearch.value = true
                 }
             })
         }
@@ -337,7 +335,13 @@ class MapViewModel @Inject constructor(
             moveCameraLinearly()
             mapView.apply {
                 location.addOnIndicatorPositionChangedListener { myPos ->
+                    // 0.1Km == 100m
                     val minDist = 0.1
+                    val distanceFromLastRequest = getDistance(myPos, lastRequestPos)
+                    if (distanceFromLastRequest > minDist) {
+                        lastRequestPos = myPos
+                        loadMarker()
+                    }
                     landmarkAnnotations.forEach { landmark ->
                         val jsonObject = landmark.getData()!!.asJsonObject!!
                         val landmarkPos = landmark.getPoint()
@@ -393,13 +397,6 @@ class MapViewModel @Inject constructor(
         } else {
             unTrackUser()
         }
-    }
-
-    private fun isFarEnough(curPoint: Point): Boolean {
-        lastRequestPos ?: return true
-        val distance = getDistance(curPoint, lastRequestPos!!)
-        if (distance > 2) return true
-        return false
     }
 
     private fun moveCameraLinearly() {
