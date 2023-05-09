@@ -7,7 +7,6 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.navigation.NavHostController
 import com.google.android.gms.tasks.OnCompleteListener
 import com.google.firebase.messaging.FirebaseMessaging
 import com.shoebill.maru.model.data.Member
@@ -40,13 +39,8 @@ class MemberViewModel @Inject constructor(
         _memberInfo.value = value
     }
 
-    fun getPoint(navigator: NavHostController?): String {
-        Log.d(TAG, "MEMBERINFO: ${_memberInfo.value}")
-        if (_memberInfo.value == null) {
-            navigator?.navigate("login")
-            return ""
-        }
-        return NumberFormat.getNumberInstance(Locale.US).format(_memberInfo.value?.point)
+    fun getPoint(): String {
+        return NumberFormat.getNumberInstance(Locale.US).format(_memberInfo.value?.point ?: 0)
     }
 
     private fun updateNoticeToken() {

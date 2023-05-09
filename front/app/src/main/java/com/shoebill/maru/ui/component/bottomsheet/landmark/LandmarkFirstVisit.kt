@@ -8,44 +8,51 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.ExperimentalTextApi
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.shoebill.maru.ui.component.LottieDiamond
+import com.shoebill.maru.ui.component.common.GradientColoredText
+import com.shoebill.maru.ui.theme.MaruBrush
 import com.shoebill.maru.viewmodel.BottomSheetNavigatorViewModel
-import com.shoebill.maru.viewmodel.LandmarkLandingViewModel
+import com.shoebill.maru.viewmodel.LandmarkInfoViewModel
+import com.shoebill.maru.viewmodel.MemberViewModel
+import com.shoebill.maru.viewmodel.NavigateViewModel
+import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalTextApi::class)
+@OptIn(ExperimentalTextApi::class, DelicateCoroutinesApi::class)
 @Composable
-@Preview
 fun LandmarkFirstVisit(
-    landmarkLandingViewModel: LandmarkLandingViewModel = hiltViewModel(),
-    bottomSheetNavigatorViewModel: BottomSheetNavigatorViewModel = viewModel()
+    landmarkId: Long,
+    landmarkInfoViewModel: LandmarkInfoViewModel = hiltViewModel(),
+    bottomSheetNavigatorViewModel: BottomSheetNavigatorViewModel = viewModel(),
+    memberViewModel: MemberViewModel = hiltViewModel(),
+    navigatorViewModel: NavigateViewModel = hiltViewModel()
 ) {
+    val context = LocalContext.current
+    landmarkInfoViewModel.initLandmarkInfo(landmarkId)
+    val landmarkName = landmarkInfoViewModel.landmarkName.observeAsState()
+
     val firstLine = buildAnnotatedString {
         withStyle(
             SpanStyle(
-                brush = Brush.linearGradient(
-                    listOf(
-                        Color(0xFF6039DF),
-                        Color(0xFFA14AB7)
-                    )
-                ),
+                brush = MaruBrush,
                 fontWeight = FontWeight.Bold,
             )
         ) {
-            append(landmarkLandingViewModel.landmark.name) // "Hello"에 색상을 적용합니다.
+            append(landmarkName.value) // "Hello"에 색상을 적용합니다.
         }
         append(" 첫 방문을 축하합니다!")
     }
@@ -59,6 +66,7 @@ fun LandmarkFirstVisit(
         }
         append(" 하셔서 포인트를 획득하세요!")
     }
+    val coroutineScope = rememberCoroutineScope()
     Column(
         Modifier
             .fillMaxSize()
@@ -66,17 +74,23 @@ fun LandmarkFirstVisit(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(50.dp)
     ) {
-        Text(
-            text = landmarkLandingViewModel.coloredLandmarkName,
+        GradientColoredText(
+            text = landmarkName.value!!,
             fontSize = 32.sp,
             fontWeight = FontWeight.SemiBold
         )
         Box(Modifier.size(250.dp)) {
-            LottieDiamond(onClick = {
-                bottomSheetNavigatorViewModel.navController?.navigate("landmark/main") {
-                    popUpTo("landmark/first") { inclusive = true }
+            LottieDiamond(
+                onClick = {
+                    coroutineScope.launch {
+                        landmarkInfoViewModel.visitLandmark(context)
+                        memberViewModel.getMemberInfo(navigatorViewModel)
+                        bottomSheetNavigatorViewModel.navController?.navigate("landmark/main/$landmarkId") {
+                            popUpTo("landmark/first/$landmarkId") { inclusive = true }
+                        }
+                    }
                 }
-            })
+            )
         }
         Column(Modifier.padding(top = 70.dp), horizontalAlignment = Alignment.CenterHorizontally) {
             Text(text = firstLine, fontSize = 16.sp)

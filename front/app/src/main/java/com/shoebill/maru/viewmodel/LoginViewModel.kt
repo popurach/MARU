@@ -32,26 +32,26 @@ class LoginViewModel @Inject constructor(
     private val memberRepository: MemberRepository,
 ) : ViewModel() {
     private val TAG = "LOGIN"
-    private suspend fun kakaoApiLogin(token: OAuthToken) =
-        withContext(viewModelScope.coroutineContext) {
-            val deferredResponse = async {
-                memberRepository.kakaoNaverLogin("KAKAO ${token.accessToken}")
-            }
-            val response = deferredResponse.await()
-            if (response.isSuccessful) {
-                val accessToken = response.headers()["access-token"]
-                val refreshToken = response.headers()["refresh-token"]
-
-                prefUtil.setString("accessToken", accessToken!!)
-                Log.d("LOGIN", "accessToken -> $accessToken") // backend 테스트 용으로 남겨둠
-                prefUtil.setString("refreshToken", refreshToken!!)
-                Log.d("LOGIN", "refreshToken -> $refreshToken")
-
-                true
-            } else {
-                false
-            }
+    private suspend fun kakaoApiLogin(token: OAuthToken): Boolean {
+        val deferredResponse = withContext(Dispatchers.IO) {
+            memberRepository.kakaoNaverLogin("KAKAO ${token.accessToken}")
         }
+        val response = deferredResponse
+        Log.d(TAG, "kakaoApiLogin: ${response.isSuccessful}")
+        if (response.isSuccessful) {
+            val accessToken = response.headers()["access-token"]
+            val refreshToken = response.headers()["refresh-token"]
+
+            prefUtil.setString("accessToken", accessToken!!)
+            Log.d("LOGIN", "accessToken -> $accessToken") // backend 테스트 용으로 남겨둠
+            prefUtil.setString("refreshToken", refreshToken!!)
+            Log.d("LOGIN", "refreshToken -> $refreshToken")
+
+            return true
+        } else {
+            return false
+        }
+    }
 
     fun kakaoLogin(context: Context, navigator: NavHostController?) {
         // 카카오계정으로 로그인 공통 callback 구성
@@ -67,8 +67,10 @@ class LoginViewModel @Inject constructor(
                     isSuccess = kakaoApiLogin(token)
                     Log.d(TAG, "kakaoLogin: $isSuccess")
                     if (isSuccess) {
-                        navigator?.navigate("main") {
-                            popUpTo(0)
+                        withContext(Dispatchers.Main) {
+                            navigator?.navigate("main") {
+                                popUpTo(0)
+                            }
                         }
                     }
                 }

@@ -25,6 +25,7 @@ import com.mapbox.maps.dsl.cameraOptions
 import com.mapbox.maps.extension.style.expressions.dsl.generated.interpolate
 import com.mapbox.maps.extension.style.layers.properties.generated.IconAnchor
 import com.mapbox.maps.plugin.LocationPuck2D
+import com.mapbox.maps.plugin.animation.flyTo
 import com.mapbox.maps.plugin.annotation.annotations
 import com.mapbox.maps.plugin.annotation.generated.OnPointAnnotationClickListener
 import com.mapbox.maps.plugin.annotation.generated.PointAnnotationManager
@@ -87,6 +88,11 @@ class MapViewModel @Inject constructor(
 
     private var lastRequestPos: Point? = null
     private var lastRequestZoom: Double = 0.0
+
+    private val landmarkAnnotations = mutableListOf<PointAnnotationOptions>()
+    private val spotAnnotations = mutableListOf<PointAnnotationOptions>()
+
+    val visitingLandmark = MutableLiveData<PointAnnotationOptions?>(null)
 
     private val _filterState = MutableLiveData(ALL)
     val filterState get() = _filterState
@@ -231,27 +237,35 @@ class MapViewModel @Inject constructor(
     }
 
     private fun landmarkClicked(landmarkId: Long) {
-        bottomSheetController.navigate("landmark/main/$landmarkId")
+        bottomSheetController.navigate("landmark/main/$landmarkId") {
+            popUpTo("spot/list")
+        }
         _bottomSheetOpen.value = true
     }
 
     private fun spotClicked(spotId: Long) {
-        bottomSheetController.navigate("spot/detail/$spotId")
+        bottomSheetController.navigate("spot/detail/$spotId") {
+            popUpTo("spot/list")
+        }
         _bottomSheetOpen.value = true
     }
 
     private fun clusterClicked(point: Point) {
-        // TODO: 줌레벨 올리기
         val curZoomLevel = mapBoxMap.cameraState.zoom
-        if (curZoomLevel == 20.0) return
-        val nextZoomLevel = min(20.0, curZoomLevel + 1)
+        if (curZoomLevel == 22.0) return
+        val nextZoomLevel = min(22.0, curZoomLevel + 1.5)
         val cameraOptions = CameraOptions.Builder()
             .zoom(nextZoomLevel)
             .center(point)
             .build()
-        mapBoxMap.setCamera(cameraOptions)
-        deletePin()
-        loadMarker()
+        viewModelScope.launch {
+            withContext(Dispatchers.Main) {
+                mapBoxMap.flyTo(cameraOptions)
+                deletePin()
+            }
+            loadMarker()
+        }
+
     }
 
     fun createMapView(context: Context): MapView {
@@ -262,12 +276,7 @@ class MapViewModel @Inject constructor(
         // 마커 클릭 리스너 등록
         pointAnnotationManager.addClickListener(OnPointAnnotationClickListener {
             val type: Int = it.getData()!!.asJsonObject!!.get("type")!!.asInt
-            Log.d(
-                "MARKER",
-                "markerClicked: $type"
-            )
             val id = it.getData()!!.asJsonObject!!.get("id")?.asLong
-            Log.d(TAG, "createMapView: $type $id")
             when (type) {
                 SpotType.LANDMARK -> if (id != null) landmarkClicked(id)
                 SpotType.SPOT -> if (id != null) spotClicked(id)
@@ -318,7 +327,6 @@ class MapViewModel @Inject constructor(
                 }
             })
         }
-
         return mapView
     }
 
@@ -328,6 +336,28 @@ class MapViewModel @Inject constructor(
             _isTracking.value = true
             moveCameraLinearly()
             mapView.apply {
+                location.addOnIndicatorPositionChangedListener { myPos ->
+                    val minDist = 0.1
+                    landmarkAnnotations.forEach { landmark ->
+                        val jsonObject = landmark.getData()!!.asJsonObject!!
+                        val landmarkPos = landmark.getPoint()
+                        val distance = getDistance(myPos, landmarkPos!!)
+                        // 멀어질 때
+                        if (visitingLandmark.value == landmark && distance > minDist) {
+                            visitingLandmark.value = null
+                        }
+                        // 랜드마크 범위에 들어갔을 때
+                        if (visitingLandmark.value != landmark && distance <= minDist) {
+                            Log.d("LANDMARK", jsonObject.toString())
+                            visitingLandmark.value = landmark
+                            val landmarkId =
+                                jsonObject.get("id")?.asLong
+                            val isVisit = jsonObject.get("isVisit")?.asBoolean!!
+                            _bottomSheetOpen.value = true
+                            bottomSheetController.navigate(if (isVisit) "landmark/main/$landmarkId" else "landmark/first/$landmarkId")
+                        }
+                    }
+                }
                 location.updateSettings {
                     enabled = true
                     pulsingEnabled = true
@@ -366,17 +396,14 @@ class MapViewModel @Inject constructor(
     }
 
     private fun isFarEnough(curPoint: Point): Boolean {
-        if (lastRequestPos == null) return true
-        val distance = distanceBetweenLastRequestPosAndCurPoint(curPoint)
-        Log.d("LANDMARK", "isFarEnough: $distance")
+        lastRequestPos ?: return true
+        val distance = getDistance(curPoint, lastRequestPos!!)
         if (distance > 2) return true
         return false
     }
 
-
     private fun moveCameraLinearly() {
         val viewportPlugin = mapView.viewport
-        Log.d("moveCameraLinearly", "start moveCameraLinearly")
         val followPuckViewportState: FollowPuckViewportState =
             viewportPlugin.makeFollowPuckViewportState(
                 FollowPuckViewportStateOptions.Builder()
@@ -391,6 +418,7 @@ class MapViewModel @Inject constructor(
 
     private fun unTrackUser() {
         _isTracking.value = false
+        mapView.location.addOnIndicatorPositionChangedListener {}
         mapView.location.updateSettings {
             enabled = false
         }
@@ -430,22 +458,22 @@ class MapViewModel @Inject constructor(
         }
     }
 
-    private fun distanceBetweenLastRequestPosAndCurPoint(curPoint: Point): Double {
-        if (lastRequestPos == null) return 30.0
+    private fun getDistance(a: Point, b: Point): Double {
         val distance: Double
         val radius = 6371.0 // 지구 반지름(km)
         val toRadian = Math.PI / 180
-        val deltaLatitude = abs(curPoint.latitude() - lastRequestPos!!.latitude()) * toRadian
-        val deltaLongitude = abs(curPoint.longitude() - curPoint.longitude()) * toRadian
+        val deltaLatitude = abs(a.latitude() - b.latitude()) * toRadian
+        val deltaLongitude = abs(a.longitude() - b.longitude()) * toRadian
         val sinDeltaLat = sin(deltaLatitude / 2)
         val sinDeltaLng = sin(deltaLongitude / 2)
         val squareRoot = sqrt(
             sinDeltaLat * sinDeltaLat +
-                    cos(curPoint.latitude() * toRadian) * cos(lastRequestPos!!.latitude() * toRadian) * sinDeltaLng * sinDeltaLng
+                    cos(b.latitude() * toRadian) * cos(a.latitude() * toRadian) * sinDeltaLng * sinDeltaLng
         )
         distance = 2 * radius * asin(squareRoot)
         return distance
     }
+
 
     private fun addMarker(
         spotType: Int,
@@ -458,12 +486,11 @@ class MapViewModel @Inject constructor(
             1 -> spotImage
             else -> clusterImage[spotType - 2]
         }
-        // Set options for the resulting symbol layer.
         val pointAnnotationOptions: PointAnnotationOptions = PointAnnotationOptions()
             .withPoint(Point.fromLngLat(coordinate.lng, coordinate.lat))
             .withIconImage(iconImage!!)
             .withIconAnchor(IconAnchor.BOTTOM)
-            .withIconSize(1.0)
+            .withIconSize(if (spotType == SpotType.LANDMARK) 2.0 else 1.5)
             .withData(
                 JsonObject().apply {
                     addProperty("type", spotType)
@@ -471,11 +498,14 @@ class MapViewModel @Inject constructor(
                     if (id != null) addProperty("id", id)
                 }
             )
-        // Add the resulting pointAnnotation to the map.
+        if (spotType == SpotType.LANDMARK) landmarkAnnotations.add(pointAnnotationOptions)
+        else spotAnnotations.add(pointAnnotationOptions)
         pointAnnotationManager.create(pointAnnotationOptions)
     }
 
     fun deletePin() {
+        landmarkAnnotations.clear()
+        spotAnnotations.clear()
         pointAnnotationManager.deleteAll()
     }
 }

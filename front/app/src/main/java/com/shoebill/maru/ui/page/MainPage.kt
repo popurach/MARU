@@ -61,6 +61,7 @@ fun MainPage(
     val context = LocalContext.current
     val scaffoldState = rememberBottomSheetScaffoldState()
     val isDrawerOpen = drawerViewModel.isOpen.observeAsState(initial = false)
+    val isTracking = mapViewModel.isTracking.observeAsState()
 
     val spotId: Long? =
         navigateViewModel.navigator?.previousBackStackEntry?.savedStateHandle?.get("spotId")
@@ -85,11 +86,9 @@ fun MainPage(
     ) { permissionsMap ->
         val areGranted = permissionsMap.values.reduce { acc, next -> acc && next }
         /** 권한 요청시 동의 했을 경우 **/
-        /** 권한 요청시 동의 했을 경우 **/
         if (areGranted) {
             Toast.makeText(context, "권한이 동의되었습니다.", Toast.LENGTH_SHORT).show()
         }
-        /** 권한 요청시 거부 했을 경우 **/
         /** 권한 요청시 거부 했을 경우 **/
         else {
             Toast.makeText(context, "권한이 거부되었습니다.", Toast.LENGTH_SHORT).show()
@@ -137,6 +136,7 @@ fun MainPage(
                     Modifier
                         .align(Alignment.BottomCenter)
                         .padding(bottom = 40.dp),
+                    enabled = isTracking.value!!,
                     onClick = {
                         checkAndRequestPermissions(
                             context,

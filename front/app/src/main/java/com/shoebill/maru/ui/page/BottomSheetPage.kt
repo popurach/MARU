@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -37,6 +38,9 @@ fun BottomSheetPage(
 ) {
     bottomSheetNavigatorViewModel.init(navController)
     mapViewModel.initBottomSheetController(navController)
+    val visitingLandmark = mapViewModel.visitingLandmark.observeAsState()
+    val visitingLandmarkId: Long? =
+        visitingLandmark.value?.getData()?.asJsonObject?.get("id")?.asLong
     Column(
         modifier = Modifier
             .heightIn(min = 40.dp, max = 670.dp)
@@ -51,15 +55,6 @@ fun BottomSheetPage(
                 ) {
                     BottomSheetFrame {
                         SpotList()
-                    }
-                }
-            }
-            composable("landmark/first") {
-                CompositionLocalProvider(
-                    LocalViewModelStoreOwner provides viewModelStoreOwner
-                ) {
-                    BottomSheetFrame(hasFabCamera = true, backgroundColor = MaruBackground) {
-                        LandmarkFirstVisit()
                     }
                 }
             }
@@ -82,7 +77,53 @@ fun BottomSheetPage(
                 }
             }
             composable(
+                "landmark/first/{landmarkId}",
+                arguments = listOf(navArgument("landmarkId") {
+                    type = NavType.LongType
+                    defaultValue =
+                        navigatorViewModel.navigator?.previousBackStackEntry?.savedStateHandle?.get(
+                            "landmarkId"
+                        ) ?: 1
+                })
+            ) {
+                CompositionLocalProvider(
+                    LocalViewModelStoreOwner provides viewModelStoreOwner
+                ) {
+                    val landmarkId = it.arguments!!.getLong("landmarkId")
+                    BottomSheetFrame(
+                        hasFabCamera = true,
+                        backgroundColor = MaruBackground,
+                        cameraEnabled = visitingLandmarkId == landmarkId
+                    ) {
+                        LandmarkFirstVisit(landmarkId)
+                    }
+                }
+            }
+            composable(
                 "landmark/main/{landmarkId}",
+                arguments = listOf(navArgument("landmarkId") {
+                    type = NavType.LongType
+                    defaultValue =
+                        navigatorViewModel.navigator?.previousBackStackEntry?.savedStateHandle?.get(
+                            "landmarkId"
+                        ) ?: 1
+                })
+            ) {
+                CompositionLocalProvider(
+                    LocalViewModelStoreOwner provides viewModelStoreOwner
+                ) {
+                    val landmarkId = it.arguments!!.getLong("landmarkId")
+                    BottomSheetFrame(
+                        hasFabCamera = true,
+                        backgroundColor = MaruBackground,
+                        cameraEnabled = landmarkId == visitingLandmarkId
+                    ) {
+                        LandmarkMain(landmarkId = landmarkId)
+                    }
+                }
+            }
+            composable(
+                "landmark/picture/{landmarkId}",
                 arguments = listOf(navArgument("landmarkId") {
                     type = NavType.LongType
                     defaultValue = 0
@@ -91,23 +132,19 @@ fun BottomSheetPage(
                 CompositionLocalProvider(
                     LocalViewModelStoreOwner provides viewModelStoreOwner
                 ) {
-                    BottomSheetFrame(hasFabCamera = true, backgroundColor = MaruBackground) {
-                        LandmarkMain(landmarkId = it.arguments!!.getLong("landmarkId"))
-                    }
-                }
-            }
-            composable("landmark/picture") {
-                CompositionLocalProvider(
-                    LocalViewModelStoreOwner provides viewModelStoreOwner
-                ) {
-                    BottomSheetFrame(hasFabCamera = true, backgroundColor = MaruBackground) {
+                    val landmarkId = it.arguments!!.getLong("landmarkId")
+                    BottomSheetFrame(
+                        hasFabCamera = true,
+                        backgroundColor = MaruBackground,
+                        cameraEnabled = landmarkId == visitingLandmarkId
+                    ) {
                         LandMarkPicture()
                     }
                 }
             }
             composable(
-                "landmark/{id}/picture/list",
-                arguments = listOf(navArgument("id") {
+                "landmark/{landmarkId}/picture/list",
+                arguments = listOf(navArgument("landmarkId") {
                     type = NavType.LongType
                     defaultValue = 0
                 })
@@ -115,8 +152,13 @@ fun BottomSheetPage(
                 CompositionLocalProvider(
                     LocalViewModelStoreOwner provides viewModelStoreOwner
                 ) {
-                    BottomSheetFrame(hasFabCamera = true, backgroundColor = MaruBackground) {
-                        LandmarkPictureList(landmarkId = it.arguments!!.getLong("id"))
+                    val landmarkId = it.arguments!!.getLong("landmarkId")
+                    BottomSheetFrame(
+                        hasFabCamera = true,
+                        backgroundColor = MaruBackground,
+                        cameraEnabled = landmarkId == visitingLandmarkId
+                    ) {
+                        LandmarkPictureList(landmarkId = landmarkId)
                     }
                 }
             }

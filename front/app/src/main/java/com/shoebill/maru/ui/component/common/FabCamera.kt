@@ -12,6 +12,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.shoebill.maru.R
+import com.shoebill.maru.ui.theme.GreyBrush
 import com.shoebill.maru.ui.theme.MaruBrush
 import com.shoebill.maru.viewmodel.MapViewModel
 
@@ -19,18 +20,19 @@ import com.shoebill.maru.viewmodel.MapViewModel
 fun FabCamera(
     modifier: Modifier = Modifier,
     mapViewModel: MapViewModel = hiltViewModel(),
+    enabled: Boolean,
     onClick: () -> Unit = {}
 ) {
     IconButton(
+        enabled = enabled,
         onClick = {
             mapViewModel.clearFocus()
             onClick()
-            // TODO: 카메라 화면으로 이동
         },
         modifier = modifier
             .size(55.dp)
             .background(
-                brush = MaruBrush,
+                brush = if (enabled) MaruBrush else GreyBrush,
                 shape = RoundedCornerShape(16.dp)
             ),
         content = {
