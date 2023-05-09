@@ -16,5 +16,5 @@ public interface AuctionRepository extends JpaRepository<Auction, Long> {
     @Query("SELECT a FROM Auction a WHERE a.landmark.id = :landmarkId AND a.finished = :finished")
     Optional<Auction> findByLandmarkAndFinished(@Param("landmarkId") Long landmarkId, @Param("finished") Boolean finished);
 
-    Page<Auction> findByFinished(Boolean finished, Pageable pageable);
+    Page<Auction> findAllByFinished(Boolean finished, Pageable pageable);
 }

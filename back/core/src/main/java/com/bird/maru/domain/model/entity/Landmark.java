@@ -29,7 +29,8 @@ public class Landmark {
     private Long id;
 
     @Column(name = "member_id")
-    private Long memberId; // 현재 랜드마크의 대표 회원
+    @Builder.Default
+    private Long memberId = 0L; // 현재 랜드마크의 대표 회원
 
     @NotNull
     private String name;
