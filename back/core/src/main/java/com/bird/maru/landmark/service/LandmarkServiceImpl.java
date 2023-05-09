@@ -25,6 +25,7 @@ public class LandmarkServiceImpl implements LandmarkService {
         if (Boolean.TRUE.equals(memberRedisRepository.existVisitedLandmark(memberId, landmarkId))) {
             return 0;
         }
+        memberRedisRepository.insertVisitLandmark(memberId, landmarkId);
         Landmark landmark = landmarkQueryRepository.findById(landmarkId)
                                                    .orElseThrow(() -> new ResourceNotFoundException("해당 리소스 존재하지 않습니다."));
         landmark.addCount();
