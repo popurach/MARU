@@ -55,6 +55,7 @@ fun MainPage(
     val context = LocalContext.current
     val scaffoldState = rememberBottomSheetScaffoldState()
     val isDrawerOpen = drawerViewModel.isOpen.observeAsState(initial = false)
+    val isTracking = mapViewModel.isTracking.observeAsState()
 
     val spotId: Long? =
         navigateViewModel.navigator?.previousBackStackEntry?.savedStateHandle?.get("spotId")
@@ -130,6 +131,7 @@ fun MainPage(
                     Modifier
                         .align(Alignment.BottomCenter)
                         .padding(bottom = 40.dp),
+                    enabled = isTracking.value!!,
                     onClick = {
                         checkAndRequestPermissions(
                             context,

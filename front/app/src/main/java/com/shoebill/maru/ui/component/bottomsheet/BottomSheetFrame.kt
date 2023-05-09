@@ -15,6 +15,7 @@ import com.shoebill.maru.ui.component.common.FabCamera
 fun BottomSheetFrame(
     hasFabCamera: Boolean = false,
     backgroundColor: Color = Color.White,
+    cameraEnabled: Boolean = false,
     content: @Composable() () -> Unit
 ) {
     Box(
@@ -28,9 +29,9 @@ fun BottomSheetFrame(
             FabCamera(
                 Modifier
                     .align(Alignment.BottomCenter)
-                    .padding(bottom = 20.dp)
+                    .padding(bottom = 20.dp),
+                enabled = cameraEnabled
             )
         }
-
     }
 }

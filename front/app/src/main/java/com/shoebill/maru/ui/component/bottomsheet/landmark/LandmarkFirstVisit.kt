@@ -26,6 +26,8 @@ import com.shoebill.maru.ui.component.common.GradientColoredText
 import com.shoebill.maru.ui.theme.MaruBrush
 import com.shoebill.maru.viewmodel.BottomSheetNavigatorViewModel
 import com.shoebill.maru.viewmodel.LandmarkInfoViewModel
+import com.shoebill.maru.viewmodel.MemberViewModel
+import com.shoebill.maru.viewmodel.NavigateViewModel
 import kotlinx.coroutines.DelicateCoroutinesApi
 
 @OptIn(ExperimentalTextApi::class, DelicateCoroutinesApi::class)
@@ -33,7 +35,9 @@ import kotlinx.coroutines.DelicateCoroutinesApi
 fun LandmarkFirstVisit(
     landmarkId: Long,
     landmarkInfoViewModel: LandmarkInfoViewModel = hiltViewModel(),
-    bottomSheetNavigatorViewModel: BottomSheetNavigatorViewModel = viewModel()
+    bottomSheetNavigatorViewModel: BottomSheetNavigatorViewModel = viewModel(),
+    memberViewModel: MemberViewModel = hiltViewModel(),
+    navigatorViewModel: NavigateViewModel = hiltViewModel()
 ) {
     val context = LocalContext.current
     landmarkInfoViewModel.initLandmarkInfo(landmarkId)
@@ -75,6 +79,7 @@ fun LandmarkFirstVisit(
         Box(Modifier.size(250.dp)) {
             LottieDiamond(onClick = {
                 landmarkInfoViewModel.visitLandmark(context)
+                memberViewModel.getMemberInfo(navigatorViewModel)
                 bottomSheetNavigatorViewModel.navController?.navigate("landmark/main/$landmarkId") {
                     popUpTo("landmark/first/$landmarkId") { inclusive = true }
                 }

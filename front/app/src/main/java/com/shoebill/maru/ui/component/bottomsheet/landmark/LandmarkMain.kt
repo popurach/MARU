@@ -46,7 +46,7 @@ fun LandmarkMain(
             .padding(top = 50.dp)
             .clickable {
                 if (owner.value!!.id > 0L || owner.value!!.spotImageUrl != null) {
-                    bottomSheetNavigatorViewModel.navController!!.navigate("landmark/picture")
+                    bottomSheetNavigatorViewModel.navController!!.navigate("landmark/picture/$landmarkId")
                 } else {
                     bottomSheetNavigatorViewModel.navController!!.navigate("landmark/$landmarkId/picture/list")
                 }

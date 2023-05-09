@@ -92,7 +92,7 @@ class MapViewModel @Inject constructor(
     private val landmarkAnnotations = mutableListOf<PointAnnotationOptions>()
     private val spotAnnotations = mutableListOf<PointAnnotationOptions>()
 
-    private val visitingLandmark = MutableLiveData<PointAnnotationOptions?>(null)
+    val visitingLandmark = MutableLiveData<PointAnnotationOptions?>(null)
 
     private val _filterState = MutableLiveData(ALL)
     val filterState get() = _filterState
