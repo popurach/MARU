@@ -27,6 +27,7 @@ class LandmarkInfoViewModel @Inject constructor(
     var landmarkId: Long? = null
 
     fun initLandmarkInfo(landmarkId: Long) {
+        Log.d(TAG, "initLandmarkInfo: $landmarkId")
         this.landmarkId = landmarkId
         loadLandmarkName(landmarkId)
         loadOwnerInfo(landmarkId)
@@ -48,15 +49,13 @@ class LandmarkInfoViewModel @Inject constructor(
         }
     }
 
-    fun visitLandmark(context: Context) {
-        viewModelScope.launch {
-            val point = withContext(Dispatchers.IO) {
-                Log.d(TAG, "landmarkId: $landmarkId")
-                landmarkRepository.visitLandmark(landmarkId!!)
-            }
-            withContext(Dispatchers.Main) {
-                Toast.makeText(context, "$point 포인트 획득!", Toast.LENGTH_SHORT).show()
-            }
+    suspend fun visitLandmark(context: Context) {
+        val point = withContext(Dispatchers.IO) {
+            Log.d(TAG, "landmarkId: $landmarkId")
+            landmarkRepository.visitLandmark(landmarkId!!)
+        }
+        withContext(Dispatchers.Main) {
+            Toast.makeText(context, "$point 포인트 획득!", Toast.LENGTH_SHORT).show()
         }
     }
 }

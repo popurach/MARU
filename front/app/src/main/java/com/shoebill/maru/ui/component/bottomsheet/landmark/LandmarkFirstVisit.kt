@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -29,6 +30,7 @@ import com.shoebill.maru.viewmodel.LandmarkInfoViewModel
 import com.shoebill.maru.viewmodel.MemberViewModel
 import com.shoebill.maru.viewmodel.NavigateViewModel
 import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalTextApi::class, DelicateCoroutinesApi::class)
 @Composable
@@ -64,6 +66,7 @@ fun LandmarkFirstVisit(
         }
         append(" 하셔서 포인트를 획득하세요!")
     }
+    val coroutineScope = rememberCoroutineScope()
     Column(
         Modifier
             .fillMaxSize()
@@ -77,13 +80,17 @@ fun LandmarkFirstVisit(
             fontWeight = FontWeight.SemiBold
         )
         Box(Modifier.size(250.dp)) {
-            LottieDiamond(onClick = {
-                landmarkInfoViewModel.visitLandmark(context)
-                memberViewModel.getMemberInfo(navigatorViewModel)
-                bottomSheetNavigatorViewModel.navController?.navigate("landmark/main/$landmarkId") {
-                    popUpTo("landmark/first/$landmarkId") { inclusive = true }
+            LottieDiamond(
+                onClick = {
+                    coroutineScope.launch {
+                        landmarkInfoViewModel.visitLandmark(context)
+                        memberViewModel.getMemberInfo(navigatorViewModel)
+                        bottomSheetNavigatorViewModel.navController?.navigate("landmark/main/$landmarkId") {
+                            popUpTo("landmark/first/$landmarkId") { inclusive = true }
+                        }
+                    }
                 }
-            })
+            )
         }
         Column(Modifier.padding(top = 70.dp), horizontalAlignment = Alignment.CenterHorizontally) {
             Text(text = firstLine, fontSize = 16.sp)

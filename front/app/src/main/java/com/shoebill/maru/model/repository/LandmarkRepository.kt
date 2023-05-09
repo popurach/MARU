@@ -51,7 +51,7 @@ class LandmarkRepository @Inject constructor(
 
     suspend fun visitLandmark(landmarkId: Long): Int {
         val response = landmarkApi.visitLandmark(landmarkId)
-        Log.d(TAG, "${response.isSuccessful}")
+        Log.d(TAG, "랜드마크 방문 ${response.isSuccessful}")
         if (response.isSuccessful) {
             return response.body()!!
         }

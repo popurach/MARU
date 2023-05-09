@@ -16,7 +16,7 @@ fun BottomSheetFrame(
     hasFabCamera: Boolean = false,
     backgroundColor: Color = Color.White,
     cameraEnabled: Boolean = false,
-    content: @Composable() () -> Unit
+    content: @Composable () -> Unit
 ) {
     Box(
         Modifier
