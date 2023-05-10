@@ -1,14 +1,19 @@
 package com.shoebill.maru.ui.component.searchbar
 
+import androidx.compose.foundation.ScrollState
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Icon
 import androidx.compose.material.Text
 import androidx.compose.material.TextField
@@ -23,6 +28,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.shoebill.maru.R
 import com.shoebill.maru.ui.component.filter.FilterChips
@@ -35,7 +41,7 @@ import com.shoebill.maru.viewmodel.SearchBarViewModel
 fun SearchBar(
     mapViewModel: MapViewModel = viewModel(),
     drawerViewModel: DrawerViewModel = viewModel(),
-    searchBarViewModel: SearchBarViewModel = viewModel(),
+    searchBarViewModel: SearchBarViewModel = hiltViewModel(),
 ) {
     val keyword = searchBarViewModel.keyword.observeAsState("")
     BoxWithConstraints() {
@@ -67,6 +73,12 @@ fun SearchBar(
                     onValueChange = {
                         searchBarViewModel.updateKeyword(it)
                     },
+                    keyboardActions = KeyboardActions(
+                        onDone = {
+                            searchBarViewModel.prefUtil.saveSearchHistory(keyword.value)
+                            searchBarViewModel.updateKeyword("")
+                        }
+                    ),
                     leadingIcon = {
                         Icon(
                             modifier = Modifier
@@ -94,24 +106,25 @@ fun SearchBar(
             }
             FilterChips()
         }
-//        Box(
-//            modifier = Modifier
-//                .fillMaxWidth()
-//                .padding(top = 105.dp)
-//        ) {
-//            Column(
-//                modifier = Modifier
-//                    .align(Alignment.Center)
-//                    .background(Color.White, RoundedCornerShape(8.dp))
-//                    .padding()
-//                    .width(320.dp)
-//                    .size(250.dp)
-//                    .verticalScroll(ScrollState(0))
-//            ) {
-//                for (i in 0..2) {
-//                    SuggestionList()
-//                }
-//            }
-//        }
+
+        if (keyword.value.isNotBlank())
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 105.dp)
+                    .offset(y = (-11).dp)
+            ) {
+                Column(
+                    modifier = Modifier
+                        .align(Alignment.Center)
+                        .background(Color.White, RoundedCornerShape(8.dp))
+                        .padding()
+                        .width(320.dp)
+                        .size(250.dp)
+                        .verticalScroll(ScrollState(0))
+                ) {
+                    SuggestionList()
+                }
+            }
     }
 }

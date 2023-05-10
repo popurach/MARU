@@ -14,14 +14,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.shoebill.maru.R
 
 @Composable
-@Preview
 fun SearchListItem(
-//    text: String
+    text: String
 ) {
     Box(
         modifier = Modifier
@@ -40,7 +38,7 @@ fun SearchListItem(
                 contentDescription = "",
                 tint = Color.Unspecified
             )
-            Text(text = "강남")
+            Text(text = text)
         }
     }
 }

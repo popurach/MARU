@@ -1,26 +1,19 @@
 package com.shoebill.maru.ui.component.searchbar
 
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.shoebill.maru.ui.component.SearchListItem
+import com.shoebill.maru.viewmodel.SearchBarViewModel
 
 @Composable
-fun SuggestionList() {
+fun SuggestionList(
+    searchBarViewModel: SearchBarViewModel = hiltViewModel()
+) {
     Column {
-        Text(
-            text = "---------- 최근 검색어 -----------------------------------------------------------------------",
-            modifier = Modifier.padding(horizontal = 16.dp),
-            color = Color.Gray,
-            fontSize = 11.sp
-        )
-        for (i in 0..3) {
-            SearchListItem()
+        val searchItems = searchBarViewModel.prefUtil.loadSearchHistory()
+        for (keyword in searchItems) {
+            SearchListItem(keyword)
         }
     }
 }
