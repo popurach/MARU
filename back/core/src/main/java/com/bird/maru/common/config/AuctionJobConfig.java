@@ -262,7 +262,7 @@ public class AuctionJobConfig {
                     // Batch 작업 DB Named Lock 실시
                     item.getLandmark().getId().toString(), 10,
                     () -> {
-                        log.info("{} {} {}", item.getCreatedDate(), item.getLandmark().getName(), item.getLastLogId());
+//                        log.info("{} {} {}", item.getCreatedDate(), item.getLandmark().getName(), item.getLastLogId());
                         if (!item.getFinished()) {
                             item.setFinished(true);
                         }
