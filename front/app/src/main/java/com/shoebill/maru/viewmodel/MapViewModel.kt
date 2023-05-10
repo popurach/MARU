@@ -73,7 +73,7 @@ class MapViewModel @Inject constructor(
     private val spotRepository: SpotRepository
 ) : ViewModel() {
     private lateinit var mapView: MapView
-    lateinit var mapBoxMap: MapboxMap
+    private lateinit var mapBoxMap: MapboxMap
     private lateinit var _focusManager: FocusManager
 
     private lateinit var pointAnnotationManager: PointAnnotationManager
@@ -503,7 +503,7 @@ class MapViewModel @Inject constructor(
         pointAnnotationManager.create(pointAnnotationOptions)
     }
 
-    fun deletePin() {
+    private fun deletePin() {
         landmarkAnnotations.clear()
         spotAnnotations.clear()
         pointAnnotationManager.deleteAll()
