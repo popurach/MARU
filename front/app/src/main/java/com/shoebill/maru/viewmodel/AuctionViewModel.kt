@@ -1,5 +1,6 @@
 package com.shoebill.maru.viewmodel
 
+import android.content.Context
 import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -8,10 +9,14 @@ import androidx.lifecycle.viewModelScope
 import com.shoebill.maru.model.data.AuctionBiddingRequest
 import com.shoebill.maru.model.data.AuctionInfo
 import com.shoebill.maru.model.repository.AuctionRepository
+import com.shoebill.maru.util.PreferenceUtil
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import ua.naiksoftware.stomp.Stomp
+import ua.naiksoftware.stomp.dto.LifecycleEvent
+import ua.naiksoftware.stomp.dto.StompHeader
 import javax.inject.Inject
 import kotlin.math.pow
 
@@ -50,7 +55,7 @@ class AuctionViewModel @Inject constructor(
 
     private var isLoading = false
 
-    fun initLandmarkId(value: Long) {
+    fun initLandmarkId(value: Long, context: Context) {
         if (isLoading) return
         isLoading = true
         landmarkId = value
@@ -58,6 +63,7 @@ class AuctionViewModel @Inject constructor(
             getAuctionHistory(landmarkId)
             getAuctionInfo(landmarkId)
             getBiddingPrice(landmarkId)
+            runStomp(context)
         }
     }
 
@@ -155,5 +161,54 @@ class AuctionViewModel @Inject constructor(
 
     fun exit() {
         isLoading = false
+    }
+
+    private fun runStomp(context: Context) {
+        val endpointUrl = "ws://k8a403.p.ssafy.io:8080/socket/websocket"
+        val stompClient = Stomp.over(Stomp.ConnectionProvider.OKHTTP, endpointUrl)
+
+        val headerList = mutableListOf<StompHeader>()
+
+        val prefUtil = PreferenceUtil(context)
+        val accessToken = prefUtil.getString("accessToken")
+        val tokenInfo = "Bearer $accessToken"
+        Log.d(TAG, "runStomp: $accessToken")
+        headerList.add(
+            StompHeader(
+                "Authorization",
+                tokenInfo
+            )
+        )
+        Log.d(TAG, "tokenInfo: $tokenInfo")
+
+        stompClient.lifecycle().subscribe { lifecycleEvent ->
+            when (lifecycleEvent.type) {
+                LifecycleEvent.Type.OPENED -> {
+                    Log.i("OPEND", "!!")
+                }
+
+                LifecycleEvent.Type.CLOSED -> {
+                    Log.i("CLOSED", "!!")
+
+                }
+
+                LifecycleEvent.Type.ERROR -> {
+                    Log.i("ERROR", "!!")
+                    Log.e("CONNECT ERROR", lifecycleEvent.exception.toString())
+                }
+
+                else -> {
+                    Log.i("ELSE", lifecycleEvent.message)
+                }
+            }
+        }
+
+        stompClient.connect(headerList)
+
+//        stompClient.topic("/bidding/price").subscribe { topicMessage ->
+//            val body = JSONObject(topicMessage.payload)
+//            Log.i("Received Message", body.toString())
+//            // 메시지 처리 로직을 작성합니다.
+//        }
     }
 }

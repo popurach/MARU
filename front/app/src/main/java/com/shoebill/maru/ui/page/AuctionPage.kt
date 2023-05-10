@@ -30,6 +30,7 @@ import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -56,9 +57,10 @@ import java.text.DecimalFormat
 fun AuctionPage(
     id: Long,
     auctionViewModel: AuctionViewModel = hiltViewModel(),
-    navigateViewModel: NavigateViewModel = viewModel()
+    navigateViewModel: NavigateViewModel = viewModel(),
 ) {
-    auctionViewModel.initLandmarkId(id)
+    val context = LocalContext.current
+    auctionViewModel.initLandmarkId(id, context)
 
     val auctionInfo = auctionViewModel.auctionInfo.observeAsState()
     val auctionHistory = auctionViewModel.auctionHistory.observeAsState(arrayOf())
@@ -334,7 +336,7 @@ fun AuctionPage(
             )
         }
         if (isDeleteModalOpen.value) {
-            DeleteConfirmModal(auctionInfo.value!!.auctionLog.id) {
+            DeleteConfirmModal(auctionInfo.value!!.myBidding.id) {
                 isDeleteModalOpen.value = false
             }
         }
