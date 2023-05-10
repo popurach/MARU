@@ -39,7 +39,7 @@ public class WebSocketController {
         StompHeaderAccessor headerAccessor = StompHeaderAccessor.wrap(event.getMessage());
         String username = (String) headerAccessor.getSessionAttributes().get("username");
 
-        if(username != null) {
+        if (username != null) {
             log.info("유저 Disconnected : {}", username);
 
             users.remove(username);
@@ -54,10 +54,12 @@ public class WebSocketController {
     @MessageMapping("/bid")
     @SendTo("/bidding/price")
     public Bid updateBid(@RequestBody Bid bid) {
+        log.info("요청 들어옴 !!! {} {}", bid.getPrice(), bid.getLandmarkId());
         Optional<AuctionLog> auctionLog = auctionLogCustomQueryRepository.findFirstByLandmarkId(bid.getLandmarkId());
-        if(auctionLog.isPresent()) {
+        if (auctionLog.isPresent()) {
             return new Bid(auctionLog.get().getPrice(), bid.getLandmarkId());
         }
         return new Bid(10000, bid.getLandmarkId());
     }
+
 }
