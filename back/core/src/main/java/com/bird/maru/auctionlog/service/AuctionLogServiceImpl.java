@@ -182,7 +182,7 @@ public class AuctionLogServiceImpl implements AuctionLogService {
         if(auctionLog.isPresent()) {
             return auctionLog.get().getPrice();
         }
-        return 0;
+        return 10000;
     }
 
     private void biddingWithAuction(Auction auction, Member member, int price) {

@@ -74,7 +74,11 @@ public class AuctionLogCustomQueryRepository {
         return Optional.ofNullable(
                 queryFactory.selectFrom(auctionLog)
                             .join(auctionLog.auction, auction)
-                            .where(auctionLog.member.id.eq(memberId), auction.landmark.id.eq(landmarkId))
+                            .where(
+                                    auction.finished.isFalse(),
+                                    auctionLog.member.id.eq(memberId),
+                                    auction.landmark.id.eq(landmarkId)
+                            )
                             .fetchOne()
         );
     }

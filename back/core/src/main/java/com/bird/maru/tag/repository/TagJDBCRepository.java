@@ -1,6 +1,5 @@
 package com.bird.maru.tag.repository;
 
-import com.bird.maru.spot.controller.dto.TagRequestDto;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.List;
@@ -15,12 +14,12 @@ public class TagJDBCRepository {
 
     private final JdbcTemplate jdbcTemplate;
 
-    public void bulkInsertTags(List<TagRequestDto> tags) {
+    public void bulkInsertTags(List<String> tags) {
         jdbcTemplate.batchUpdate("INSERT INTO tags (name) VALUES (?)",
                                  new BatchPreparedStatementSetter() {
                                      @Override
                                      public void setValues(PreparedStatement ps, int i) throws SQLException {
-                                         ps.setString(1, tags.get(i).getName());
+                                         ps.setString(1, tags.get(i));
                                      }
 
                                      @Override

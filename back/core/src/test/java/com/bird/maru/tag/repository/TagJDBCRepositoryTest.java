@@ -10,12 +10,10 @@ import com.bird.maru.domain.model.type.Coordinate;
 import com.bird.maru.domain.model.type.Image;
 import com.bird.maru.domain.model.type.Provider;
 import com.bird.maru.member.repository.MemberRepository;
-import com.bird.maru.spot.controller.dto.TagRequestDto;
 import com.bird.maru.spot.repository.SpotRepository;
 import com.bird.maru.tag.repository.query.TagQueryRepository;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
@@ -43,7 +41,7 @@ class TagJDBCRepositoryTest {
     @Autowired
     private SpotRepository spotRepository;
 
-    private final List<TagRequestDto> tags = new ArrayList<>();
+    private final List<String> tags = new ArrayList<>();
     private Spot spot;
     private Member member;
 
@@ -67,9 +65,7 @@ class TagJDBCRepositoryTest {
                    .build();
         spotRepository.save(spot);
         for (int i = 0; i < 5; i++) {
-            tags.add(TagRequestDto.builder()
-                                  .name("태그명" + i)
-                                  .build());
+            tags.add("태그명" + i);
         }
         tagJDBCRepository.bulkInsertTags(tags);
     }
@@ -83,7 +79,7 @@ class TagJDBCRepositoryTest {
 
         // when
         tagJDBCRepository.bulkInsertTags(tags);
-        List<Tag> newTags = tagQueryRepository.findAllByNames(tags.stream().map(TagRequestDto::getName).collect(Collectors.toList()));
+        List<Tag> newTags = tagQueryRepository.findAllByNames(tags);
 
         // then
         assertThat(newTags).hasSize(totalSize);
