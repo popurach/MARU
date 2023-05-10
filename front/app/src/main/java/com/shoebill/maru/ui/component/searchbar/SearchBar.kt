@@ -25,7 +25,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.shoebill.maru.R
-import com.shoebill.maru.ui.component.FilterChips
+import com.shoebill.maru.ui.component.filter.FilterChips
 import com.shoebill.maru.ui.theme.MaruBrush
 import com.shoebill.maru.viewmodel.DrawerViewModel
 import com.shoebill.maru.viewmodel.MapViewModel

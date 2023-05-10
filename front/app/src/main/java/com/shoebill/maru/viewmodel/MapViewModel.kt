@@ -61,7 +61,6 @@ import kotlin.math.abs
 import kotlin.math.asin
 import kotlin.math.ceil
 import kotlin.math.cos
-import kotlin.math.min
 import kotlin.math.sin
 import kotlin.math.sqrt
 
@@ -256,8 +255,8 @@ class MapViewModel @Inject constructor(
 
     private fun clusterClicked(point: Point) {
         val curZoomLevel = mapBoxMap.cameraState.zoom
-        if (curZoomLevel == 16.5) return
-        val nextZoomLevel = min(16.0, curZoomLevel + 1.5)
+        if (curZoomLevel >= 17.0) return
+        val nextZoomLevel = curZoomLevel + 1.0
         val cameraOptions = CameraOptions.Builder()
             .zoom(nextZoomLevel)
             .center(point)

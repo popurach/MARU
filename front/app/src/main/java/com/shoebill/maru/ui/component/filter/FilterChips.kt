@@ -1,4 +1,4 @@
-package com.shoebill.maru.ui.component
+package com.shoebill.maru.ui.component.filter
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -12,6 +12,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.shoebill.maru.ui.component.ChipListItem
 import com.shoebill.maru.viewmodel.MapViewModel
 
 @Composable

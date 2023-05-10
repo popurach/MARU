@@ -5,8 +5,8 @@ import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import com.shoebill.maru.model.data.landmark.SpotImage
-import com.shoebill.maru.model.repository.LandmarkImageSource
 import com.shoebill.maru.model.repository.LandmarkRepository
+import com.shoebill.maru.model.source.LandmarkImageSource
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
