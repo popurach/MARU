@@ -111,25 +111,7 @@ class MapViewModel @Inject constructor(
         _bottomSheetOpen.value = value
     }
 
-    private val _spotList = MutableLiveData(
-        listOf(
-            Spot(
-                0,
-                imageUrl = "https://picsum.photos/id/237/200/300",
-                liked = false,
-            ),
-            Spot(
-                1,
-                imageUrl = "https://picsum.photos/id/237/200/300",
-                liked = false,
-            ),
-            Spot(
-                2,
-                imageUrl = "https://picsum.photos/id/237/200/300",
-                liked = false,
-            ),
-        )
-    )
+    private val _spotList = MutableLiveData<List<Spot>>()
 
     val spotList: LiveData<List<Spot>> get() = _spotList
 
@@ -196,6 +178,7 @@ class MapViewModel @Inject constructor(
             SPOT -> loadSpotPos()
             MYSPOT -> loadSpotPos(mine = true)
         }
+        loadAroundSpots()
     }
 
     fun loadSpotPos(mine: Boolean = false) {
@@ -505,6 +488,18 @@ class MapViewModel @Inject constructor(
         landmarkAnnotations.clear()
         spotAnnotations.clear()
         pointAnnotationManager.deleteAll()
+    }
+
+    fun loadAroundSpots() {
+        val projection = getProjection()
+        viewModelScope.launch {
+            _spotList.value = spotRepository.getAroundSpots(
+                west = projection.west(),
+                south = projection.south(),
+                east = projection.east(),
+                north = projection.north()
+            )
+        }
     }
 }
 

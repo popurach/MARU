@@ -5,8 +5,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.livedata.observeAsState
@@ -18,20 +16,23 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.shoebill.maru.ui.component.bottomsheet.BottomSheetSpotList
 import com.shoebill.maru.ui.theme.MaruBrush
 import com.shoebill.maru.viewmodel.MapViewModel
+import com.shoebill.maru.viewmodel.MemberViewModel
 
 @OptIn(ExperimentalTextApi::class)
 @Composable
 fun SpotList(
     mapViewModel: MapViewModel = viewModel(),
+    memberViewModel: MemberViewModel = hiltViewModel()
 ) {
     val isBottomSheetOpen = mapViewModel.bottomSheetOpen.observeAsState()
     BackHandler(isBottomSheetOpen.value == true) {
         mapViewModel.updateBottomSheetState(false)
     }
-    val spotList = mapViewModel.spotList.observeAsState(listOf())
     val fontSize = 20.sp
     val annotatedText = buildAnnotatedString {
         withStyle(
@@ -41,7 +42,7 @@ fun SpotList(
                 fontWeight = FontWeight.Bold,
             )
         ) {
-            append("Shoebill")
+            append(memberViewModel.memberInfo.value?.nickname)
         }
 
         withStyle(
@@ -64,15 +65,11 @@ fun SpotList(
             Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 27.dp)
-                .padding(top = 58.dp, bottom = 26.dp)
+                .padding(top = 58.dp, bottom = 22.dp)
         ) {
             Text(text = annotatedText)
         }
-        LazyColumn() {
-            items(spotList.value) { spot ->
-                SpotListItem(spot)
-            }
-        }
+        BottomSheetSpotList()
     }
 }
 

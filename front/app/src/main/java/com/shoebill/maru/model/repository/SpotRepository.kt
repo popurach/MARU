@@ -21,6 +21,15 @@ import javax.inject.Inject
 class SpotRepository @Inject constructor(
     private val spotApi: SpotApi
 ) {
+    suspend fun getAroundSpots(
+        west: Double,
+        south: Double,
+        east: Double,
+        north: Double,
+        filter: String = "ALL"
+    ): List<Spot> =
+        spotApi.getAroundSpots(west, south, east, north, filter)
+
     suspend fun saveSpot(spotImage: File, tags: List<Tag>?, landmarkId: Long?): Response<Long> {
         val spotImageParam = MultipartBody.Part.createFormData(
             name = "spotImage",
