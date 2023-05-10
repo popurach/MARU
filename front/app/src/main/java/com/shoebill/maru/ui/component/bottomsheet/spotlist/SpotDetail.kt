@@ -75,8 +75,9 @@ fun SpotDetail(
                 ) {
                     Icon(
                         // 스크랩 관련 로직 추가
+                        
                         // 스크랩 api 호출 추가
-                        painter = painterResource(id = if (spotDetails.value?.scraped!!) R.drawable.scrap_icon else R.drawable.unscrap_icon),
+                        painter = painterResource(id = if (spotDetails.value?.scraped!!) R.drawable.scrap_icon else R.drawable.spot_unscrap_icon),
                         contentDescription = "",
                         modifier = Modifier
                             .size(35.dp),

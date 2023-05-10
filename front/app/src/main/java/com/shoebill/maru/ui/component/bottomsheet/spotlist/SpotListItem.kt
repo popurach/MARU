@@ -59,7 +59,7 @@ fun SpotListItem(
                         id = if (spot.scraped) {
                             R.drawable.scrap_icon
                         } else {
-                            R.drawable.unscrap_icon
+                            R.drawable.spot_unscrap_icon
                         }
                     ),
                     contentDescription = "scrap icon",
