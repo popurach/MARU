@@ -21,7 +21,6 @@ import com.mapbox.maps.CameraOptions
 import com.mapbox.maps.CoordinateBounds
 import com.mapbox.maps.MapView
 import com.mapbox.maps.MapboxMap
-import com.mapbox.maps.dsl.cameraOptions
 import com.mapbox.maps.extension.style.expressions.dsl.generated.interpolate
 import com.mapbox.maps.extension.style.layers.properties.generated.IconAnchor
 import com.mapbox.maps.plugin.LocationPuck2D
@@ -34,6 +33,7 @@ import com.mapbox.maps.plugin.annotation.generated.createPointAnnotationManager
 import com.mapbox.maps.plugin.compass.compass
 import com.mapbox.maps.plugin.gestures.OnMoveListener
 import com.mapbox.maps.plugin.gestures.addOnMoveListener
+import com.mapbox.maps.plugin.locationcomponent.OnIndicatorPositionChangedListener
 import com.mapbox.maps.plugin.locationcomponent.location
 import com.mapbox.maps.plugin.scalebar.scalebar
 import com.mapbox.maps.plugin.viewport.data.FollowPuckViewportStateBearing
@@ -133,6 +133,35 @@ class MapViewModel @Inject constructor(
 
     val spotList: LiveData<List<Spot>> get() = _spotList
 
+    private val searchNearLandmarkListener = OnIndicatorPositionChangedListener { myPos ->
+        // 0.1Km == 100m
+        val minDist = 0.1
+        val distanceFromLastRequest = getDistance(myPos, lastRequestPos)
+        if (distanceFromLastRequest > minDist) {
+            lastRequestPos = myPos
+            loadMarker()
+        }
+        landmarkAnnotations.forEach { landmark ->
+            val jsonObject = landmark.getData()!!.asJsonObject!!
+            val landmarkPos = landmark.getPoint()
+            val distance = getDistance(myPos, landmarkPos!!)
+            // 멀어질 때
+            if (visitingLandmark.value == landmark && distance > minDist) {
+                visitingLandmark.value = null
+            }
+            // 랜드마크 범위에 들어갔을 때
+            if (visitingLandmark.value != landmark && distance <= minDist) {
+                visitingLandmark.value = landmark
+                val landmarkId =
+                    jsonObject.get("id")?.asLong
+                val isVisit = jsonObject.get("isVisit")?.asBoolean!!
+                _bottomSheetOpen.value = true
+                bottomSheetController.navigate(if (isVisit) "landmark/main/$landmarkId" else "landmark/first/$landmarkId")
+            }
+        }
+    }
+
+
     fun updateFilterState(value: Int) {
         _filterState.value = value
     }
@@ -183,7 +212,6 @@ class MapViewModel @Inject constructor(
     }
 
     fun loadMarker() {
-        _canSearch.value = false
         deletePin()
         _canSearch.value = false
         when (_filterState.value) {
@@ -198,7 +226,7 @@ class MapViewModel @Inject constructor(
         }
     }
 
-    fun loadSpotPos(mine: Boolean = false) {
+    private fun loadSpotPos(mine: Boolean = false) {
         val projection = getProjection()
         viewModelScope.launch {
             val boundingBox = BoundingBox(
@@ -304,11 +332,13 @@ class MapViewModel @Inject constructor(
                     .build()
                 mapBoxMap.setBounds(boundsOptions)
 
-                cameraOptions {
-                    center(Point.fromLngLat(126.979384, 37.563573))
-                    zoom(19.0)
-                    pitch(50.0)
-                }
+                val cameraOptions = CameraOptions.Builder()
+                    .center(Point.fromLngLat(126.979384, 37.563573))
+                    .zoom(10.0)
+                    .pitch(50.0)
+                    .build()
+                mapBoxMap.setCamera(cameraOptions)
+                loadMarker()
             }
             mapBoxMap.addOnMoveListener(object : OnMoveListener {
                 override fun onMove(detector: MoveGestureDetector): Boolean {
@@ -335,34 +365,6 @@ class MapViewModel @Inject constructor(
             _isTracking.value = true
             moveCameraLinearly()
             mapView.apply {
-                location.addOnIndicatorPositionChangedListener { myPos ->
-                    // 0.1Km == 100m
-                    val minDist = 0.1
-                    val distanceFromLastRequest = getDistance(myPos, lastRequestPos)
-                    if (distanceFromLastRequest > minDist) {
-                        lastRequestPos = myPos
-                        loadMarker()
-                    }
-                    landmarkAnnotations.forEach { landmark ->
-                        val jsonObject = landmark.getData()!!.asJsonObject!!
-                        val landmarkPos = landmark.getPoint()
-                        val distance = getDistance(myPos, landmarkPos!!)
-                        // 멀어질 때
-                        if (visitingLandmark.value == landmark && distance > minDist) {
-                            visitingLandmark.value = null
-                        }
-                        // 랜드마크 범위에 들어갔을 때
-                        if (visitingLandmark.value != landmark && distance <= minDist) {
-                            Log.d("LANDMARK", jsonObject.toString())
-                            visitingLandmark.value = landmark
-                            val landmarkId =
-                                jsonObject.get("id")?.asLong
-                            val isVisit = jsonObject.get("isVisit")?.asBoolean!!
-                            _bottomSheetOpen.value = true
-                            bottomSheetController.navigate(if (isVisit) "landmark/main/$landmarkId" else "landmark/first/$landmarkId")
-                        }
-                    }
-                }
                 location.updateSettings {
                     enabled = true
                     pulsingEnabled = true
@@ -411,12 +413,14 @@ class MapViewModel @Inject constructor(
                     .build()
             )
         viewportPlugin.transitionTo(followPuckViewportState) {
+            mapView.location.addOnIndicatorPositionChangedListener(searchNearLandmarkListener)
         }
     }
 
     private fun unTrackUser() {
         _isTracking.value = false
-        mapView.location.addOnIndicatorPositionChangedListener {}
+        visitingLandmark.value = null
+        mapView.location.removeOnIndicatorPositionChangedListener(searchNearLandmarkListener)
         mapView.location.updateSettings {
             enabled = false
         }
@@ -430,7 +434,7 @@ class MapViewModel @Inject constructor(
         return mapBoxMap.coordinateBoundsForCamera(options)
     }
 
-    fun loadLandmarkPos() {
+    private fun loadLandmarkPos() {
         val projection = getProjection()
         viewModelScope.launch(
             Dispatchers.IO
@@ -446,12 +450,10 @@ class MapViewModel @Inject constructor(
             // 리스트가 null이면 종료 아니면 리스트 추가
             val listOfLandmark = deferredListOfLandmark.await() ?: return@launch
             withContext(Dispatchers.Main) {
-                // 현재 존재하는 모든 마커 삭제
                 listOfLandmark.forEach { landmark ->
                     addMarker(SpotType.LANDMARK, landmark.coordinate, landmark.visited, landmark.id)
                 }
                 lastRequestPos = mapBoxMap.cameraState.center
-//                _landmarks.value = listOfLandmark
             }
         }
     }
