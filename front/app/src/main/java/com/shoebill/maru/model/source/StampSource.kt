@@ -1,8 +1,9 @@
-package com.shoebill.maru.model.repository
+package com.shoebill.maru.model.source
 
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
 import com.shoebill.maru.model.data.Stamp
+import com.shoebill.maru.model.repository.LandmarkRepository
 
 class StampSource(private val landmarkRepository: LandmarkRepository) : PagingSource<Any, Stamp>() {
     override fun getRefreshKey(state: PagingState<Any, Stamp>): Any? {

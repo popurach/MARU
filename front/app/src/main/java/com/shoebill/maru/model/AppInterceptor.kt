@@ -1,5 +1,6 @@
 package com.shoebill.maru.model
 
+import com.shoebill.maru.BuildConfig
 import com.shoebill.maru.util.PreferenceUtil
 import okhttp3.Interceptor
 import okhttp3.Response
@@ -27,7 +28,7 @@ class AppInterceptor @Inject constructor(
                     // 재발급 api 호출 -> 결과는 accessToken : String
                     val refreshRequest =
                         originRequest.newBuilder().header("Authorization", "Bearer $refreshToken")
-                            .url("http://k8a403.p.ssafy.io/api/auth/access-token").build()
+                            .url("${BuildConfig.BASE_URL}/api/auth/access-token").build()
                     val refreshResponse = chain.proceed(refreshRequest)
 
                     // 3. 재발급 받은 accessToken 으로 동일 요청 시도
