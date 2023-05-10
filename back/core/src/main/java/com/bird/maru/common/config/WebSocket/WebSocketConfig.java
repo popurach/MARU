@@ -17,7 +17,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
         // api에 /bidding이 붙을 경우 messageBroker가 해당 경로를 가로챔
         registry.enableSimpleBroker("/bidding");
         // 사용자들이 보낸 메시지를 받을 prefix
-        registry.setApplicationDestinationPrefixes("/app/bid");
+        registry.setApplicationDestinationPrefixes("/bid");
     }
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
