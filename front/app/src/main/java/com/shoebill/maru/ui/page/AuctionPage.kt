@@ -64,7 +64,7 @@ fun AuctionPage(
 
     val auctionInfo = auctionViewModel.auctionInfo.observeAsState()
     val auctionHistory = auctionViewModel.auctionHistory.observeAsState(arrayOf())
-    val biddingPrice = auctionViewModel.biddingPrice.observeAsState()
+    val currentHighestBid = auctionViewModel.currentHighestBid.observeAsState()
 
     val chartEntryModel = entryModelOf(*(auctionHistory.value))
     val gradient = Brush.horizontalGradient(listOf(Color(0xFF6039DF), Color(0xFFA14AB7)))
@@ -138,7 +138,7 @@ fun AuctionPage(
             text = "현재 최고 입찰가"
         )
         Text(
-            text = "$ ${dec.format(biddingPrice.value)}",
+            text = "$ ${dec.format(currentHighestBid.value)}",
             fontSize = 22.sp,
             fontWeight = FontWeight.Bold
         )
@@ -180,10 +180,10 @@ fun AuctionPage(
         ) {
             Button(
                 onClick = { auctionViewModel.decreaseBid() },
-                enabled = auctionViewModel.downPrice != biddingPrice.value,
+                enabled = auctionViewModel.downPrice != currentHighestBid.value,
                 modifier = Modifier
                     .shadow(
-                        elevation = if (auctionViewModel.downPrice != biddingPrice.value) 10.dp else 0.1.dp,
+                        elevation = if (auctionViewModel.downPrice != currentHighestBid.value) 10.dp else 0.1.dp,
                         shape = RoundedCornerShape(28.dp),
                     )
                     .size(140.dp),
@@ -195,7 +195,7 @@ fun AuctionPage(
                             .padding(bottom = 7.dp)
                             .clip(RoundedCornerShape(999.dp))
                             .background(
-                                if (auctionViewModel.downPrice != biddingPrice.value) Color(
+                                if (auctionViewModel.downPrice != currentHighestBid.value) Color(
                                     0xFFE8E6FE
                                 ) else Color(
                                     0xFFE9E9E9
@@ -212,7 +212,7 @@ fun AuctionPage(
                     }
                     Text(
                         text = dec.format(auctionViewModel.unit),
-                        color = if (auctionViewModel.downPrice != biddingPrice.value) Color(
+                        color = if (auctionViewModel.downPrice != currentHighestBid.value) Color(
                             0xFF424242
                         ) else Color(
                             0xFF949494
@@ -223,7 +223,7 @@ fun AuctionPage(
                         style = TextStyle(letterSpacing = (-0.2).sp),
                     )
                     Text(
-                        modifier = if (auctionViewModel.downPrice != biddingPrice.value) Modifier
+                        modifier = if (auctionViewModel.downPrice != currentHighestBid.value) Modifier
                             .graphicsLayer(alpha = 0.99f)
                             .drawWithCache {
                                 onDrawWithContent {

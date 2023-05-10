@@ -1,5 +1,6 @@
 package com.shoebill.maru.viewmodel
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.util.Log
 import androidx.lifecycle.LiveData
@@ -27,8 +28,11 @@ class AuctionViewModel @Inject constructor(
 ) :
     ViewModel() {
 
-    private val _biddingPrice = MutableLiveData<Int>(10000)
-    val biddingPrice: LiveData<Int> = _biddingPrice
+    private val _currentHighestBid = MutableLiveData<Int>(10000)
+    val currentHighestBid: LiveData<Int> = _currentHighestBid
+
+//    private val _biddingPrice = MutableLiveData<Int>(10000)
+//    val biddingPrice: LiveData<Int> = _biddingPrice
 
     private val _bid = MutableLiveData<Int>(1000)
     val bid: LiveData<Int> = _bid
@@ -62,7 +66,7 @@ class AuctionViewModel @Inject constructor(
         viewModelScope.launch {
             getAuctionHistory(landmarkId)
             getAuctionInfo(landmarkId)
-            getBiddingPrice(landmarkId)
+//            getBiddingPrice(landmarkId)
             runStomp(context)
         }
     }
@@ -113,19 +117,19 @@ class AuctionViewModel @Inject constructor(
         }
     }
 
-    private fun getBiddingPrice(landmarkId: Long) {
-        viewModelScope.launch {
-            try {
-                val result = auctionRepository.getBiddingPrice(landmarkId)
-                _biddingPrice.value = result
-                _bid.value = result
-                _bid.value = result.plus(unit)
-                Log.d("AUCTION", "getBiddingPrice: ${_biddingPrice.value}")
-            } catch (e: Exception) {
-                Log.e("AUCTION", "getBiddingPrice fail: $e")
-            }
-        }
-    }
+//    private fun getBiddingPrice(landmarkId: Long) {
+//        viewModelScope.launch {
+//            try {
+//                val result = auctionRepository.getBiddingPrice(landmarkId)
+//                _biddingPrice.value = result
+//                _bid.value = result
+//                _bid.value = result.plus(unit)
+//                Log.d("AUCTION", "getBiddingPrice: ${_biddingPrice.value}")
+//            } catch (e: Exception) {
+//                Log.e("AUCTION", "getBiddingPrice fail: $e")
+//            }
+//        }
+//    }
 
     fun createBidding(onComplete: (Boolean) -> Unit) {
         val requestBody = AuctionBiddingRequest(landmarkId, _bid.value!!)
@@ -163,6 +167,7 @@ class AuctionViewModel @Inject constructor(
         isLoading = false
     }
 
+    @SuppressLint("CheckResult")
     private fun runStomp(context: Context) {
         val endpointUrl = "ws://k8a403.p.ssafy.io:8080/socket"
 
@@ -178,6 +183,18 @@ class AuctionViewModel @Inject constructor(
             when (lifecycleEvent.type) {
                 LifecycleEvent.Type.OPENED -> {
                     Log.i("OPEND", "!!")
+
+                    val data = JSONObject()
+                    data.put("price", 0)
+                    data.put("landmarkId", landmarkId)
+
+                    stompClient.send("/bid/bid", data.toString()).subscribe(
+                        {
+                            Log.i("Send Success", "Message sent successfully")
+                        },
+                        { error ->
+                            Log.e("Send Error", "Failed to send message", error)
+                        })
                 }
 
                 LifecycleEvent.Type.CLOSED -> {
@@ -198,10 +215,15 @@ class AuctionViewModel @Inject constructor(
 
         stompClient.connect()
 
-        stompClient.topic("/bidding/price").subscribe { topicMessage ->
+        stompClient.topic("/bidding/price").subscribe({ topicMessage ->
             val body = JSONObject(topicMessage.payload)
-            Log.i("Received Message", body.toString())
-            // 메시지 처리 로직을 작성합니다.
-        }
+            val price = body.getInt("price")
+            Log.i("Received Message", "price: $price")
+            _currentHighestBid.postValue(price)
+            _bid.postValue(price)
+            _bid.postValue(price.plus(unit))
+        }, { error ->
+            Log.e("Subscription Error", "Failed to subscribe to topic", error)
+        })
     }
 }
