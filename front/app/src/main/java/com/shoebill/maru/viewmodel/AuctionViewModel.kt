@@ -14,9 +14,9 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import org.json.JSONObject
 import ua.naiksoftware.stomp.Stomp
 import ua.naiksoftware.stomp.dto.LifecycleEvent
-import ua.naiksoftware.stomp.dto.StompHeader
 import javax.inject.Inject
 import kotlin.math.pow
 
@@ -164,22 +164,15 @@ class AuctionViewModel @Inject constructor(
     }
 
     private fun runStomp(context: Context) {
-        val endpointUrl = "ws://k8a403.p.ssafy.io:8080/socket/websocket"
-        val stompClient = Stomp.over(Stomp.ConnectionProvider.OKHTTP, endpointUrl)
-
-        val headerList = mutableListOf<StompHeader>()
+        val endpointUrl = "ws://k8a403.p.ssafy.io:8080/socket"
 
         val prefUtil = PreferenceUtil(context)
         val accessToken = prefUtil.getString("accessToken")
         val tokenInfo = "Bearer $accessToken"
-        Log.d(TAG, "runStomp: $accessToken")
-        headerList.add(
-            StompHeader(
-                "Authorization",
-                tokenInfo
-            )
-        )
-        Log.d(TAG, "tokenInfo: $tokenInfo")
+
+        val headers: MutableMap<String, String> = HashMap()
+        headers["Authorization"] = tokenInfo
+        val stompClient = Stomp.over(Stomp.ConnectionProvider.OKHTTP, endpointUrl, headers)
 
         stompClient.lifecycle().subscribe { lifecycleEvent ->
             when (lifecycleEvent.type) {
@@ -203,12 +196,12 @@ class AuctionViewModel @Inject constructor(
             }
         }
 
-        stompClient.connect(headerList)
+        stompClient.connect()
 
-//        stompClient.topic("/bidding/price").subscribe { topicMessage ->
-//            val body = JSONObject(topicMessage.payload)
-//            Log.i("Received Message", body.toString())
-//            // 메시지 처리 로직을 작성합니다.
-//        }
+        stompClient.topic("/bidding/price").subscribe { topicMessage ->
+            val body = JSONObject(topicMessage.payload)
+            Log.i("Received Message", body.toString())
+            // 메시지 처리 로직을 작성합니다.
+        }
     }
 }
