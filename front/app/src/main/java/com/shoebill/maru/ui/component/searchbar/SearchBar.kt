@@ -1,5 +1,6 @@
 package com.shoebill.maru.ui.component.searchbar
 
+import android.util.Log
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -19,13 +20,19 @@ import androidx.compose.material.Text
 import androidx.compose.material.TextField
 import androidx.compose.material.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithCache
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -44,6 +51,9 @@ fun SearchBar(
     searchBarViewModel: SearchBarViewModel = hiltViewModel(),
 ) {
     val keyword = searchBarViewModel.keyword.observeAsState("")
+    var isFocused by remember { mutableStateOf(true) }
+    val focusManager = LocalFocusManager.current
+
     BoxWithConstraints() {
         Column {
             Box(
@@ -54,7 +64,11 @@ fun SearchBar(
                 TextField(
                     modifier = Modifier
                         .align(Alignment.Center)
-                        .width(320.dp),
+                        .width(320.dp)
+                        .onFocusChanged {
+                            isFocused = !isFocused
+                            Log.d("SEARCHBAR", "SearchBar: Focused $isFocused")
+                        },
                     colors = TextFieldDefaults.textFieldColors(
                         textColor = Color.Black,
                         cursorColor = Color.Black,
@@ -77,6 +91,7 @@ fun SearchBar(
                         onDone = {
                             searchBarViewModel.prefUtil.saveSearchHistory(keyword.value)
                             searchBarViewModel.updateKeyword("")
+                            focusManager.clearFocus()
                         }
                     ),
                     leadingIcon = {
@@ -107,7 +122,7 @@ fun SearchBar(
             FilterChips()
         }
 
-        if (keyword.value.isNotBlank())
+        if (isFocused)
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
