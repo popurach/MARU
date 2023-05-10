@@ -27,6 +27,6 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
         registry.addEndpoint("/socket")
                 .setAllowedOrigins("*");
-        // endpoint 주소 : wss://k8a403.p.ssafy.io:8080/socket
+        // endpoint 주소 : wss://k8a403.p.ssafy.io/socket
     }
 }
