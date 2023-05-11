@@ -402,7 +402,7 @@ class MapViewModel @Inject constructor(
         }
     }
 
-    private fun unTrackUser() {
+    fun unTrackUser() {
         _isTracking.value = false
         visitingLandmark.value = null
         mapView.location.removeOnIndicatorPositionChangedListener(searchNearLandmarkListener)

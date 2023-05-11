@@ -1,6 +1,5 @@
 package com.shoebill.maru.ui.component.searchbar
 
-import android.util.Log
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -67,7 +66,9 @@ fun SearchBar(
                         .width(320.dp)
                         .onFocusChanged {
                             isFocused = !isFocused
-                            Log.d("SEARCHBAR", "SearchBar: Focused $isFocused")
+                            if (isFocused) {
+                                mapViewModel.unTrackUser()
+                            }
                         },
                     colors = TextFieldDefaults.textFieldColors(
                         textColor = Color.Black,
