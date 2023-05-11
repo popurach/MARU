@@ -509,6 +509,7 @@ class MapViewModel @Inject constructor(
             .zoom(17.0)
             .build()
         mapBoxMap.flyTo(cameraOptions)
+        loadMarker()
     }
 }
 
