@@ -34,8 +34,8 @@ fun SuggestionList(
 
     Column {
         val searchItems = searchBarViewModel.prefUtil.loadSearchHistory()
-        for (keyword in searchItems) {
-            SearchListItem(keyword)
+        for (searchedItem in searchItems) {
+            SearchListItem(searchedItem)
         }
         for (place in recommendedPlaces.value!!) {
             SearchRecommendListItem(place)
@@ -47,6 +47,7 @@ fun SuggestionList(
 @Composable
 fun SearchRecommendListItem(
     place: Place,
+    searchBarViewModel: SearchBarViewModel = hiltViewModel(),
     mapViewModel: MapViewModel = hiltViewModel()
 ) {
     Box(
@@ -60,7 +61,8 @@ fun SearchRecommendListItem(
                 .padding(horizontal = 10.dp)
                 .clickable {
                     mapViewModel.moveCamera(lng = place.lng, lat = place.lat)
-
+                    searchBarViewModel.updateKeyword("")
+                    searchBarViewModel.prefUtil.saveSearchHistory(place)
                     mapViewModel.clearFocus()
                 },
             verticalAlignment = Alignment.CenterVertically

@@ -2,6 +2,11 @@ package com.shoebill.maru.util
 
 import android.content.Context
 import android.content.SharedPreferences
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
+import com.shoebill.maru.model.data.Place
+import com.shoebill.maru.model.data.SearchHistoryWrapper
+import com.shoebill.maru.model.data.Tag
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -20,34 +25,46 @@ class PreferenceUtil @Inject constructor(context: Context) {
 
     private val MAX_SEARCH_HISTORY_SIZE = 3
 
-    fun saveSearchHistory(searchTerm: String) {
-        val historyString =
-            searchPreferences.getString("search_history", null)
+    fun saveSearchHistory(place: Place) {
+        this.saveSearchHistory(SearchHistoryWrapper(type = "place", Gson().toJson(place)))
+    }
 
-        val separator = "|"
-        val historyList = historyString?.split(separator)?.toMutableList() ?: mutableListOf()
+    fun saveSearchHistory(tag: Tag) {
+        this.saveSearchHistory(SearchHistoryWrapper(type = "place", Gson().toJson(tag)))
+    }
 
+    fun saveSearchHistory(searchHistoryWrapper: SearchHistoryWrapper) {
+        val jsonString =
+            searchPreferences.getString("search_history", "[]")
 
-        historyList.remove(searchTerm)
-        historyList.add(searchTerm)
-        if (historyList.size > MAX_SEARCH_HISTORY_SIZE) {
-            historyList.removeFirst()
+        val gson = Gson()
+        val listType = object : TypeToken<MutableList<SearchHistoryWrapper>>() {}.type
+        val jsonWrapperList = gson.fromJson<MutableList<SearchHistoryWrapper>>(jsonString, listType)
+
+        // 동일한거 제거
+        jsonWrapperList.removeIf { it.data == searchHistoryWrapper.data }
+
+        // 추가
+        jsonWrapperList.add(searchHistoryWrapper)
+
+        // 갯수 확인
+        if (jsonWrapperList.size > MAX_SEARCH_HISTORY_SIZE) {
+            jsonWrapperList.removeFirst()
         }
 
-        val nextString = historyList.joinToString(separator)
-        searchPreferences.edit().putString("search_history", nextString).apply()
+        searchPreferences.edit().putString("search_history", gson.toJson(jsonWrapperList)).apply()
     }
 
     // 검색 이력을 불러오는 함수
-    fun loadSearchHistory(): List<String> {
+    fun loadSearchHistory(): List<SearchHistoryWrapper> {
+        val jsonString =
+            searchPreferences.getString("search_history", "[]")
 
-        val historyString =
-            searchPreferences.getString("search_history", null)
+        val gson = Gson()
+        val listType = object : TypeToken<List<SearchHistoryWrapper>>() {}.type
+        val jsonWrapperList = gson.fromJson<List<SearchHistoryWrapper>>(jsonString, listType)
 
-        val separator = "|"
-        val historyList = historyString?.split(separator)?.toMutableList() ?: mutableListOf()
-
-        return historyList.reversed()
+        return jsonWrapperList.reversed()
     }
 
     fun getString(key: String, defaultValue: String = ""): String {

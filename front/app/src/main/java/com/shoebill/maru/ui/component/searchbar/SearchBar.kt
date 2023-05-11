@@ -91,25 +91,30 @@ fun SearchBar(
                                 // 장소로 검색시 장소 추천 목록 불러 오기
                                 searchBarViewModel.getRecommendPlacesByKeyword(it)
                             } else {
-                                // 태그로 검색 시
+                                // 태그로 검색 시 태그 추천 목록 보여주기
 
                             }
                         } else {
                             // 추천 목록 싹 제거하기
                             searchBarViewModel.resetRecommendPlacesByKeyword()
                         }
-
                     },
                     keyboardActions = KeyboardActions(
                         onDone = {
                             if (keyword.value[0] != '#') {
                                 // 장소로 검색일때, Map view 를 검색 결과의 lng lat 로 이동
+                                val place = searchBarViewModel.recommendedPlaces.value?.get(0)
+
+                                if (place != null) {
+                                    mapViewModel.moveCamera(lng = place.lng, lat = place.lat)
+                                    searchBarViewModel.prefUtil.saveSearchHistory(place)
+                                }
 
                             } else {
                                 // 태그로 검색 일때, 현재 위치 그대로 태그로 필터링
 
                             }
-                            searchBarViewModel.prefUtil.saveSearchHistory(keyword.value)
+
                             searchBarViewModel.updateKeyword("")
                             mapViewModel.clearFocus()
                         }
