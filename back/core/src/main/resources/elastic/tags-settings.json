@@ -1,35 +1,73 @@
 {
-  "index": {
-    "analysis": {
-      "analyzer": {
-        "custom_analyzer": {
-          "type": "custom",
-          "tokenizer": "tokenizer_chain",
-          "filter": [ "lowercase", "nori_pos_filter", "edge_ngram_filter_front", "trim" ]
-        }
-      },
-      "tokenizer_chain": {
-        "type": "custom",
-        "tokenizer": [ "nori_tokenizer", "standard_tokenizer" ]
-      },
-      "nori_tokenizer": {
-        "type": "nori_tokenizer",
-        "decompound_mode": "mixed",
-        "discard_punctuation": "false"
-      },
-      "standard_tokenizer": {
-        "type": "standard"
-      },
-      "filter": {
-        "nori_pos_filter": {
-          "type": "nori_part_of_speech",
-          "stoptags": [ "E", "IC", "J", "MAG", "MM", "NA", "NR", "SC", "SE", "SF", "SH", "SL", "SN", "SP", "SSC", "SSO", "SY", "UNA", "UNKNOWN", "VA", "VCN", "VCP", "VSV", "VV", "VX", "XPN", "XR", "XSA", "XSN", "XSV" ]
+  "settings": {
+    "index": {
+      "analysis": {
+        "analyzer": {
+          "custom_analyzer": {
+            "tokenizer": "whitespace",
+            "filter": [
+              "lowercase",
+              "my_english_stemmer",
+              "nori_pos_filter",
+              "edge_ngram_filter_front",
+              "trim"
+            ]
+          }
         },
-        "edge_ngram_filter_front": {
-          "type": "edgeNGram",
-          "min_gram": "1",
-          "max_gram": "5",
-          "side": "front"
+        "tokenizer": {
+          "my_nori_tokenizer": {
+            "type": "nori_tokenizer",
+            "decompound_mode": "mixed",
+            "discard_punctuation": "false"
+          }
+        },
+        "filter": {
+          "my_english_stemmer": {
+            "type": "stemmer",
+            "name": "english"
+          },
+          "nori_pos_filter": {
+            "type": "nori_part_of_speech",
+            "stoptags": [
+              "E",
+              "IC",
+              "J",
+              "MAG",
+              "MM",
+              "NA",
+              "NR",
+              "SC",
+              "SE",
+              "SF",
+              "SH",
+              "SL",
+              "SN",
+              "SP",
+              "SSC",
+              "SSO",
+              "SY",
+              "UNA",
+              "UNKNOWN",
+              "VA",
+              "VCN",
+              "VCP",
+              "VSV",
+              "VV",
+              "VX",
+              "XPN",
+              "XR",
+              "XSA",
+              "XSN",
+              "XSV"
+            ],
+            "tokenizer": "my_nori_tokenizer"
+          },
+          "edge_ngram_filter_front": {
+            "type": "edgeNGram",
+            "min_gram": "1",
+            "max_gram": "5",
+            "side": "front"
+          }
         }
       }
     }

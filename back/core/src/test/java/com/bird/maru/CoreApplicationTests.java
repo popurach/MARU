@@ -15,14 +15,12 @@ class CoreApplicationTests {
 	@Autowired
 	private ElasticsearchOperations elasticsearchOperations;
 
-	@Autowired
-	private ElasticsearchRestTemplate elasticsearchRestTemplate;
-
 	@Test
 	void contextLoads() {
-		Tag tag = new Tag(3L, "태그테스트애그3");
-		Tag save = elasticsearchRestTemplate.save(tag);
+		Tag tag = new Tag(1L, "태그테스트애그3");
+		Tag save = elasticsearchOperations.save(tag);
 		log.debug("Tag :: {}", tag);
+		log.debug("Tag :: {}", save);
 	}
 
 }
