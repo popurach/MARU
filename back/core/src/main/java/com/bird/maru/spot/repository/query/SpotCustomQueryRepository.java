@@ -164,6 +164,7 @@ public class SpotCustomQueryRepository {
         return Optional.ofNullable(
                 queryFactory.select(Projections.fields(SpotDetailResponseDto.class,
                                                        Expressions.asNumber(spotId).as("id"),
+                                                       spot.coordinate.as("coordinate"),
                                                        Expressions.asNumber(spot.landmark.id != null ? spot.landmark.id : null).as("landmarkId"),
                                                        spot.image.url.as("imageUrl"),
                                                        Expressions.asBoolean(scrap.spot.id.isNotNull()).as("scraped"),

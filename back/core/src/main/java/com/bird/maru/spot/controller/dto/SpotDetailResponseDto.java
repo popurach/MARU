@@ -1,6 +1,7 @@
 package com.bird.maru.spot.controller.dto;
 
 import com.bird.maru.domain.model.entity.Tag;
+import com.bird.maru.domain.model.type.Coordinate;
 import java.net.URL;
 import java.util.List;
 import lombok.AllArgsConstructor;
@@ -18,6 +19,7 @@ public class SpotDetailResponseDto {
 
     private Long id;
     private Long landmarkId;
+    private Coordinate coordinate;
     private URL imageUrl;
     private Boolean scraped;
     private Boolean liked;

@@ -109,8 +109,7 @@ public class SpotQueryServiceImpl implements SpotQueryService {
      */
     @Override
     public SpotDetailResponseDto findSpotDetail(Long spotId, Long memberId) throws ResourceNotFoundException {
-        Optional<SpotDetailResponseDto> spotDetailResponseDto = spotCustomQueryRepository.findSpotDetail(spotId, memberId);
-        SpotDetailResponseDto spotDetail = spotDetailResponseDto.orElseThrow(
+        SpotDetailResponseDto spotDetail = spotCustomQueryRepository.findSpotDetail(spotId, memberId).orElseThrow(
                 () -> new ResourceNotFoundException("해당 리소스 존재하지 않습니다."));
         List<Tag> tags = tagCustomQueryRepository.findAllBySpotId(spotId);
         spotDetail.setTags(tags);
