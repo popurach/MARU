@@ -10,7 +10,10 @@ import com.bird.maru.domain.model.entity.Auction;
 import com.bird.maru.domain.model.entity.AuctionLog;
 import com.bird.maru.domain.model.entity.Landmark;
 import com.bird.maru.domain.model.entity.Member;
+import com.bird.maru.landmark.repository.LandmarkRepository;
 import com.bird.maru.member.repository.MemberRepository;
+import com.bird.maru.notice.model.NoticeRequestDto;
+import com.bird.maru.notice.service.NoticeService;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -28,11 +31,13 @@ import org.springframework.transaction.annotation.Transactional;
 @Slf4j
 public class AuctionLogServiceImpl implements AuctionLogService {
 
+    private final NoticeService noticeService;
     private final SimpMessageSendingOperations messagingTemplate;
     private final AuctionLogRepository auctionLogRepository;
     private final AuctionLogCustomQueryRepository auctionLogCustomQueryRepository;
     private final AuctionRepository auctionRepository;
     private final MemberRepository memberRepository;
+    private final LandmarkRepository landmarkRepository;
 
     /**
      * 입찰 처리 (신규 입찰자)
@@ -53,9 +58,10 @@ public class AuctionLogServiceImpl implements AuctionLogService {
         Auction auction = auctionRepository.findByLandmarkAndFinished(landmarkId, Boolean.FALSE)
                                            .orElseThrow(() -> new ResourceNotFoundException("해당 리소스 존재하지 않습니다."));
         if (auction != null) {
-            biddingWithAuction(auction, member, price);
+            biddingWithAuction(auction, member, price, landmarkId);
         }
-
+        // 입찰 성공 알림
+//        noticeService.notifyBidSuccessful(new NoticeRequestDto());
     }
 
     /**
@@ -85,6 +91,16 @@ public class AuctionLogServiceImpl implements AuctionLogService {
 
         if (price <= prevCost) {
             throw new NotEnoughMoney("입찰 금액이 최고가보다 낮습니다.");
+        }
+
+        // 상위 입찰자 알림 설정
+        AuctionLog prevAuctionLog = auctionLogRepository.findById(auction.getLastLogId())
+                                                        .orElseThrow(() -> new ResourceNotFoundException("해당 리소스 존재하지 않습니다."));
+        if(!prevAuctionLog.getMember().getId().equals(memberId)) {
+            Landmark landmark = landmarkRepository.findById(landmarkId)
+                                                  .orElseThrow(() -> new ResourceNotFoundException("해당 리소스 존재하지 않습니다."));
+
+            noticeService.notifyTopBidderRevoked(new NoticeRequestDto(prevAuctionLog.getMember(), landmark, price));
         }
 
         //  Member의 point 깎기
@@ -173,11 +189,14 @@ public class AuctionLogServiceImpl implements AuctionLogService {
     public List<Integer> auctionRecord(Long landmarkId) {
         List<AuctionLog> auctionLogList = auctionLogCustomQueryRepository.auctionRecordTop10(landmarkId);
         if (auctionLogList.isEmpty()) {
-            return new ArrayList<>();
+            List<Integer> auctionRecords = new ArrayList<>();
+            auctionRecords.add(10000);
+            return auctionRecords;
         }
         List<Integer> auctionRecords = auctionLogList.stream().map(
                 auctionLog -> auctionLog.getPrice() != null ? auctionLog.getPrice() : 0
         ).collect(Collectors.toList());
+        auctionRecords.add(0, 10000);
         return auctionRecords;
     }
 
@@ -195,20 +214,20 @@ public class AuctionLogServiceImpl implements AuctionLogService {
         return 10000;
     }
 
-    private void biddingWithAuction(Auction auction, Member member, int price) {
+    private void biddingWithAuction(Auction auction, Member member, int price, Long landmarkId) {
 
         if (auction.getLastLogId() != null) {
-            int prevCost = auctionLogRepository.findById(auction.getLastLogId())
-                                               .orElseThrow(() -> new ResourceNotFoundException("해당 리소스 존재하지 않습니다."))
-                                               .getPrice();
+            AuctionLog prevAuctionLog = auctionLogRepository.findById(auction.getLastLogId())
+                                                            .orElseThrow(() -> new ResourceNotFoundException("해당 리소스 존재하지 않습니다."));
+            int prevCost = prevAuctionLog.getPrice();
             if (price < prevCost) {
                 throw new NotEnoughMoney("입찰 금액이 최고가보다 낮습니다.");
             }
+            // 상위 입찰자 알림 설정
+            Landmark landmark = landmarkRepository.findById(landmarkId)
+                                                  .orElseThrow(() -> new ResourceNotFoundException("해당 리소스 존재하지 않습니다."));
+            noticeService.notifyTopBidderRevoked(new NoticeRequestDto(prevAuctionLog.getMember(), landmark, price));
         }
-
-//        log.info("auction 정보 : {}, {}", auction.getCreatedDate(), auction.getLandmark().getId());
-//        log.info("member 정보 : {}", member.getNickname());
-//        log.info("입찰 가격 : {}", price);
 
         // 입찰 가격이 더 높은 경우
         // 4. auctionLog에 입찰 정보 등록
