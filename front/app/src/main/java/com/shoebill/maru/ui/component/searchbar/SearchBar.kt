@@ -86,6 +86,9 @@ fun SearchBar(
                     singleLine = true,
                     onValueChange = {
                         searchBarViewModel.updateKeyword(it)
+                        if (it.length >= 2) {
+                            searchBarViewModel.getRecommendPlacesByKeyword(it)
+                        }
                     },
                     keyboardActions = KeyboardActions(
                         onDone = {
