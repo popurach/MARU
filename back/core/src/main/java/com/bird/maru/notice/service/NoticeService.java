@@ -17,12 +17,12 @@ public interface NoticeService {
 
     void notifyAuctionClosed(List<Member> members);
 
-    void notifyBidSuccessful(List<NoticeRequestDto> requests);
+    void notifyBidSuccessful(NoticeRequestDto requestDto);
 
-    void notifyBidFailed(List<NoticeRequestDto> requests);
+    void notifyBidFailed(NoticeRequestDto requestDto);
 
-    void notifyOccupationStart(List<NoticeRequestDto> requests);
+    void notifyOccupationStart(NoticeRequestDto requestDto);
 
-    void notifyOccupationPeriodEnd(List<NoticeRequestDto> requests);
+    void notifyOccupationPeriodEnd(NoticeRequestDto requestDto);
 
 }

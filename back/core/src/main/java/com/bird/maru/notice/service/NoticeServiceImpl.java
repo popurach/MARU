@@ -103,104 +103,85 @@ public class NoticeServiceImpl implements NoticeService {
     /**
      * 입찰에 성공하여 포인트가 차감되었음을 알림
      *
-     * @param requests 회원, 랜드마크, 포인트 정보 포함
+     * @param requestDto 회원, 랜드마크, 포인트 정보 포함
      */
-    public void notifyBidSuccessful(List<NoticeRequestDto> requests) {
-        List<Notice> notices = new LinkedList<>();
+    public void notifyBidSuccessful(NoticeRequestDto requestDto) {
 
-        for (NoticeRequestDto request :
-                requests) {
-            Member member = request.getMember();
-            Landmark landmark = request.getLandmark();
-            int point = request.getPoint();
-            String content = String.format("[%s] 입찰에 성공하여 %d 포인트가 차감되었습니다.", landmark.getName(), point);
+        Member member = requestDto.getMember();
+        Landmark landmark = requestDto.getLandmark();
+        int point = requestDto.getPoint();
+        String content = String.format("[%s] 입찰에 성공하여 %d 포인트가 차감되었습니다.", landmark.getName(), point);
 
-            notices.add(
-                    Notice.builder()
-                          .memberId(member.getId())
-                          .noticeToken(member.getNoticeToken())
-                          .category(Category.POINT)
-                          .content(content).build());
-        }
+        Notice notice = Notice.builder()
+                              .memberId(member.getId())
+                              .noticeToken(member.getNoticeToken())
+                              .category(Category.AUCTION)
+                              .content(content).build();
 
-        customNoticeRepository.bulkInsertNotices(notices);
+        noticeRepository.save(notice);
     }
 
     /**
      * 입찰 실패에 따른 포인트 지급 알림
      *
-     * @param requests 회원, 랜드마크, 포인트 정보 포함 입찰 성공 메서드와 유사하므로 리팩토링을 통해 코드 중복 제거 필요
+     * @param requestDto 회원, 랜드마크, 포인트 정보 포함 입찰 성공 메서드와 유사하므로 리팩토링을 통해 코드 중복 제거 필요
      */
-    public void notifyBidFailed(List<NoticeRequestDto> requests) {
-        List<Notice> notices = new LinkedList<>();
+    public void notifyBidFailed(NoticeRequestDto requestDto) {
 
-        for (NoticeRequestDto request :
-                requests) {
-            Member member = request.getMember();
-            Landmark landmark = request.getLandmark();
-            int point = request.getPoint();
-            String content = String.format("[%s] 입찰에 실패하여 %d 포인트가 지급되었습니다.", landmark.getName(), point);
+        Member member = requestDto.getMember();
+        Landmark landmark = requestDto.getLandmark();
+        int point = requestDto.getPoint();
+        String content = String.format("[%s] 입찰에 실패하여 %d 포인트가 지급되었습니다.", landmark.getName(), point);
 
-            notices.add(
-                    Notice.builder()
-                          .memberId(member.getId())
-                          .noticeToken(member.getNoticeToken())
-                          .category(Category.POINT)
-                          .content(content).build());
-        }
+        Notice notice = Notice.builder()
+                              .memberId(member.getId())
+                              .noticeToken(member.getNoticeToken())
+                              .category(Category.POINT)
+                              .content(content).build();
 
-        customNoticeRepository.bulkInsertNotices(notices);
+        noticeRepository.save(notice);
     }
 
     /**
      * 점령 시작 알림
      *
-     * @param requests 회원, 랜드마크 정보 포함
+     * @param requestDto 회원, 랜드마크 정보 포함
      */
-    public void notifyOccupationStart(List<NoticeRequestDto> requests) {
-        List<Notice> notices = new LinkedList<>();
+    public void notifyOccupationStart(NoticeRequestDto requestDto) {
 
-        for (NoticeRequestDto request :
-                requests) {
-            Member member = request.getMember();
-            Landmark landmark = request.getLandmark();
-            String content = String.format("[%s] 입찰에 성공하여 [%s]을(를) 일주일간 점령하게 되었습니다. 축하합니다!", landmark.getName(), landmark.getName());
+        Member member = requestDto.getMember();
+        Landmark landmark = requestDto.getLandmark();
+        String content = String.format("[%s] 입찰에 성공하여 [%s]을(를) 일주일간 점령하게 되었습니다. 축하합니다!", landmark.getName(), landmark.getName());
 
-            notices.add(
-                    Notice.builder()
-                          .memberId(member.getId())
-                          .noticeToken(member.getNoticeToken())
-                          .category(Category.LANDMARK)
-                          .content(content)
-                          .build());
-        }
+        Notice notice = Notice.builder()
+                              .memberId(member.getId())
+                              .noticeToken(member.getNoticeToken())
+                              .category(Category.LANDMARK)
+                              .content(content)
+                              .build();
 
-        customNoticeRepository.bulkInsertNotices(notices);
+        noticeRepository.save(notice);
     }
 
     /**
      * 점령 종료 알림
      *
-     * @param requests 회원 정보 포함
+     * @param requestDto 회원 정보 포함
      */
-    public void notifyOccupationPeriodEnd(List<NoticeRequestDto> requests) {
-        List<Notice> notices = new LinkedList<>();
+    public void notifyOccupationPeriodEnd(NoticeRequestDto requestDto) {
 
-        for (NoticeRequestDto request :
-                requests) {
-            Member member = request.getMember();
-            String content = "랜드마크의 점령 기간이 종료되었습니다. 새로운 경매에 참여해보세요!";
+        Member member = requestDto.getMember();
+        String content = "랜드마크의 점령 기간이 종료되었습니다. 새로운 경매에 참여해보세요!";
 
-            notices.add(
-                    Notice.builder()
-                          .memberId(member.getId())
-                          .noticeToken(member.getNoticeToken())
-                          .category(Category.LANDMARK)
-                          .content(content)
-                          .build());
-        }
+        Notice notice = Notice.builder()
+                              .memberId(member.getId())
+                              .noticeToken(member.getNoticeToken())
+                              .category(Category.LANDMARK)
+                              .content(content)
+                              .build();
 
-        customNoticeRepository.bulkInsertNotices(notices);
+        noticeRepository.save(notice);
+
     }
 
 }

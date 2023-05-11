@@ -4,6 +4,8 @@ import com.bird.maru.common.exception.ResourceNotFoundException;
 import com.bird.maru.domain.model.entity.Member;
 import com.bird.maru.domain.model.type.PointMoney;
 import com.bird.maru.member.repository.query.MemberQueryRepository;
+import com.bird.maru.notice.model.NoticeRequestDto;
+import com.bird.maru.notice.service.NoticeService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -15,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Slf4j
 public class PointServiceImpl implements PointService {
 
+    private final NoticeService noticeService;
     private final MemberQueryRepository memberQueryRepository;
 
     @Override
@@ -32,6 +35,10 @@ public class PointServiceImpl implements PointService {
                                              .orElseThrow(() -> new ResourceNotFoundException("회원을 찾을 수 없습니다."));
         int point =  PointMoney.LANDMARK_OCCUPY_POINT.getValue();
         member.gainPoint(point);
+
+        // 랜드마크 점유 종료 알림
+        noticeService.notifyOccupationPeriodEnd(new NoticeRequestDto(member, null, point));
+
         return point;
     }
 
