@@ -1,4 +1,4 @@
-package com.bird.maru.common.config;
+package com.bird.maru.common.config.converter;
 
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.core.convert.converter.ConverterFactory;
@@ -17,7 +17,7 @@ public class StringToEnumConverterFactory implements ConverterFactory<String, En
         }
 
         public T convert(String source) {
-            return (T) Enum.valueOf(this.enumType, source.toUpperCase());
+            return (T) Enum.valueOf(this.enumType, source.trim().toUpperCase());
         }
 
     }
