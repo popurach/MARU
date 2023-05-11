@@ -1,6 +1,9 @@
 package com.shoebill.maru.ui.page
 
-import androidx.activity.compose.BackHandler
+import androidx.compose.animation.core.FastOutLinearInEasing
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.animateIntAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -16,8 +19,11 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.Icon
+import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -42,6 +48,7 @@ import com.patrykandpatrick.vico.compose.chart.Chart
 import com.patrykandpatrick.vico.compose.chart.line.lineChart
 import com.patrykandpatrick.vico.compose.chart.line.lineSpec
 import com.patrykandpatrick.vico.compose.component.shape.shader.verticalGradient
+import com.patrykandpatrick.vico.core.chart.line.LineChart
 import com.patrykandpatrick.vico.core.chart.values.AxisValuesOverrider
 import com.patrykandpatrick.vico.core.entry.entryModelOf
 import com.shoebill.maru.R
@@ -63,7 +70,7 @@ fun AuctionPage(
     auctionViewModel.initLandmarkId(id, context)
 
     val auctionInfo = auctionViewModel.auctionInfo.observeAsState()
-    val auctionHistory = auctionViewModel.auctionHistory.observeAsState(arrayOf())
+    val auctionHistory = auctionViewModel.auctionHistory.observeAsState(arrayOf(1000))
     val currentHighestBid = auctionViewModel.currentHighestBid.observeAsState()
 
     val chartEntryModel = entryModelOf(*(auctionHistory.value))
@@ -73,9 +80,25 @@ fun AuctionPage(
     val isDeleteModalOpen = remember { mutableStateOf(false) }
     val isBiddingModalOpen = remember { mutableStateOf(false) }
 
-    BackHandler() {
-        auctionViewModel.exit()
-        navigateViewModel.navigator?.popBackStack()
+    val currentHighestBidAnimation by animateIntAsState(
+        targetValue = currentHighestBid.value ?: 0,
+        animationSpec = tween(
+            durationMillis = 500,
+            easing = FastOutSlowInEasing
+        )
+    )
+    val bidAnimation by animateIntAsState(
+        targetValue = bid.value ?: 0,
+        animationSpec = tween(
+            durationMillis = 500,
+            easing = FastOutLinearInEasing
+        )
+    )
+
+    DisposableEffect(Unit) {
+        onDispose {
+            auctionViewModel.viewModelOnCleared()
+        }
     }
 
     Column(
@@ -95,7 +118,7 @@ fun AuctionPage(
                     .size(30.dp)
                     .clickable {
                         auctionViewModel.exit()
-                        navigateViewModel.navigator?.navigateUp()
+                        navigateViewModel.navigator?.popBackStack()
                     },
                 painter = painterResource(id = R.drawable.arrow_back),
                 contentDescription = "뒤로가기",
@@ -138,31 +161,39 @@ fun AuctionPage(
             text = "현재 최고 입찰가"
         )
         Text(
-            text = "$ ${dec.format(currentHighestBid.value)}",
+            text = "$ ${dec.format(currentHighestBidAnimation)}",
             fontSize = 22.sp,
             fontWeight = FontWeight.Bold
         )
-        Chart(
-            chart = lineChart(
-                lines = listOf(
-                    lineSpec(
-                        lineColor = Color(0xFF6039DF),
-                        lineThickness = 4.dp,
-                        lineBackgroundShader = verticalGradient(
-                            arrayOf(
-                                Color(0xFF6039DF).copy(0.5f),
-                                Color(0xFFA14AB7).copy(alpha = 0f)
+        Surface(
+            modifier = Modifier.padding(horizontal = 20.dp)
+        ) {
+            Chart(
+                modifier = Modifier.padding(horizontal = 30.dp),
+                chart = lineChart(
+                    lines = listOf(
+                        lineSpec(
+                            lineColor = Color(0xFF6039DF),
+                            lineThickness = 4.dp,
+                            lineBackgroundShader = verticalGradient(
+                                arrayOf(
+                                    Color(0xFF6039DF).copy(0.5f),
+                                    Color(0xFFA14AB7).copy(alpha = 0f)
+                                ),
                             ),
                         ),
                     ),
+                    axisValuesOverrider = AxisValuesOverrider.fixed(
+                        maxX = auctionHistory.value.size.minus(
+                            2
+                        ).toFloat()
+                    ),
+                    pointPosition = LineChart.PointPosition.Start,
                 ),
-                axisValuesOverrider = AxisValuesOverrider.fixed(
-                    minY = -100f
-                ),
-            ),
-            model = chartEntryModel,
-            marker = rememberMarker()
-        )
+                model = chartEntryModel,
+                marker = rememberMarker(),
+            )
+        }
         Text(
             modifier = Modifier.padding(top = 25.dp),
             fontSize = 12.sp,
@@ -171,7 +202,7 @@ fun AuctionPage(
         )
         Text(
             modifier = Modifier.padding(bottom = 15.dp),
-            text = "$ ${dec.format(bid.value)}",
+            text = "$ ${dec.format(bidAnimation)}",
             fontSize = 22.sp,
             fontWeight = FontWeight.Bold
         )
@@ -211,7 +242,7 @@ fun AuctionPage(
                         )
                     }
                     Text(
-                        text = dec.format(auctionViewModel.unit),
+                        text = dec.format(auctionViewModel.unit.value),
                         color = if (auctionViewModel.downPrice != currentHighestBid.value) Color(
                             0xFF424242
                         ) else Color(
@@ -273,7 +304,7 @@ fun AuctionPage(
                         )
                     }
                     Text(
-                        text = dec.format(auctionViewModel.unit),
+                        text = dec.format(auctionViewModel.unit.value),
                         color = Color(0xFF424242),
                         fontSize = 15.sp,
                         fontWeight = FontWeight.Light,

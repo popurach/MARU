@@ -17,6 +17,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.json.JSONObject
 import ua.naiksoftware.stomp.Stomp
+import ua.naiksoftware.stomp.StompClient
 import ua.naiksoftware.stomp.dto.LifecycleEvent
 import javax.inject.Inject
 import kotlin.math.pow
@@ -28,26 +29,17 @@ class AuctionViewModel @Inject constructor(
 ) :
     ViewModel() {
 
-    private val _currentHighestBid = MutableLiveData<Int>(10000)
+    private val _currentHighestBid = MutableLiveData<Int>(0)
     val currentHighestBid: LiveData<Int> = _currentHighestBid
 
-//    private val _biddingPrice = MutableLiveData<Int>(10000)
-//    val biddingPrice: LiveData<Int> = _biddingPrice
-
-    private val _bid = MutableLiveData<Int>(1000)
+    private val _bid = MutableLiveData<Int>(0)
     val bid: LiveData<Int> = _bid
 
-    val unit: Int
-        get() {
-            val divideValue = _bid.value?.div(10)
-            val stringValue = divideValue.toString()
-            val lengthValue = stringValue.length - 1
+    private val _unit = MutableLiveData<Int>(1000)
+    val unit: LiveData<Int> = _unit
 
-            return 10.0.pow(lengthValue.toDouble()).toInt()
-        }
-
-    val downPrice: Int get() = if (_bid.value == null) 1000 else _bid.value!!.minus(unit)
-    val upPrice: Int get() = if (_bid.value == null) 1000 else _bid.value!!.plus(unit)
+    val downPrice: Int get() = if (_bid.value == null) 1000 else _bid.value!!.minus(unit.value!!)
+    val upPrice: Int get() = if (_bid.value == null) 1000 else _bid.value!!.plus(unit.value!!)
 
     private val _auctionHistory = MutableLiveData<Array<Int>>()
     val auctionHistory: LiveData<Array<Int>> = _auctionHistory
@@ -64,19 +56,17 @@ class AuctionViewModel @Inject constructor(
         isLoading = true
         landmarkId = value
         viewModelScope.launch {
-            getAuctionHistory(landmarkId)
-            getAuctionInfo(landmarkId)
-//            getBiddingPrice(landmarkId)
             runStomp(context)
+            getAuctionInfo(landmarkId)
         }
     }
 
     fun increaseBid() {
-        _bid.value = _bid.value!!.plus(unit)
+        _bid.value = _bid.value!!.plus(unit.value!!)
     }
 
     fun decreaseBid() {
-        _bid.value = _bid.value!!.minus(unit)
+        _bid.value = _bid.value!!.minus(unit.value!!)
     }
 
     private fun getAuctionHistory(landmarkId: Long) {
@@ -84,17 +74,9 @@ class AuctionViewModel @Inject constructor(
             try {
                 val result = auctionRepository.getAuctionHistory(landmarkId).toTypedArray()
                 val modifiedList = mutableListOf<Int>()
-                if (result.size == 1) {
-                    modifiedList.add(0)
-                    modifiedList.addAll(result)
-                }
-                _auctionHistory.value =
-                    if (result.isEmpty()) arrayOf(
-                        10000,
-                        13000,
-                        20000,
-                        26000
-                    ) else modifiedList.toTypedArray()
+                modifiedList.addAll(result)
+                modifiedList.add(_bid.value!!)
+                _auctionHistory.value = modifiedList.toTypedArray()
                 Log.d(
                     "AUCTION",
                     "getAuctionHistory: ${_auctionHistory.value.contentDeepToString()}"
@@ -116,20 +98,6 @@ class AuctionViewModel @Inject constructor(
             }
         }
     }
-
-//    private fun getBiddingPrice(landmarkId: Long) {
-//        viewModelScope.launch {
-//            try {
-//                val result = auctionRepository.getBiddingPrice(landmarkId)
-//                _biddingPrice.value = result
-//                _bid.value = result
-//                _bid.value = result.plus(unit)
-//                Log.d("AUCTION", "getBiddingPrice: ${_biddingPrice.value}")
-//            } catch (e: Exception) {
-//                Log.e("AUCTION", "getBiddingPrice fail: $e")
-//            }
-//        }
-//    }
 
     fun createBidding(onComplete: (Boolean) -> Unit) {
         val requestBody = AuctionBiddingRequest(landmarkId, _bid.value!!)
@@ -167,9 +135,11 @@ class AuctionViewModel @Inject constructor(
         isLoading = false
     }
 
+    private lateinit var stompClient: StompClient
+
     @SuppressLint("CheckResult")
     private fun runStomp(context: Context) {
-        val endpointUrl = "ws://k8a403.p.ssafy.io:8080/socket"
+        val endpointUrl = "wss://k8a403.p.ssafy.io/socket"
 
         val prefUtil = PreferenceUtil(context)
         val accessToken = prefUtil.getString("accessToken")
@@ -177,7 +147,7 @@ class AuctionViewModel @Inject constructor(
 
         val headers: MutableMap<String, String> = HashMap()
         headers["Authorization"] = tokenInfo
-        val stompClient = Stomp.over(Stomp.ConnectionProvider.OKHTTP, endpointUrl, headers)
+        stompClient = Stomp.over(Stomp.ConnectionProvider.OKHTTP, endpointUrl, headers)
 
         stompClient.lifecycle().subscribe { lifecycleEvent ->
             when (lifecycleEvent.type) {
@@ -188,7 +158,7 @@ class AuctionViewModel @Inject constructor(
                     data.put("price", 0)
                     data.put("landmarkId", landmarkId)
 
-                    stompClient.send("/bid/bid", data.toString()).subscribe(
+                    stompClient.send("/app/bid", data.toString()).subscribe(
                         {
                             Log.i("Send Success", "Message sent successfully")
                         },
@@ -217,13 +187,27 @@ class AuctionViewModel @Inject constructor(
 
         stompClient.topic("/bidding/price").subscribe({ topicMessage ->
             val body = JSONObject(topicMessage.payload)
+            val getLandmarkId = body.getLong("landmarkId")
             val price = body.getInt("price")
-            Log.i("Received Message", "price: $price")
-            _currentHighestBid.postValue(price)
-            _bid.postValue(price)
-            _bid.postValue(price.plus(unit))
+            if (getLandmarkId == landmarkId) {
+                Log.i("Received Message", "price: $price")
+                _currentHighestBid.postValue(price)
+                val divideValue = price.div(10)
+                val stringValue = divideValue.toString()
+                val lengthValue = stringValue.length - 1
+                _unit.postValue(10.0.pow(lengthValue.toDouble()).toInt())
+                _bid.postValue(price.plus(10.0.pow(lengthValue.toDouble()).toInt()))
+                getAuctionHistory(landmarkId)
+            }
         }, { error ->
             Log.e("Subscription Error", "Failed to subscribe to topic", error)
         })
+    }
+
+    fun viewModelOnCleared() {
+        stompClient.disconnect()
+        _currentHighestBid.value = 0
+        _bid.value = 0
+        _unit.value = 0
     }
 }
