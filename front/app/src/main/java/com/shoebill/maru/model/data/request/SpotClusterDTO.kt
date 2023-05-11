@@ -2,5 +2,6 @@ package com.shoebill.maru.model.data.request
 
 data class SpotClusterDTO(
     val boundingBox: BoundingBox,
-    val mine: Boolean
+    val filter: String = "all",
+    val tagId: Long? = null
 )

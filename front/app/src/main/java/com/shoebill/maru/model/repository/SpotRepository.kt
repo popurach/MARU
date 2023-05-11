@@ -69,7 +69,7 @@ class SpotRepository @Inject constructor(
 
     suspend fun getSpotMarker(boundingBox: BoundingBox, mine: Boolean): Response<List<SpotMarker>> =
         spotApi.getSpotMarker(
-            SpotClusterDTO(boundingBox, mine)
+            SpotClusterDTO(boundingBox, filter = if (mine) "mine" else "all")
         )
 
     suspend fun getSpotDetail(spotId: Long): Response<Spot> = spotApi.getSpotDetail(spotId)

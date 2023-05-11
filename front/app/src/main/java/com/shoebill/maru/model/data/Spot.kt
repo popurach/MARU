@@ -8,6 +8,7 @@ data class Spot(
     val tags: List<Tag>? = null,
     val liked: Boolean = false,
     val scraped: Boolean = false,
+    val coordinate: Coordinate = Coordinate()
 )
 
 data class Tag(
