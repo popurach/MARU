@@ -1,5 +1,7 @@
 package com.shoebill.maru.ui.component.camera
 
+import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -17,9 +19,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -29,23 +33,30 @@ import com.shoebill.maru.ui.component.common.Chip
 import com.shoebill.maru.ui.component.common.GradientButton
 import com.shoebill.maru.ui.theme.MaruBackground
 import com.shoebill.maru.ui.theme.MaruBrush
+import com.shoebill.maru.viewmodel.BottomSheetNavigatorViewModel
 import com.shoebill.maru.viewmodel.CameraViewModel
+import com.shoebill.maru.viewmodel.MapViewModel
 import com.shoebill.maru.viewmodel.NavigateViewModel
 import kotlinx.coroutines.DelicateCoroutinesApi
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalLayoutApi::class, DelicateCoroutinesApi::class)
 @Composable
 fun ImageUploadForm(
     bitmap: ImageBitmap,
+    landmarkId: Long,
     cameraViewModel: CameraViewModel = hiltViewModel(),
-    navigateViewModel: NavigateViewModel = hiltViewModel()
+    mapViewModel: MapViewModel = hiltViewModel(),
+    navigateViewModel: NavigateViewModel = hiltViewModel(),
+    bottomSheetNavigatorViewModel: BottomSheetNavigatorViewModel = hiltViewModel()
 ) {
     val inputTag = cameraViewModel.inputTag.observeAsState("")
     val tagList = cameraViewModel.tagList.observeAsState(listOf())
     val isModalOpen = remember { mutableStateOf(false) }
     val location = cameraViewModel.location.observeAsState()
+
+    val coroutineScope = rememberCoroutineScope()
+    val context = LocalContext.current
 
     Box {
         Column(
@@ -105,18 +116,41 @@ fun ImageUploadForm(
                         .height(48.dp),
                     onClick = {
                         // spot 등록 API 호출
-                        GlobalScope.launch {
-                            cameraViewModel.saveSpot(navigateViewModel.navigator!!)
-                            isModalOpen.value = true
+                        coroutineScope.launch {
+                            val spotId = cameraViewModel.saveSpot(
+                                navigateViewModel.navigator!!,
+                                if (landmarkId == -1L) null else landmarkId
+                            )
+                            if (spotId == null) {
+                                Toast.makeText(
+                                    context,
+                                    "등록 실패!",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            } else {
+                                isModalOpen.value = true
+                            }
+                            Log.d("SAVE-SPOT", "add spot: $spotId")
+
                         }
                     }
                 )
             }
         }
         if (isModalOpen.value) {
-            ConfirmModal(bitmap = bitmap) {
-                isModalOpen.value = false
+            if (landmarkId == -1L) {
+                cameraViewModel.moveSpotDetail(
+                    navigateViewModel.navigator!!,
+                    bottomSheetNavigatorViewModel.navController!!
+                ) {
+                    mapViewModel.updateBottomSheetState(true)
+                }
+            } else {
+                ConfirmModal(bitmap = bitmap, landmarkId = landmarkId) {
+                    isModalOpen.value = false
+                }
             }
+
         }
     }
 }

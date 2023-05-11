@@ -14,15 +14,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.graphics.drawable.toBitmap
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.shoebill.maru.viewmodel.CameraViewModel
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-@Preview
 fun CameraCapturedImage(
+    landmarkId: Long,
     cameraViewModel: CameraViewModel = hiltViewModel()
 ) {
     val context = LocalContext.current
@@ -41,7 +40,7 @@ fun CameraCapturedImage(
         BottomSheetScaffold(
             scaffoldState = bottomSheetState,
             sheetContent = {
-                ImageUploadForm(bitmap)
+                ImageUploadForm(bitmap, landmarkId)
             },
             sheetGesturesEnabled = false,
         ) {

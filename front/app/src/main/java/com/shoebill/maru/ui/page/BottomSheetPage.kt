@@ -92,6 +92,7 @@ fun BottomSheetPage(
                     val landmarkId = it.arguments!!.getLong("landmarkId")
                     BottomSheetFrame(
                         hasFabCamera = true,
+                        landmarkId = landmarkId,
                         backgroundColor = MaruBackground,
                         cameraEnabled = visitingLandmarkId == landmarkId
                     ) {
@@ -115,6 +116,7 @@ fun BottomSheetPage(
                     val landmarkId = it.arguments!!.getLong("landmarkId")
                     BottomSheetFrame(
                         hasFabCamera = true,
+                        landmarkId = landmarkId,
                         backgroundColor = MaruBackground,
                         cameraEnabled = landmarkId == visitingLandmarkId
                     ) {
@@ -135,6 +137,7 @@ fun BottomSheetPage(
                     val landmarkId = it.arguments!!.getLong("landmarkId")
                     BottomSheetFrame(
                         hasFabCamera = true,
+                        landmarkId = landmarkId,
                         backgroundColor = MaruBackground,
                         cameraEnabled = landmarkId == visitingLandmarkId
                     ) {
@@ -155,6 +158,7 @@ fun BottomSheetPage(
                     val landmarkId = it.arguments!!.getLong("landmarkId")
                     BottomSheetFrame(
                         hasFabCamera = true,
+                        landmarkId = landmarkId,
                         backgroundColor = MaruBackground,
                         cameraEnabled = landmarkId == visitingLandmarkId
                     ) {

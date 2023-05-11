@@ -146,7 +146,7 @@ fun MainPage(
                             ),
                             launcherMultiplePermissions
                         )
-                        navigateViewModel.navigator!!.navigate("camera")
+                        navigateViewModel.navigator!!.navigate("camera/-1")
                     }
                 )
             }

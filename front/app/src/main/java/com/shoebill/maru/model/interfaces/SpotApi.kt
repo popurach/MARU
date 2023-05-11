@@ -30,7 +30,7 @@ interface SpotApi {
     suspend fun saveSpot(
         @Part spotImage: MultipartBody.Part? = null,
         @Part("tags") tags: RequestBody? = null,
-        @Part landmarkId: MultipartBody.Part? = null,
+        @Part("landmarkId") landmarkId: RequestBody? = null,
     ): Response<Long>
 
 

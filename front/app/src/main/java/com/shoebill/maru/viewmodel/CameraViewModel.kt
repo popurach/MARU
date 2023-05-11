@@ -23,7 +23,9 @@ import com.shoebill.maru.model.repository.SpotRepository
 import com.shoebill.maru.util.apiCallback
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Locale
@@ -37,8 +39,9 @@ class CameraViewModel @Inject constructor(private val spotRepository: SpotReposi
     private val PHOTO_EXTENSION = ".jpg"
     private val _imageUrl = MutableLiveData("")
     private val _location = MutableLiveData<Location?>()
-    private val _landmarkId = MutableLiveData<Long?>(null)
     private var capturedFile: File? = null
+
+    private var savedSpotId: Long = -1
 
     val location: LiveData<Location?> get() = _location
     fun setLocation(location: Location) {
@@ -75,7 +78,6 @@ class CameraViewModel @Inject constructor(private val spotRepository: SpotReposi
         _imageUrl.value = null
         _inputTag.value = ""
         _location.value = null
-        _landmarkId.value = null
         listOfTag.clear()
         _tagList.value = listOfTag
     }
@@ -183,16 +185,42 @@ class CameraViewModel @Inject constructor(private val spotRepository: SpotReposi
             mediaDir else this.filesDir
     }
 
-    suspend fun saveSpot(navController: NavHostController) {
+    suspend fun saveSpot(navController: NavHostController, landmarkId: Long?): Long? {
+        val spotId = apiCallback(navController) {
+            spotRepository.saveSpot(
+                spotImage = capturedFile!!,
+                tags = _tagList.value,
+                landmarkId = landmarkId
+            )
+        }
+        if (spotId != null) savedSpotId = spotId
+        return spotId
+    }
+
+    fun moveSpotDetail(
+        navController: NavHostController,
+        bottomNavController: NavHostController,
+        onSuccess: () -> Unit
+    ) {
+        clearCameraViewModel(false)
         viewModelScope.launch {
-            apiCallback(navController) {
-                spotRepository.saveSpot(
-                    spotImage = capturedFile!!,
-                    tags = _tagList.value,
-                    landmarkId = _landmarkId.value
-                )
+            withContext(Dispatchers.Main) {
+                navController.navigate("main") {
+                    popUpTo(navController.graph.id) {
+                        inclusive = true
+                    }
+                }
+                bottomNavController.navigate("spot/detail/$savedSpotId") {
+                    popUpTo("spot/list")
+                }
+                onSuccess()
             }
         }
+    }
+
+    fun moveAuctionPage(navController: NavHostController, landmarkId: Long) {
+        clearCameraViewModel(false)
+        navController.navigate("auction/$landmarkId")
     }
 }
 

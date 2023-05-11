@@ -139,11 +139,19 @@ fun MyApp(
             }
         }
 
-        composable("camera") { backStackEntry ->
+        composable(
+            "camera/{id}",
+            arguments = listOf(navArgument("id") {
+                type = NavType.LongType
+                defaultValue = -1L
+            })
+        ) {
             CompositionLocalProvider(LocalViewModelStoreOwner provides viewModelStoreOwner) {
-                CameraPage(onImageCaptured = { _, _ ->
-                }, onError = {
-                })
+                CameraPage(landmarkId = it.arguments!!.getLong("id"),
+                    onImageCaptured = { _, _ ->
+                    }, onError = {
+                    }
+                )
             }
         }
 

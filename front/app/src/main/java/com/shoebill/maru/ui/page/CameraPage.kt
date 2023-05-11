@@ -2,6 +2,7 @@ package com.shoebill.maru.ui.page
 
 import android.annotation.SuppressLint
 import android.net.Uri
+import android.util.Log
 import androidx.activity.compose.BackHandler
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageCapture
@@ -24,12 +25,14 @@ import com.shoebill.maru.viewmodel.NavigateViewModel
 @SuppressLint("MissingPermission")
 @Composable
 fun CameraPage(
+    landmarkId: Long,
     cameraViewModel: CameraViewModel = hiltViewModel(),
     onImageCaptured: (Uri, Boolean) -> Unit,
     onError: (ImageCaptureException) -> Unit,
     navigateViewModel: NavigateViewModel = viewModel()
 ) {
     val isCapture = cameraViewModel.isCapture.observeAsState()
+    Log.d("CAMERA", "LandmarkId: $landmarkId")
     BackHandler {
         if (isCapture.value == true) {
             cameraViewModel.clearCameraViewModel(false)
@@ -61,7 +64,7 @@ fun CameraPage(
             }
         }
     } else {
-        CameraCapturedImage()
+        CameraCapturedImage(landmarkId = landmarkId)
     }
 
 }
