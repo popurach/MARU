@@ -32,19 +32,12 @@ public class WebSocketController {
         log.info("새로운 사용자 웹 소켓 연결");
     }
 
-//    @EventListener
-//    public void handleWebSocketDisconnectListener(SessionDisconnectEvent event) {
+    @EventListener
+    public void handleWebSocketDisconnectListener(SessionDisconnectEvent event) {
 //        StompHeaderAccessor headerAccessor = StompHeaderAccessor.wrap(event.getMessage());
 //        String username = (String) headerAccessor.getSessionAttributes().get("username");
-//
-//        if (username != null) {
-//            log.info("유저 Disconnected : {}", username);
-//
-//            users.remove(username);
-//            ChatMessageDTO chat = new ChatMessageDTO(MessageType.LEAVE, null, username);
-//            messagingTemplate.convertAndSend("/roomname/public", chat);
-//        }
-//    }
+        log.info("사용자가 웹 소켓 연결을 끊었습니다.");
+    }
 
     /**
      * /app/bid로 요청이 들어오면 해당 메소드로 처리 -> 프런트에게 전달
