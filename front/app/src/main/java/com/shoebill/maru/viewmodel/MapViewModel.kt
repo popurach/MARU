@@ -51,9 +51,9 @@ import com.shoebill.maru.util.Filter.LANDMARK
 import com.shoebill.maru.util.Filter.MYSPOT
 import com.shoebill.maru.util.Filter.SPOT
 import com.shoebill.maru.util.SpotType
+import com.shoebill.maru.util.apiCallback
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -115,6 +115,8 @@ class MapViewModel @Inject constructor(
 
     val spotList: LiveData<List<Spot>> get() = _spotList
 
+    var navController: NavHostController? = null
+
     private val searchNearLandmarkListener = OnIndicatorPositionChangedListener { myPos ->
         // 0.1Km == 100m
         val minDist = 0.1
@@ -152,7 +154,8 @@ class MapViewModel @Inject constructor(
         _focusManager = fm
     }
 
-    fun initImages(context: Context) {
+    fun initImages(context: Context, navController: NavHostController) {
+        this.navController = navController
         landmarkImage = drawableToBitmap(
             getDrawable(
                 context,
@@ -210,6 +213,7 @@ class MapViewModel @Inject constructor(
     }
 
     private fun loadSpotPos(mine: Boolean = false) {
+        Log.d(TAG, "loadSpotPos: ${_filterState.value}")
         val projection = getProjection()
         viewModelScope.launch {
             val boundingBox = BoundingBox(
@@ -219,33 +223,31 @@ class MapViewModel @Inject constructor(
                 projection.north(),
                 ceil(mapBoxMap.cameraState.zoom).toInt()
             )
-            try {
-                val spotList = spotRepository.getSpotMarker(boundingBox, mine)
-                spotList.forEach {
-                    addMarker(
-                        spotType = when (it.properties.geoType) {
-                            "POINT" -> SpotType.SPOT
-                            else -> when (it.properties.count) {
-                                2 -> SpotType.CLUSTER_2
-                                3 -> SpotType.CLUSTER_3
-                                4 -> SpotType.CLUSTER_4
-                                5 -> SpotType.CLUSTER_5
-                                6 -> SpotType.CLUSTER_6
-                                7 -> SpotType.CLUSTER_7
-                                8 -> SpotType.CLUSTER_8
-                                9 -> SpotType.CLUSTER_9
-                                else -> SpotType.CLUSTER_MORE_9
-                            }
-                        },
-                        coordinate = Coordinate(
-                            it.geometry.coordinates[0],
-                            it.geometry.coordinates[1]
-                        ),
-                        id = it.properties.id
-                    )
-                }
-            } catch (e: Error) {
-                Log.e(TAG, "fail to load spot pos: $e")
+            val spotList = apiCallback(navController!!) {
+                spotRepository.getSpotMarker(boundingBox, mine)
+            }
+            spotList?.forEach {
+                addMarker(
+                    spotType = when (it.properties.geoType) {
+                        "POINT" -> SpotType.SPOT
+                        else -> when (it.properties.count) {
+                            2 -> SpotType.CLUSTER_2
+                            3 -> SpotType.CLUSTER_3
+                            4 -> SpotType.CLUSTER_4
+                            5 -> SpotType.CLUSTER_5
+                            6 -> SpotType.CLUSTER_6
+                            7 -> SpotType.CLUSTER_7
+                            8 -> SpotType.CLUSTER_8
+                            9 -> SpotType.CLUSTER_9
+                            else -> SpotType.CLUSTER_MORE_9
+                        }
+                    },
+                    coordinate = Coordinate(
+                        it.geometry.coordinates[0],
+                        it.geometry.coordinates[1]
+                    ),
+                    id = it.properties.id
+                )
             }
         }
     }
@@ -418,22 +420,24 @@ class MapViewModel @Inject constructor(
     }
 
     private fun loadLandmarkPos() {
+        Log.d(TAG, "filterState: ${_filterState.value}")
         val projection = getProjection()
-        viewModelScope.launch(
-            Dispatchers.IO
-        ) {
-            val deferredListOfLandmark = async {
-                landmarkRepository.getLandmarkByPos(
-                    projection.west(),
-                    projection.south(),
-                    projection.east(),
-                    projection.north()
-                )
-            }
+
+        viewModelScope.launch {
+            val listOfLandmark =
+                withContext(Dispatchers.IO) {
+                    apiCallback(navController!!) {
+                        landmarkRepository.getLandmarkByPos(
+                            projection.west(),
+                            projection.south(),
+                            projection.east(),
+                            projection.north()
+                        )
+                    }
+                }
             // 리스트가 null이면 종료 아니면 리스트 추가
-            val listOfLandmark = deferredListOfLandmark.await() ?: return@launch
             withContext(Dispatchers.Main) {
-                listOfLandmark.forEach { landmark ->
+                listOfLandmark?.forEach { landmark ->
                     addMarker(SpotType.LANDMARK, landmark.coordinate, landmark.visited, landmark.id)
                 }
                 lastRequestPos = mapBoxMap.cameraState.center
@@ -492,15 +496,18 @@ class MapViewModel @Inject constructor(
         pointAnnotationManager.deleteAll()
     }
 
-    fun loadAroundSpots() {
+    private fun loadAroundSpots() {
         val projection = getProjection()
         viewModelScope.launch {
-            _spotList.value = spotRepository.getAroundSpots(
-                west = projection.west(),
-                south = projection.south(),
-                east = projection.east(),
-                north = projection.north()
-            )
+            val result = apiCallback(navController!!) {
+                spotRepository.getAroundSpots(
+                    west = projection.west(),
+                    south = projection.south(),
+                    east = projection.east(),
+                    north = projection.north()
+                )
+            }
+            _spotList.value = result ?: return@launch
         }
     }
 }

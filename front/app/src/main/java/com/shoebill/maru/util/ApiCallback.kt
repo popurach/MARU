@@ -1,30 +1,26 @@
 package com.shoebill.maru.util
 
+import android.util.Log
 import androidx.navigation.NavHostController
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import retrofit2.Response
 
-fun apiCallback(
+suspend fun <T> apiCallback(
     navController: NavHostController,
-    vararg args: Any,
-    scope: CoroutineScope,
-    activeFunction: suspend (vararg: Any) -> Response<Any>
-): Any? {
-    var result: Any? = Unit
-    scope.launch {
-        val response = activeFunction(args)
-        if (response.isSuccessful) {
-            result = response.body()
-        } else if (response.code() == 401) {
-            withContext(Dispatchers.Main) {
-                navController.navigate("login") {
-                    popUpTo("login")
-                }
+    activeFunction: suspend () -> Response<T>
+): T? {
+    val response = activeFunction()
+    Log.d("apiCallback", "response code: ${response.code()}")
+    if (response.isSuccessful) {
+        return response.body()
+    } else if (response.code() == 401) {
+        withContext(Dispatchers.Main) {
+            navController.navigate("login") {
+                launchSingleTop = true
             }
         }
     }
-    return result
+    return null
 }
+

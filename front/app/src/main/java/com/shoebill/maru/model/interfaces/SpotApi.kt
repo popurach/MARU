@@ -23,7 +23,7 @@ interface SpotApi {
         @Query("east") east: Double,
         @Query("north") north: Double,
         @Query("filter") filter: String
-    ): List<Spot>
+    ): Response<List<Spot>>
 
     @Multipart
     @POST("/api/spots") // spot 등록
@@ -55,7 +55,7 @@ interface SpotApi {
     @POST("/api/map/spots")
     suspend fun getSpotMarker(
         @Body parameter: SpotClusterDTO
-    ): List<SpotMarker>
+    ): Response<List<SpotMarker>>
 
     @GET("/api/spots/{id}")
     suspend fun getSpotDetail(
