@@ -1,6 +1,7 @@
 package com.bird.maru.map.controller.dto;
 
 import com.bird.maru.cluster.geo.BoundingBox;
+import com.bird.maru.domain.model.type.MapFilterType;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
@@ -16,6 +17,7 @@ import lombok.ToString;
 public class MapCondition {
 
     private BoundingBox boundingBox;
-    private Boolean mine;
+    private MapFilterType filter;
+    private Long tagId;
 
 }

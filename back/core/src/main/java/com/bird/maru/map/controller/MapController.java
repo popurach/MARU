@@ -5,7 +5,6 @@ import com.bird.maru.landmark.controller.dto.LandmarkMapResponseDto;
 import com.bird.maru.landmark.service.query.LandmarkQueryService;
 import com.bird.maru.map.controller.dto.MapCondition;
 import com.bird.maru.map.service.query.MapQueryService;
-import com.bird.maru.spot.service.query.SpotQueryService;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
