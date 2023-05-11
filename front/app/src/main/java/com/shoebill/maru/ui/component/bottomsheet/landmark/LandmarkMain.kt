@@ -30,14 +30,16 @@ import com.shoebill.maru.R
 import com.shoebill.maru.ui.component.common.GradientColoredText
 import com.shoebill.maru.viewmodel.BottomSheetNavigatorViewModel
 import com.shoebill.maru.viewmodel.LandmarkInfoViewModel
+import com.shoebill.maru.viewmodel.NavigateViewModel
 
 @Composable
 fun LandmarkMain(
     landmarkInfoViewModel: LandmarkInfoViewModel = hiltViewModel(),
     bottomSheetNavigatorViewModel: BottomSheetNavigatorViewModel = hiltViewModel(),
+    navigatorViewModel: NavigateViewModel = hiltViewModel(),
     landmarkId: Long
 ) {
-    landmarkInfoViewModel.initLandmarkInfo(landmarkId)
+    landmarkInfoViewModel.initLandmarkInfo(landmarkId, navigatorViewModel.navigator!!)
     val owner = landmarkInfoViewModel.owner.observeAsState()
     val landmarkName = landmarkInfoViewModel.landmarkName.observeAsState()
     Column(

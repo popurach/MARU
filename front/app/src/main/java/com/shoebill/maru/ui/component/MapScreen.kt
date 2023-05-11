@@ -41,15 +41,17 @@ import com.shoebill.maru.ui.theme.GreyBrush
 import com.shoebill.maru.ui.theme.MaruBrush
 import com.shoebill.maru.util.checkAndRequestPermissions
 import com.shoebill.maru.viewmodel.MapViewModel
+import com.shoebill.maru.viewmodel.NavigateViewModel
 
 @Composable
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 fun MapboxScreen(
     mapViewModel: MapViewModel = hiltViewModel(),
+    navigateViewModel: NavigateViewModel = hiltViewModel()
 ) {
     mapViewModel.initFocusManager(LocalFocusManager.current)
     val context = LocalContext.current
-    mapViewModel.initImages(context)
+    mapViewModel.initImages(context, navigateViewModel.navigator!!)
 
     /** 요청할 권한 **/
     val permissions = arrayOf(

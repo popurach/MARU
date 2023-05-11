@@ -42,7 +42,7 @@ fun LandmarkFirstVisit(
     navigatorViewModel: NavigateViewModel = hiltViewModel()
 ) {
     val context = LocalContext.current
-    landmarkInfoViewModel.initLandmarkInfo(landmarkId)
+    landmarkInfoViewModel.initLandmarkInfo(landmarkId, navigatorViewModel.navigator!!)
     val landmarkName = landmarkInfoViewModel.landmarkName.observeAsState()
 
     val firstLine = buildAnnotatedString {
