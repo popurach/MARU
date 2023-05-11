@@ -8,11 +8,11 @@ import com.bird.maru.like.service.LikeService;
 import com.bird.maru.scrap.service.ScrapService;
 import com.bird.maru.spot.controller.dto.SpotDetailResponseDto;
 import com.bird.maru.spot.controller.dto.SpotMapCondition;
+import com.bird.maru.spot.controller.dto.SpotSaveRequestDto;
 import com.bird.maru.spot.controller.dto.SpotSearchCondition;
 import com.bird.maru.spot.repository.query.dto.SpotSimpleDto;
 import com.bird.maru.spot.service.SpotService;
 import com.bird.maru.spot.service.query.SpotQueryService;
-import java.util.ArrayList;
 import java.util.List;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
@@ -40,8 +40,6 @@ public class SpotController {
     private final LikeService likeService;
     private final ScrapService scrapService;
     private final NamedLockExecutor namedLockExecutor;
-
-    private static final Integer MAX_TAGS = 5;
 
     /**
      * 내 스팟 목록 조회에 성공할 경우 스팟 목록과 상태 코드 200을 반환합니다.
@@ -111,8 +109,7 @@ public class SpotController {
      * 스팟 등록 API <br/> - 사진, 스팟, 태그, 스팟에 대한 사진, 포인트 변화가 하나의 트랜잭션 작업
      *
      * @param spotImage  : 스팟 사진
-     * @param tags       : 태그
-     * @param landmarkId : 랜드마크 속해있는지 여부
+     * @param data       : tags, landmarkId 정보 - 이미지 외 정보 담은 data
      * @param member     : 현재 접근중인 주체
      * @return Long : spot의 id
      */
@@ -120,18 +117,12 @@ public class SpotController {
     @ResponseStatus(HttpStatus.CREATED)
     public Long postSpot(
             @NotNull @RequestPart(name = "spotImage") MultipartFile spotImage,
-            @RequestPart(name = "tags", required = false) List<String> tags,
-            @RequestPart(name = "landmarkId", required = false) Long landmarkId,
+            @Valid @RequestPart(value = "data", required = false) SpotSaveRequestDto data,
             @AuthenticationPrincipal CustomUserDetails member
     ) {
-        if (tags == null) {
-            tags = new ArrayList<>();
-        } else if (tags.size() > MAX_TAGS) {
-            throw new IllegalArgumentException("태그는 최대 5개까지 가능합니다.");
-        }
         return spotService.insertSpotAndTags(spotImage,
-                                             tags,
-                                             landmarkId,
+                                             data.getTags(),
+                                             data.getLandmarkId(),
                                              member.getId());
     }
 
