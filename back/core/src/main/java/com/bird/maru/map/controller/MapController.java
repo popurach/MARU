@@ -6,6 +6,8 @@ import com.bird.maru.landmark.service.query.LandmarkQueryService;
 import com.bird.maru.map.controller.dto.MapCondition;
 import com.bird.maru.map.service.query.MapQueryService;
 import java.util.List;
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -37,8 +39,8 @@ public class MapController {
      */
     @GetMapping("/landmarks")
     public List<LandmarkMapResponseDto> findLandmarksBasedMap(
-            @RequestParam Double west, @RequestParam Double south,
-            @RequestParam Double east, @RequestParam Double north,
+            @NotNull @RequestParam Double west, @NotNull @RequestParam Double south,
+            @NotNull @RequestParam Double east, @NotNull @RequestParam Double north,
             @AuthenticationPrincipal CustomUserDetails member
     ) {
         return landmarkQueryService.findLandmarkBasedMap(west, south, east, north, member.getId());
@@ -54,7 +56,7 @@ public class MapController {
      * @return 데이터 없을 시 빈 배열 반환
      * */
     @PostMapping("/spots")
-    public List<Feature> spotsCluster(@AuthenticationPrincipal CustomUserDetails member, @RequestBody MapCondition condition) {
+    public List<Feature> spotsCluster(@AuthenticationPrincipal CustomUserDetails member, @Valid  @RequestBody MapCondition condition) {
         return mapQueryService.spotsCluster(member.getId(), condition);
     }
 
