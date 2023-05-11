@@ -17,7 +17,9 @@ suspend fun <T> apiCallback(
     } else if (response.code() == 401) {
         withContext(Dispatchers.Main) {
             navController.navigate("login") {
-                launchSingleTop = true
+                popUpTo(navController.graph.id) {
+                    inclusive = true
+                }
             }
         }
     }
