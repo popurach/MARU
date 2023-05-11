@@ -1,6 +1,5 @@
 package com.bird.maru.member.repository;
 
-import com.bird.maru.member.repository.query.MemberRedisRepository;
 import java.util.Set;
 import lombok.extern.slf4j.Slf4j;
 import org.assertj.core.api.Assertions;

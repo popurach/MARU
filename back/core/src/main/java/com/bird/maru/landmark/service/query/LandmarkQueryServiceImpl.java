@@ -11,7 +11,7 @@ import com.bird.maru.landmark.repository.query.LandmarkCustomQueryRepository;
 import com.bird.maru.landmark.repository.query.LandmarkQueryRepository;
 import com.bird.maru.member.mapper.MemberMapper;
 import com.bird.maru.member.repository.query.MemberQueryRepository;
-import com.bird.maru.member.repository.query.MemberRedisRepository;
+import com.bird.maru.member.repository.MemberRedisRepository;
 import com.bird.maru.spot.repository.query.SpotCustomQueryRepository;
 import com.bird.maru.spot.repository.query.dto.SpotSimpleDto;
 import com.bird.maru.spot.service.query.SpotQueryService;

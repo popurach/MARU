@@ -8,7 +8,7 @@ import com.bird.maru.landmark.controller.dto.LandmarkMapResponseDto;
 import com.bird.maru.landmark.repository.query.LandmarkCustomQueryRepository;
 import com.bird.maru.landmark.service.query.LandmarkQueryService;
 import com.bird.maru.landmark.util.LandmarkUtil;
-import com.bird.maru.member.repository.query.MemberRedisRepository;
+import com.bird.maru.member.repository.MemberRedisRepository;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;

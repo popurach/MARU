@@ -3,7 +3,7 @@ package com.bird.maru.member.service.query;
 import com.bird.maru.common.exception.ResourceNotFoundException;
 import com.bird.maru.domain.model.entity.Member;
 import com.bird.maru.member.repository.query.MemberQueryRepository;
-import com.bird.maru.member.repository.query.MemberRedisRepository;
+import com.bird.maru.member.repository.MemberRedisRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

@@ -3,7 +3,7 @@ package com.bird.maru.landmark.service;
 import com.bird.maru.common.exception.ResourceNotFoundException;
 import com.bird.maru.domain.model.entity.Landmark;
 import com.bird.maru.landmark.repository.query.LandmarkQueryRepository;
-import com.bird.maru.member.repository.query.MemberRedisRepository;
+import com.bird.maru.member.repository.MemberRedisRepository;
 import com.bird.maru.point.service.PointService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

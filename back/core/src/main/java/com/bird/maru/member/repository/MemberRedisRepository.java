@@ -1,4 +1,4 @@
-package com.bird.maru.member.repository.query;
+package com.bird.maru.member.repository;
 
 import com.bird.maru.common.redis.RedisCacheKey;
 import com.bird.maru.common.util.TimeUtil;
