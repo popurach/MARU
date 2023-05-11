@@ -1,5 +1,6 @@
 package com.bird.maru.spot.mapper;
 
+import com.bird.maru.cluster.geo.Marker;
 import com.bird.maru.domain.model.entity.Landmark;
 import com.bird.maru.domain.model.entity.Member;
 import com.bird.maru.domain.model.entity.Spot;
@@ -88,6 +89,18 @@ public final class SpotMapper {
                                          .lat(image.getCoordinate().getLat())
                                          .build())
                    .build();
+    }
+
+    public static Marker toMarker(Spot spot) {
+        return Marker.builder()
+                     .id(spot.getId())
+                     .memberId(spot.getMember().getId())
+                     .coordinate(spot.getCoordinate())
+                     .build();
+    }
+
+    public static List<Marker> toMarkers(List<Spot> spots) {
+        return spots.stream().map(SpotMapper::toMarker).collect(Collectors.toList());
     }
 
 }
