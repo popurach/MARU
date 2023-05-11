@@ -3,6 +3,7 @@ package com.bird.maru.auctionlog.service;
 import com.bird.maru.auction.repository.AuctionRepository;
 import com.bird.maru.auctionlog.repository.AuctionLogRepository;
 import com.bird.maru.auctionlog.repository.query.AuctionLogCustomQueryRepository;
+import com.bird.maru.common.config.WebSocket.Bid;
 import com.bird.maru.common.exception.NotEnoughMoney;
 import com.bird.maru.common.exception.ResourceNotFoundException;
 import com.bird.maru.domain.model.entity.Auction;
@@ -16,6 +17,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,6 +28,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Slf4j
 public class AuctionLogServiceImpl implements AuctionLogService {
 
+    private final SimpMessageSendingOperations messagingTemplate;
     private final AuctionLogRepository auctionLogRepository;
     private final AuctionLogCustomQueryRepository auctionLogCustomQueryRepository;
     private final AuctionRepository auctionRepository;
@@ -94,7 +97,8 @@ public class AuctionLogServiceImpl implements AuctionLogService {
         auction.changeLastLogId(auctionLog.getId());
 
         // websocket 통신
-
+        Bid updateBid = new Bid(price, landmarkId);
+        messagingTemplate.convertAndSend("/bidding/price", updateBid);
     }
 
     /**
@@ -121,11 +125,17 @@ public class AuctionLogServiceImpl implements AuctionLogService {
         Optional<AuctionLog> auctionLogMax = auctionLogCustomQueryRepository.findFirstByLandmarkId(auction.getLandmark().getId());
         if (auctionLogMax.isPresent()) { // 최고 입찰 기록으로 update
             auction.changeLastLogId(auctionLogMax.get().getId());
+
+            // websocket 통신
+            Bid updateBid = new Bid(auctionLogMax.get().getPrice(), auction.getLandmark().getId());
+            messagingTemplate.convertAndSend("/bidding/price", updateBid);
         } else { // 최고 입찰 기록 x -> NULL
             auction.changeLastLogId(null);
-        }
 
-        // websocket 통신
+            // websocket 통신
+            Bid updateBid = new Bid(10000, auction.getLandmark().getId());
+            messagingTemplate.convertAndSend("/bidding/price", updateBid);
+        }
 
     }
 
@@ -140,7 +150,7 @@ public class AuctionLogServiceImpl implements AuctionLogService {
         Landmark landmark = auction.getLandmark();
         Long successfulBidId = auction.getLastLogId();
 
-        if(auction.getFinished()) {
+        if (auction.getFinished()) {
             throw new ResourceNotFoundException("해당 리소스는 끝난 경매 기록입니다.");
         }
         if (successfulBidId != null && successfulBidId.equals(auctionLog.getId())) { // 낙찰자
@@ -175,11 +185,11 @@ public class AuctionLogServiceImpl implements AuctionLogService {
      * 해당 랜드마크 최고 입찰가를 반환
      *
      * @Param 랜드마크 PK
-     * */
+     */
     @Override
     public Integer auctionBestPrice(Long landmarkId) {
         Optional<AuctionLog> auctionLog = auctionLogCustomQueryRepository.findFirstByLandmarkId(landmarkId);
-        if(auctionLog.isPresent()) {
+        if (auctionLog.isPresent()) {
             return auctionLog.get().getPrice();
         }
         return 10000;
@@ -196,9 +206,9 @@ public class AuctionLogServiceImpl implements AuctionLogService {
             }
         }
 
-        log.info("auction 정보 : {}, {}", auction.getCreatedDate(), auction.getLandmark().getId());
-        log.info("member 정보 : {}", member.getNickname());
-        log.info("입찰 가격 : {}", price);
+//        log.info("auction 정보 : {}, {}", auction.getCreatedDate(), auction.getLandmark().getId());
+//        log.info("member 정보 : {}", member.getNickname());
+//        log.info("입찰 가격 : {}", price);
 
         // 입찰 가격이 더 높은 경우
         // 4. auctionLog에 입찰 정보 등록
@@ -212,6 +222,8 @@ public class AuctionLogServiceImpl implements AuctionLogService {
         member.bidPoint(price);
 
         // websocket 통신
+        Bid updateBid = new Bid(price, auction.getLandmark().getId());
+        messagingTemplate.convertAndSend("/bidding/price", updateBid);
     }
 
     private AuctionLog createAuctionLog(Auction auction, Member member, int price) {
