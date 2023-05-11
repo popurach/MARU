@@ -1,6 +1,7 @@
 package com.shoebill.maru.ui.component
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.height
@@ -29,7 +30,8 @@ fun SearchListItem(
     ) {
         Row(
             modifier = Modifier
-                .padding(horizontal = 10.dp),
+                .padding(horizontal = 10.dp)
+                .clickable { },
             verticalAlignment = Alignment.CenterVertically
         ) {
             Icon(

@@ -8,10 +8,12 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.verticalScroll
@@ -32,7 +34,6 @@ import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -52,7 +53,6 @@ fun SearchBar(
 ) {
     val keyword = searchBarViewModel.keyword.observeAsState("")
     var isFocused by remember { mutableStateOf(true) }
-    val focusManager = LocalFocusManager.current
 
     BoxWithConstraints() {
         Column {
@@ -87,14 +87,31 @@ fun SearchBar(
                     onValueChange = {
                         searchBarViewModel.updateKeyword(it)
                         if (it.length >= 2) {
-                            searchBarViewModel.getRecommendPlacesByKeyword(it)
+                            if (it[0] != '#') {
+                                // 장소로 검색시 장소 추천 목록 불러 오기
+                                searchBarViewModel.getRecommendPlacesByKeyword(it)
+                            } else {
+                                // 태그로 검색 시
+
+                            }
+                        } else {
+                            // 추천 목록 싹 제거하기
+                            searchBarViewModel.resetRecommendPlacesByKeyword()
                         }
+
                     },
                     keyboardActions = KeyboardActions(
                         onDone = {
+                            if (keyword.value[0] != '#') {
+                                // 장소로 검색일때, Map view 를 검색 결과의 lng lat 로 이동
+
+                            } else {
+                                // 태그로 검색 일때, 현재 위치 그대로 태그로 필터링
+
+                            }
                             searchBarViewModel.prefUtil.saveSearchHistory(keyword.value)
                             searchBarViewModel.updateKeyword("")
-                            focusManager.clearFocus()
+                            mapViewModel.clearFocus()
                         }
                     ),
                     leadingIcon = {
@@ -138,7 +155,8 @@ fun SearchBar(
                         .background(Color.White, RoundedCornerShape(8.dp))
                         .padding()
                         .width(320.dp)
-                        .size(250.dp)
+                        .wrapContentHeight()
+                        .heightIn(min = 0.dp, max = 250.dp)
                         .verticalScroll(ScrollState(0))
                 ) {
                     SuggestionList()

@@ -501,5 +501,14 @@ class MapViewModel @Inject constructor(
             )
         }
     }
+
+    fun moveCamera(lat: Double, lng: Double) {
+        val point = Point.fromLngLat(lng, lat)
+        val cameraOptions = CameraOptions.Builder()
+            .center(point)
+            .zoom(17.0)
+            .build()
+        mapBoxMap.flyTo(cameraOptions)
+    }
 }
 

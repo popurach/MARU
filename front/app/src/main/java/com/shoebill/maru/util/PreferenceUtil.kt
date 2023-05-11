@@ -18,7 +18,7 @@ class PreferenceUtil @Inject constructor(context: Context) {
     private val searchPreferences =
         context.getSharedPreferences("search_history", Context.MODE_PRIVATE)
 
-    private val MAX_SEARCH_HISTORY_SIZE = 5
+    private val MAX_SEARCH_HISTORY_SIZE = 3
 
     fun saveSearchHistory(searchTerm: String) {
         val historyString =
@@ -40,7 +40,7 @@ class PreferenceUtil @Inject constructor(context: Context) {
 
     // 검색 이력을 불러오는 함수
     fun loadSearchHistory(): List<String> {
-        
+
         val historyString =
             searchPreferences.getString("search_history", null)
 

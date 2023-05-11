@@ -9,6 +9,9 @@ interface MyKakaoMapApi {
     @GET("v2/local/search/keyword.json")
     suspend fun getRecommendPlacesByKeyword(
         @Query("query") query: String,
-        @Query("size") size: Int = 5
+        @Query("size") size: Int = 5,
+        @Query("x") x: String = "126.9780", // 서울 중심 좌표
+        @Query("y") y: String = "37.5665",
+        @Query("radius") radius: Int = 18000 // 서울 반경 17키로
     ): Response<KakaoSearchResponse>
 }
