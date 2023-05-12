@@ -8,11 +8,11 @@ import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import com.shoebill.maru.model.data.Spot
 import com.shoebill.maru.model.data.Stamp
-import com.shoebill.maru.model.repository.GallerySource
 import com.shoebill.maru.model.repository.LandmarkRepository
-import com.shoebill.maru.model.repository.ScrapedSpotSource
 import com.shoebill.maru.model.repository.SpotRepository
-import com.shoebill.maru.model.repository.StampSource
+import com.shoebill.maru.model.source.GallerySource
+import com.shoebill.maru.model.source.ScrapedSpotSource
+import com.shoebill.maru.model.source.StampSource
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject

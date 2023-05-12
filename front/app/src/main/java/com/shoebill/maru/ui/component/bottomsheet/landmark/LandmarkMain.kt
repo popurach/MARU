@@ -30,14 +30,16 @@ import com.shoebill.maru.R
 import com.shoebill.maru.ui.component.common.GradientColoredText
 import com.shoebill.maru.viewmodel.BottomSheetNavigatorViewModel
 import com.shoebill.maru.viewmodel.LandmarkInfoViewModel
+import com.shoebill.maru.viewmodel.NavigateViewModel
 
 @Composable
 fun LandmarkMain(
     landmarkInfoViewModel: LandmarkInfoViewModel = hiltViewModel(),
     bottomSheetNavigatorViewModel: BottomSheetNavigatorViewModel = hiltViewModel(),
+    navigatorViewModel: NavigateViewModel = hiltViewModel(),
     landmarkId: Long
 ) {
-    landmarkInfoViewModel.initLandmarkInfo(landmarkId)
+    landmarkInfoViewModel.initLandmarkInfo(landmarkId, navigatorViewModel.navigator!!)
     val owner = landmarkInfoViewModel.owner.observeAsState()
     val landmarkName = landmarkInfoViewModel.landmarkName.observeAsState()
     Column(
@@ -45,7 +47,7 @@ fun LandmarkMain(
             .fillMaxSize()
             .padding(top = 50.dp)
             .clickable {
-                if (owner.value!!.id > 0L || owner.value!!.spotImageUrl != null) {
+                if (owner.value!!.id > 0L && owner.value!!.spotImageUrl != null) {
                     bottomSheetNavigatorViewModel.navController!!.navigate("landmark/picture/$landmarkId")
                 } else {
                     bottomSheetNavigatorViewModel.navController!!.navigate("landmark/$landmarkId/picture/list")

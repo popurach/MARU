@@ -29,19 +29,30 @@ import com.shoebill.maru.R
 import com.shoebill.maru.ui.component.bottomsheet.BottomSheetIndicator
 import com.shoebill.maru.ui.component.common.Chip
 import com.shoebill.maru.viewmodel.BottomSheetNavigatorViewModel
+import com.shoebill.maru.viewmodel.MapViewModel
+import com.shoebill.maru.viewmodel.NavigateViewModel
 import com.shoebill.maru.viewmodel.SpotViewModel
 
 @Composable
 fun SpotDetail(
     spotId: Long,
     bottomSheetNavigatorViewModel: BottomSheetNavigatorViewModel = viewModel(),
+    mapViewModel: MapViewModel = hiltViewModel(),
+    navigateViewModel: NavigateViewModel = hiltViewModel(),
     spotViewModel: SpotViewModel = hiltViewModel() // 3. spotRepository 가 필요해서 컴포넌트랑 생명주기가 다른게 이상함
 ) {
     spotViewModel.initSpotId(spotId)
     val spotDetails = spotViewModel.spotDetails.observeAsState()
-    spotViewModel.loadSpotDetailById(spotId) // 1. 이렇게 호출해서 spotViewModel 안에 spot detail 을 직접 초기화 해주는게 이상함
+    spotViewModel.loadSpotDetailById(
+        spotId,
+        navigateViewModel.navigator!!
+    ) // 1. 이렇게 호출해서 spotViewModel 안에 spot detail 을 직접 초기화 해주는게 이상함
 
-    if (spotDetails.value != null) // 2. 데이터가 로드 되기전, imageUrl 때문에 에러가 발생하지 않도록하는게 분기처리가 이상함
+    if (spotDetails.value != null) { // 2. 데이터가 로드 되기전, imageUrl 때문에 에러가 발생하지 않도록하는게 분기처리가 이상함
+        mapViewModel.moveCamera(
+            spotDetails.value!!.coordinate.lat,
+            spotDetails.value!!.coordinate.lng
+        )
         Box(Modifier.fillMaxSize()) {
             Box {
                 AsyncImage(
@@ -70,13 +81,14 @@ fun SpotDetail(
                         .padding(top = 38.dp, end = 22.dp)
                         .align(Alignment.TopEnd)
                         .clickable {
-                            spotViewModel.toggleScrap(spotId)
+                            spotViewModel.toggleScrap(spotId, navigateViewModel.navigator!!)
                         },
                 ) {
                     Icon(
                         // 스크랩 관련 로직 추가
+
                         // 스크랩 api 호출 추가
-                        painter = painterResource(id = if (spotDetails.value?.scraped!!) R.drawable.scrap_icon else R.drawable.unscrap_icon),
+                        painter = painterResource(id = if (spotDetails.value?.scraped!!) R.drawable.scrap_icon else R.drawable.spot_unscrap_icon),
                         contentDescription = "",
                         modifier = Modifier
                             .size(35.dp),
@@ -89,7 +101,7 @@ fun SpotDetail(
                         .padding(top = 96.dp, end = 24.dp)
                         .align(Alignment.TopEnd)
                         .clickable {
-                            spotViewModel.toggleLike(spotId)
+                            spotViewModel.toggleLike(spotId, navigateViewModel.navigator!!)
                         },
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
@@ -129,6 +141,7 @@ fun SpotDetail(
                     }
                 }
             }
-            BottomSheetIndicator()
         }
+        BottomSheetIndicator()
+    }
 }

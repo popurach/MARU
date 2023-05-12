@@ -21,6 +21,15 @@ import javax.inject.Inject
 class SpotRepository @Inject constructor(
     private val spotApi: SpotApi
 ) {
+    suspend fun getAroundSpots(
+        west: Double,
+        south: Double,
+        east: Double,
+        north: Double,
+        filter: String = "ALL"
+    ): Response<List<Spot>> =
+        spotApi.getAroundSpots(west, south, east, north, filter)
+
     suspend fun saveSpot(spotImage: File, tags: List<Tag>?, landmarkId: Long?): Response<Long> {
         val spotImageParam = MultipartBody.Part.createFormData(
             name = "spotImage",
@@ -58,18 +67,12 @@ class SpotRepository @Inject constructor(
     suspend fun getMyScrapedSpots(lastOffset: Long?): List<Spot> =
         spotApi.getMyScrapedSpots(lastOffset = lastOffset, size = 20)
 
-    suspend fun getSpotMarker(boundingBox: BoundingBox, mine: Boolean): List<SpotMarker> =
+    suspend fun getSpotMarker(boundingBox: BoundingBox, mine: Boolean): Response<List<SpotMarker>> =
         spotApi.getSpotMarker(
-            SpotClusterDTO(boundingBox, mine)
+            SpotClusterDTO(boundingBox, filter = if (mine) "mine" else "all")
         )
 
-    suspend fun getSpotDetail(spotId: Long): Spot {
-        val response = spotApi.getSpotDetail(spotId)
-        if (response.isSuccessful) {
-            return response.body()!!
-        }
-        throw Error("${response.code()}")
-    }
+    suspend fun getSpotDetail(spotId: Long): Response<Spot> = spotApi.getSpotDetail(spotId)
 
     suspend fun toggleLike(spotId: Long) = spotApi.toggleLike(spotId)
     suspend fun toggleScrap(spotId: Long) = spotApi.toggleScrap(spotId)

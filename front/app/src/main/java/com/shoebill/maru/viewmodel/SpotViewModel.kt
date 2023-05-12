@@ -5,8 +5,10 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.navigation.NavHostController
 import com.shoebill.maru.model.data.Spot
 import com.shoebill.maru.model.repository.SpotRepository
+import com.shoebill.maru.util.apiCallback
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -24,23 +26,24 @@ class SpotViewModel @Inject constructor(
         spotId = value
     }
 
-    fun loadSpotDetailById(spotId: Long) {
+    fun loadSpotDetailById(spotId: Long, navController: NavHostController) {
         viewModelScope.launch {
-            try {
-                _spotDetails.value = spotRepository.getSpotDetail(spotId)
-            } catch (e: Error) {
-                Log.d("SpotDetail", "fail to load spotDetail $e")
+            val mySpot = apiCallback(navController) {
+                spotRepository.getSpotDetail(spotId)
             }
+            _spotDetails.value = mySpot
         }
     }
 
-    fun toggleLike(spotId: Long) {
+    fun toggleLike(spotId: Long, navController: NavHostController) {
         viewModelScope.launch {
-            val response = spotRepository.toggleLike(spotId)
-            if (response.isSuccessful) {
+            val result = apiCallback(navController) {
+                spotRepository.toggleLike(spotId)
+            }
+            if (result != null) {
                 Log.d("SPOT", "toggleLike: 좋아요 토글 성공")
                 Log.d("SPOT", "toggleLike: ${_spotDetails.value?.liked}")
-                loadSpotDetailById(spotId)
+                loadSpotDetailById(spotId, navController)
                 Log.d("SPOT", "toggleLike: ${_spotDetails.value?.liked}")
             } else {
                 Log.d("SPOT", "toggleLike: 좋아요 토글 실패")
@@ -48,13 +51,15 @@ class SpotViewModel @Inject constructor(
         }
     }
 
-    fun toggleScrap(spotId: Long) {
+    fun toggleScrap(spotId: Long, navController: NavHostController) {
         viewModelScope.launch {
-            val response = spotRepository.toggleScrap(spotId)
-            if (response.isSuccessful) {
+            val result = apiCallback(navController) {
+                spotRepository.toggleScrap(spotId)
+            }
+            if (result != null) {
                 Log.d("SPOT", "toggleScrap: 스크램 토글 성공")
                 Log.d("SPOT", "toggleScrap: ${_spotDetails.value?.scraped}")
-                loadSpotDetailById(spotId)
+                loadSpotDetailById(spotId, navController)
                 Log.d("SPOT", "toggleScrap: ${_spotDetails.value?.scraped}")
             } else {
                 Log.d("SPOT", "toggleScrap: 스크램 토글 실패")

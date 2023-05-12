@@ -21,7 +21,6 @@ import com.mapbox.maps.CameraOptions
 import com.mapbox.maps.CoordinateBounds
 import com.mapbox.maps.MapView
 import com.mapbox.maps.MapboxMap
-import com.mapbox.maps.dsl.cameraOptions
 import com.mapbox.maps.extension.style.expressions.dsl.generated.interpolate
 import com.mapbox.maps.extension.style.layers.properties.generated.IconAnchor
 import com.mapbox.maps.plugin.LocationPuck2D
@@ -34,6 +33,7 @@ import com.mapbox.maps.plugin.annotation.generated.createPointAnnotationManager
 import com.mapbox.maps.plugin.compass.compass
 import com.mapbox.maps.plugin.gestures.OnMoveListener
 import com.mapbox.maps.plugin.gestures.addOnMoveListener
+import com.mapbox.maps.plugin.locationcomponent.OnIndicatorPositionChangedListener
 import com.mapbox.maps.plugin.locationcomponent.location
 import com.mapbox.maps.plugin.scalebar.scalebar
 import com.mapbox.maps.plugin.viewport.data.FollowPuckViewportStateBearing
@@ -51,9 +51,9 @@ import com.shoebill.maru.util.Filter.LANDMARK
 import com.shoebill.maru.util.Filter.MYSPOT
 import com.shoebill.maru.util.Filter.SPOT
 import com.shoebill.maru.util.SpotType
+import com.shoebill.maru.util.apiCallback
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -61,7 +61,6 @@ import kotlin.math.abs
 import kotlin.math.asin
 import kotlin.math.ceil
 import kotlin.math.cos
-import kotlin.math.min
 import kotlin.math.sin
 import kotlin.math.sqrt
 
@@ -74,7 +73,7 @@ class MapViewModel @Inject constructor(
     private val spotRepository: SpotRepository
 ) : ViewModel() {
     private lateinit var mapView: MapView
-    lateinit var mapBoxMap: MapboxMap
+    private lateinit var mapBoxMap: MapboxMap
     private lateinit var _focusManager: FocusManager
 
     private lateinit var pointAnnotationManager: PointAnnotationManager
@@ -82,12 +81,14 @@ class MapViewModel @Inject constructor(
     private val _isTracking = MutableLiveData(false)
     val isTracking get() = _isTracking
 
+    private val _canSearch = MutableLiveData(false)
+    val canSearch get() = _canSearch
+
     private var landmarkImage: Bitmap? = null
     private var spotImage: Bitmap? = null
     private var clusterImage: MutableList<Bitmap> = mutableListOf()
 
-    private var lastRequestPos: Point? = null
-    private var lastRequestZoom: Double = 0.0
+    private var lastRequestPos: Point = Point.fromLngLat(-74.005974, 40.712776)
 
     private val landmarkAnnotations = mutableListOf<PointAnnotationOptions>()
     private val spotAnnotations = mutableListOf<PointAnnotationOptions>()
@@ -110,27 +111,40 @@ class MapViewModel @Inject constructor(
         _bottomSheetOpen.value = value
     }
 
-    private val _spotList = MutableLiveData(
-        listOf(
-            Spot(
-                0,
-                imageUrl = "https://picsum.photos/id/237/200/300",
-                liked = false,
-            ),
-            Spot(
-                1,
-                imageUrl = "https://picsum.photos/id/237/200/300",
-                liked = false,
-            ),
-            Spot(
-                2,
-                imageUrl = "https://picsum.photos/id/237/200/300",
-                liked = false,
-            ),
-        )
-    )
+    private val _spotList = MutableLiveData<List<Spot>>()
 
     val spotList: LiveData<List<Spot>> get() = _spotList
+
+    var navController: NavHostController? = null
+
+    private val searchNearLandmarkListener = OnIndicatorPositionChangedListener { myPos ->
+        // 0.1Km == 100m
+        val minDist = 0.1
+        val distanceFromLastRequest = getDistance(myPos, lastRequestPos)
+        if (distanceFromLastRequest > minDist) {
+            lastRequestPos = myPos
+            loadMarker()
+        }
+        landmarkAnnotations.forEach { landmark ->
+            val jsonObject = landmark.getData()!!.asJsonObject!!
+            val landmarkPos = landmark.getPoint()
+            val distance = getDistance(myPos, landmarkPos!!)
+            // 멀어질 때
+            if (visitingLandmark.value == landmark && distance > minDist) {
+                visitingLandmark.value = null
+            }
+            // 랜드마크 범위에 들어갔을 때
+            if (visitingLandmark.value != landmark && distance <= minDist) {
+                visitingLandmark.value = landmark
+                val landmarkId =
+                    jsonObject.get("id")?.asLong
+                val isVisit = jsonObject.get("isVisit")?.asBoolean!!
+                _bottomSheetOpen.value = true
+                bottomSheetController.navigate(if (isVisit) "landmark/main/$landmarkId" else "landmark/first/$landmarkId")
+            }
+        }
+    }
+
 
     fun updateFilterState(value: Int) {
         _filterState.value = value
@@ -140,7 +154,8 @@ class MapViewModel @Inject constructor(
         _focusManager = fm
     }
 
-    fun initImages(context: Context) {
+    fun initImages(context: Context, navController: NavHostController) {
+        this.navController = navController
         landmarkImage = drawableToBitmap(
             getDrawable(
                 context,
@@ -173,7 +188,6 @@ class MapViewModel @Inject constructor(
                 )
             )
         )
-
     }
 
     private fun drawableToBitmap(image: Drawable?): Bitmap = (image as BitmapDrawable).bitmap
@@ -182,7 +196,9 @@ class MapViewModel @Inject constructor(
         _focusManager.clearFocus()
     }
 
-    private fun loadMarker() {
+    fun loadMarker() {
+        deletePin()
+        _canSearch.value = false
         when (_filterState.value) {
             ALL -> {
                 loadLandmarkPos()
@@ -193,9 +209,11 @@ class MapViewModel @Inject constructor(
             SPOT -> loadSpotPos()
             MYSPOT -> loadSpotPos(mine = true)
         }
+        loadAroundSpots()
     }
 
-    fun loadSpotPos(mine: Boolean = false) {
+    private fun loadSpotPos(mine: Boolean = false) {
+        Log.d(TAG, "loadSpotPos: ${_filterState.value}")
         val projection = getProjection()
         viewModelScope.launch {
             val boundingBox = BoundingBox(
@@ -205,33 +223,31 @@ class MapViewModel @Inject constructor(
                 projection.north(),
                 ceil(mapBoxMap.cameraState.zoom).toInt()
             )
-            try {
-                val spotList = spotRepository.getSpotMarker(boundingBox, mine)
-                spotList.forEach {
-                    addMarker(
-                        spotType = when (it.properties.geoType) {
-                            "POINT" -> SpotType.SPOT
-                            else -> when (it.properties.count) {
-                                2 -> SpotType.CLUSTER_2
-                                3 -> SpotType.CLUSTER_3
-                                4 -> SpotType.CLUSTER_4
-                                5 -> SpotType.CLUSTER_5
-                                6 -> SpotType.CLUSTER_6
-                                7 -> SpotType.CLUSTER_7
-                                8 -> SpotType.CLUSTER_8
-                                9 -> SpotType.CLUSTER_9
-                                else -> SpotType.CLUSTER_MORE_9
-                            }
-                        },
-                        coordinate = Coordinate(
-                            it.geometry.coordinates[0],
-                            it.geometry.coordinates[1]
-                        ),
-                        id = it.properties.id
-                    )
-                }
-            } catch (e: Error) {
-                Log.e(TAG, "fail to load spot pos: $e")
+            val spotList = apiCallback(navController!!) {
+                spotRepository.getSpotMarker(boundingBox, mine)
+            }
+            spotList?.forEach {
+                addMarker(
+                    spotType = when (it.properties.geoType) {
+                        "POINT" -> SpotType.SPOT
+                        else -> when (it.properties.count) {
+                            2 -> SpotType.CLUSTER_2
+                            3 -> SpotType.CLUSTER_3
+                            4 -> SpotType.CLUSTER_4
+                            5 -> SpotType.CLUSTER_5
+                            6 -> SpotType.CLUSTER_6
+                            7 -> SpotType.CLUSTER_7
+                            8 -> SpotType.CLUSTER_8
+                            9 -> SpotType.CLUSTER_9
+                            else -> SpotType.CLUSTER_MORE_9
+                        }
+                    },
+                    coordinate = Coordinate(
+                        it.geometry.coordinates[0],
+                        it.geometry.coordinates[1]
+                    ),
+                    id = it.properties.id
+                )
             }
         }
     }
@@ -252,8 +268,8 @@ class MapViewModel @Inject constructor(
 
     private fun clusterClicked(point: Point) {
         val curZoomLevel = mapBoxMap.cameraState.zoom
-        if (curZoomLevel == 22.0) return
-        val nextZoomLevel = min(22.0, curZoomLevel + 1.5)
+        if (curZoomLevel >= 17.0) return
+        val nextZoomLevel = curZoomLevel + 1.0
         val cameraOptions = CameraOptions.Builder()
             .zoom(nextZoomLevel)
             .center(point)
@@ -261,7 +277,6 @@ class MapViewModel @Inject constructor(
         viewModelScope.launch {
             withContext(Dispatchers.Main) {
                 mapBoxMap.flyTo(cameraOptions)
-                deletePin()
             }
             loadMarker()
         }
@@ -302,11 +317,13 @@ class MapViewModel @Inject constructor(
                     .build()
                 mapBoxMap.setBounds(boundsOptions)
 
-                cameraOptions {
-                    center(Point.fromLngLat(126.979384, 37.563573))
-                    zoom(19.0)
-                    pitch(50.0)
-                }
+                val cameraOptions = CameraOptions.Builder()
+                    .center(Point.fromLngLat(126.979384, 37.563573))
+                    .zoom(10.0)
+                    .pitch(50.0)
+                    .build()
+                mapBoxMap.setCamera(cameraOptions)
+                loadMarker()
             }
             mapBoxMap.addOnMoveListener(object : OnMoveListener {
                 override fun onMove(detector: MoveGestureDetector): Boolean {
@@ -319,11 +336,7 @@ class MapViewModel @Inject constructor(
                 }
 
                 override fun onMoveEnd(detector: MoveGestureDetector) {
-                    val curPoint = mapBoxMap.cameraState.center
-                    if (isFarEnough(curPoint)) {
-                        deletePin()
-                        loadMarker()
-                    }
+                    _canSearch.value = true
                 }
             })
         }
@@ -332,32 +345,11 @@ class MapViewModel @Inject constructor(
 
     fun trackCameraToUser(context: Context) {
         clearFocus()
+        _canSearch.value = false
         if (_isTracking.value == false) {
             _isTracking.value = true
             moveCameraLinearly()
             mapView.apply {
-                location.addOnIndicatorPositionChangedListener { myPos ->
-                    val minDist = 0.1
-                    landmarkAnnotations.forEach { landmark ->
-                        val jsonObject = landmark.getData()!!.asJsonObject!!
-                        val landmarkPos = landmark.getPoint()
-                        val distance = getDistance(myPos, landmarkPos!!)
-                        // 멀어질 때
-                        if (visitingLandmark.value == landmark && distance > minDist) {
-                            visitingLandmark.value = null
-                        }
-                        // 랜드마크 범위에 들어갔을 때
-                        if (visitingLandmark.value != landmark && distance <= minDist) {
-                            Log.d("LANDMARK", jsonObject.toString())
-                            visitingLandmark.value = landmark
-                            val landmarkId =
-                                jsonObject.get("id")?.asLong
-                            val isVisit = jsonObject.get("isVisit")?.asBoolean!!
-                            _bottomSheetOpen.value = true
-                            bottomSheetController.navigate(if (isVisit) "landmark/main/$landmarkId" else "landmark/first/$landmarkId")
-                        }
-                    }
-                }
                 location.updateSettings {
                     enabled = true
                     pulsingEnabled = true
@@ -395,30 +387,25 @@ class MapViewModel @Inject constructor(
         }
     }
 
-    private fun isFarEnough(curPoint: Point): Boolean {
-        lastRequestPos ?: return true
-        val distance = getDistance(curPoint, lastRequestPos!!)
-        if (distance > 2) return true
-        return false
-    }
-
     private fun moveCameraLinearly() {
         val viewportPlugin = mapView.viewport
         val followPuckViewportState: FollowPuckViewportState =
             viewportPlugin.makeFollowPuckViewportState(
                 FollowPuckViewportStateOptions.Builder()
-                    .zoom(16.5)
+                    .zoom(17.0)
                     .pitch(mapBoxMap.cameraState.pitch)
                     .bearing(FollowPuckViewportStateBearing.Constant(mapBoxMap.cameraState.bearing))
                     .build()
             )
         viewportPlugin.transitionTo(followPuckViewportState) {
+            mapView.location.addOnIndicatorPositionChangedListener(searchNearLandmarkListener)
         }
     }
 
-    private fun unTrackUser() {
+    fun unTrackUser() {
         _isTracking.value = false
-        mapView.location.addOnIndicatorPositionChangedListener {}
+        visitingLandmark.value = null
+        mapView.location.removeOnIndicatorPositionChangedListener(searchNearLandmarkListener)
         mapView.location.updateSettings {
             enabled = false
         }
@@ -432,28 +419,28 @@ class MapViewModel @Inject constructor(
         return mapBoxMap.coordinateBoundsForCamera(options)
     }
 
-    fun loadLandmarkPos() {
+    private fun loadLandmarkPos() {
+        Log.d(TAG, "filterState: ${_filterState.value}")
         val projection = getProjection()
-        viewModelScope.launch(
-            Dispatchers.IO
-        ) {
-            val deferredListOfLandmark = async {
-                landmarkRepository.getLandmarkByPos(
-                    projection.west(),
-                    projection.south(),
-                    projection.east(),
-                    projection.north()
-                )
-            }
+
+        viewModelScope.launch {
+            val listOfLandmark =
+                withContext(Dispatchers.IO) {
+                    apiCallback(navController!!) {
+                        landmarkRepository.getLandmarkByPos(
+                            projection.west(),
+                            projection.south(),
+                            projection.east(),
+                            projection.north()
+                        )
+                    }
+                }
             // 리스트가 null이면 종료 아니면 리스트 추가
-            val listOfLandmark = deferredListOfLandmark.await() ?: return@launch
             withContext(Dispatchers.Main) {
-                // 현재 존재하는 모든 마커 삭제
-                listOfLandmark.forEach { landmark ->
+                listOfLandmark?.forEach { landmark ->
                     addMarker(SpotType.LANDMARK, landmark.coordinate, landmark.visited, landmark.id)
                 }
                 lastRequestPos = mapBoxMap.cameraState.center
-//                _landmarks.value = listOfLandmark
             }
         }
     }
@@ -503,10 +490,35 @@ class MapViewModel @Inject constructor(
         pointAnnotationManager.create(pointAnnotationOptions)
     }
 
-    fun deletePin() {
+    private fun deletePin() {
         landmarkAnnotations.clear()
         spotAnnotations.clear()
         pointAnnotationManager.deleteAll()
+    }
+
+    private fun loadAroundSpots() {
+        val projection = getProjection()
+        viewModelScope.launch {
+            val result = apiCallback(navController!!) {
+                spotRepository.getAroundSpots(
+                    west = projection.west(),
+                    south = projection.south(),
+                    east = projection.east(),
+                    north = projection.north()
+                )
+            }
+            _spotList.value = result ?: return@launch
+        }
+    }
+
+    fun moveCamera(lat: Double, lng: Double) {
+        val point = Point.fromLngLat(lng, lat)
+        val cameraOptions = CameraOptions.Builder()
+            .center(point)
+            .zoom(17.0)
+            .build()
+        mapBoxMap.flyTo(cameraOptions)
+        loadMarker()
     }
 }
 

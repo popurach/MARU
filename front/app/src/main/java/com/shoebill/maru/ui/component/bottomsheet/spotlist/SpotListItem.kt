@@ -35,13 +35,13 @@ fun SpotListItem(
     Column(
         Modifier
             .padding(horizontal = 27.dp)
-            .padding(top = 26.dp, bottom = 7.dp)
+            .padding(top = 18.dp, bottom = 7.dp)
             .clickable { bottomSheetNavigatorViewModel.navController?.navigate("spot/detail/${spot.id}") }
     ) {
         Box(
             Modifier
                 .fillMaxWidth()
-                .height(150.dp)
+                .height(200.dp)
         ) {
             AsyncImage(
                 model = spot.imageUrl,
@@ -59,7 +59,7 @@ fun SpotListItem(
                         id = if (spot.scraped) {
                             R.drawable.scrap_icon
                         } else {
-                            R.drawable.unscrap_icon
+                            R.drawable.spot_unscrap_icon
                         }
                     ),
                     contentDescription = "scrap icon",
@@ -76,7 +76,7 @@ fun SpotListItem(
             modifier = Modifier.horizontalScroll(scrollState)
         ) {
             spot.tags?.forEach() { tag ->
-                Chip(text = tag.name)
+                Chip(text = "# ${tag.name}")
             }
         }
     }
