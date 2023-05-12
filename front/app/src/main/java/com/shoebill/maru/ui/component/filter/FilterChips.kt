@@ -38,8 +38,10 @@ fun FilterChips(
                     isSelected = index == filterState.value,
                     onSelected = {
                         mapViewModel.clearFocus()
-                        mapViewModel.updateFilterState(index)
-                        mapViewModel.loadMarker()
+                        if (filterState.value != index) {
+                            mapViewModel.updateFilterState(index)
+                            mapViewModel.loadMarker()
+                        }
                     }
                 )
             }
