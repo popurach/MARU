@@ -33,32 +33,33 @@ import com.shoebill.maru.viewmodel.BottomSheetNavigatorViewModel
 import com.shoebill.maru.viewmodel.MapViewModel
 import com.shoebill.maru.viewmodel.NavigateViewModel
 import com.shoebill.maru.viewmodel.SpotViewModel
+import kotlinx.coroutines.delay
 
 @Composable
 fun SpotDetail(
     spotId: Long,
     bottomSheetNavigatorViewModel: BottomSheetNavigatorViewModel = viewModel(),
-    mapViewModel: MapViewModel = hiltViewModel(),
     navigateViewModel: NavigateViewModel = hiltViewModel(),
     mapViewModel: MapViewModel = hiltViewModel(),
     spotViewModel: SpotViewModel = hiltViewModel() // 3. spotRepository 가 필요해서 컴포넌트랑 생명주기가 다른게 이상함
 ) {
     mapViewModel.updateBottomSheetState(true)
     spotViewModel.initSpotId(spotId)
-    LaunchedEffect(Unit) {
-        spotViewModel.loadSpotDetailById(
-            spotId,
-            navigateViewModel.navigator!!
-        )
-    }
-
+    spotViewModel.loadSpotDetailById(
+        spotId,
+        navigateViewModel.navigator!!
+    )
     val spotDetails = spotViewModel.spotDetails.observeAsState()
-
+    LaunchedEffect(spotDetails.value) {
+        if (spotDetails.value != null) {
+            delay(1000)
+            mapViewModel.moveCamera(
+                spotDetails.value!!.coordinate.lat,
+                spotDetails.value!!.coordinate.lng
+            )
+        }
+    }
     if (spotDetails.value != null) { // 2. 데이터가 로드 되기전, imageUrl 때문에 에러가 발생하지 않도록하는게 분기처리가 이상함
-        mapViewModel.moveCamera(
-            spotDetails.value!!.coordinate.lat,
-            spotDetails.value!!.coordinate.lng
-        )
         Box(Modifier.fillMaxSize()) {
             Box {
                 AsyncImage(
@@ -75,7 +76,7 @@ fun SpotDetail(
                         modifier = Modifier
                             .size(30.dp)
                             .clickable {
-                                bottomSheetNavigatorViewModel.navController?.navigate("spot/list/-1") {
+                                bottomSheetNavigatorViewModel.navController?.navigate("spot/list") {
                                     launchSingleTop = true
                                     popUpTo(0)
                                 }

@@ -42,6 +42,9 @@ fun BottomSheetPage(
     val visitingLandmark = mapViewModel.visitingLandmark.observeAsState()
     val visitingLandmarkId: Long? =
         visitingLandmark.value?.getData()?.asJsonObject?.get("id")?.asLong
+
+    val arg = "id"
+
     Column(
         modifier = Modifier
             .heightIn(min = 40.dp, max = 670.dp)
@@ -62,8 +65,8 @@ fun BottomSheetPage(
                 }
             }
             composable(
-                "spot/detail/{$spotId}",
-                arguments = listOf(navArgument(spotId.toString()) {
+                "spot/detail/{$arg}",
+                arguments = listOf(navArgument(arg) {
                     type = NavType.LongType
                     defaultValue = -1L
                 })
@@ -71,8 +74,10 @@ fun BottomSheetPage(
                 CompositionLocalProvider(
                     LocalViewModelStoreOwner provides viewModelStoreOwner
                 ) {
+                    var movedSpotId = it.arguments!!.getLong(arg)
+                    if (movedSpotId == -1L) movedSpotId = spotId
                     BottomSheetFrame {
-                        SpotDetail(spotId)
+                        SpotDetail(movedSpotId)
                     }
                 }
             }
