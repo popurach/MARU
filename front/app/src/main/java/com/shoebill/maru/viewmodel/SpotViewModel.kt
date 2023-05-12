@@ -41,6 +41,9 @@ class SpotViewModel @Inject constructor(
             val result = apiCallback(navController) {
                 spotRepository.toggleLike(spotId)
             }
+
+            _spotDetails.value?.toggleLikeState()
+
             if (result != null) {
                 Log.d("SPOT", "toggleLike: 좋아요 토글 성공")
                 Log.d("SPOT", "toggleLike: ${_spotDetails.value?.liked}")
@@ -57,6 +60,9 @@ class SpotViewModel @Inject constructor(
             val result = apiCallback(navController) {
                 spotRepository.toggleScrap(spotId)
             }
+
+            _spotDetails.value?.toggleScrapState()
+
             if (result != null) {
                 Log.d("SPOT", "toggleScrap: 스크램 토글 성공")
                 Log.d("SPOT", "toggleScrap: ${_spotDetails.value?.scraped}")

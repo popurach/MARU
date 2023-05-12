@@ -190,7 +190,7 @@ fun ProfileEditModal(
 
 @Composable
 fun LocalTextField(memberViewModel: MemberViewModel = hiltViewModel()) {
-    val nickname = remember { mutableStateOf("") }
+    val nickname = remember { mutableStateOf(memberViewModel.memberInfo.value!!.nickname) }
 
     TextField(
         value = nickname.value,
