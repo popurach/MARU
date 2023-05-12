@@ -1,7 +1,7 @@
 package com.shoebill.maru.model.interfaces
 
-import com.shoebill.maru.model.data.myBiddings.LandmarkInfo
-import com.shoebill.maru.model.data.myBiddings.MyBidding
+import com.shoebill.maru.model.data.myAuction.LandmarkInfo
+import com.shoebill.maru.model.data.myAuction.MyAuction
 import retrofit2.http.GET
 import retrofit2.http.Query
 
@@ -11,7 +11,7 @@ interface MyBiddingApi {
     suspend fun getMyBiddings(
         @Query("lastOffset") lastOffset: Long?,
         @Query("size") size: Int = 20
-    ): List<MyBidding>
+    ): List<MyAuction>
 
     @GET("api/auctions/my/non-biddings")
     suspend fun getMyNonBiddings(

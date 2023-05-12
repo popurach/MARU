@@ -2,7 +2,7 @@ package com.shoebill.maru.model.repository
 
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
-import com.shoebill.maru.model.data.myBiddings.LandmarkInfo
+import com.shoebill.maru.model.data.myAuction.LandmarkInfo
 
 class MyNonBiddingSource(private val myBiddingRepository: MyBiddingRepository) :
     PagingSource<Long, LandmarkInfo>() {
