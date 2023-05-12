@@ -1,5 +1,6 @@
 package com.shoebill.maru.viewmodel
 
+import android.animation.Animator
 import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Bitmap
@@ -24,6 +25,7 @@ import com.mapbox.maps.MapboxMap
 import com.mapbox.maps.extension.style.expressions.dsl.generated.interpolate
 import com.mapbox.maps.extension.style.layers.properties.generated.IconAnchor
 import com.mapbox.maps.plugin.LocationPuck2D
+import com.mapbox.maps.plugin.animation.MapAnimationOptions.Companion.mapAnimationOptions
 import com.mapbox.maps.plugin.animation.flyTo
 import com.mapbox.maps.plugin.annotation.annotations
 import com.mapbox.maps.plugin.annotation.generated.OnPointAnnotationClickListener
@@ -61,6 +63,7 @@ import kotlin.math.abs
 import kotlin.math.asin
 import kotlin.math.ceil
 import kotlin.math.cos
+import kotlin.math.max
 import kotlin.math.sin
 import kotlin.math.sqrt
 
@@ -283,7 +286,7 @@ class MapViewModel @Inject constructor(
 
     }
 
-    fun createMapView(context: Context): MapView {
+    fun createMapView(context: Context, needMarker: Boolean): MapView {
         mapView = MapView(context)
         mapBoxMap = mapView.getMapboxMap()
         pointAnnotationManager = mapView.annotations.createPointAnnotationManager()
@@ -323,7 +326,7 @@ class MapViewModel @Inject constructor(
                     .pitch(50.0)
                     .build()
                 mapBoxMap.setCamera(cameraOptions)
-                loadMarker()
+                if (needMarker) loadMarker()
             }
             mapBoxMap.addOnMoveListener(object : OnMoveListener {
                 override fun onMove(detector: MoveGestureDetector): Boolean {
@@ -515,10 +518,29 @@ class MapViewModel @Inject constructor(
         val point = Point.fromLngLat(lng, lat)
         val cameraOptions = CameraOptions.Builder()
             .center(point)
-            .zoom(17.0)
+            .zoom(max(17.0, mapBoxMap.cameraState.zoom))
             .build()
-        mapBoxMap.flyTo(cameraOptions)
-        loadMarker()
+        mapBoxMap.flyTo(
+            cameraOptions,
+            mapAnimationOptions {
+                animatorListener(object : Animator.AnimatorListener {
+                    override fun onAnimationStart(animation: Animator) {
+                    }
+
+                    override fun onAnimationEnd(animation: Animator) {
+                        updateFilterState(ALL)
+                        loadMarker()
+                    }
+
+                    override fun onAnimationCancel(animation: Animator) {
+                    }
+
+                    override fun onAnimationRepeat(animation: Animator) {
+                    }
+                })
+            }
+        )
+
     }
 }
 

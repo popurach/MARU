@@ -119,7 +119,7 @@ fun MainPage(
         scaffoldState = scaffoldState,
         content = {
             Box {
-                MapboxScreen(mapViewModel)
+                MapboxScreen(spotId == -1L)
                 SearchBar()
                 FabCamera(
                     Modifier
@@ -149,7 +149,7 @@ fun MainPage(
         sheetContent = {
             BottomSheetPage(
                 spotId = spotId,
-                startDestination = if (spotId == -1L) "spot/list" else "spot/detail/{$spotId}"
+                startDestination = if (spotId == -1L) "spot/list" else "spot/detail/{id}"
             )
         },
         sheetPeekHeight = 25.dp,

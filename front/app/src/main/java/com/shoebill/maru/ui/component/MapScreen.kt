@@ -46,6 +46,7 @@ import com.shoebill.maru.viewmodel.NavigateViewModel
 @Composable
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 fun MapboxScreen(
+    needMarker: Boolean,
     mapViewModel: MapViewModel = hiltViewModel(),
     navigateViewModel: NavigateViewModel = hiltViewModel()
 ) {
@@ -89,7 +90,7 @@ fun MapboxScreen(
                             context,
                             context.getString(R.string.mapbox_public_token)
                         )
-                        mapViewModel.createMapView(context)
+                        mapViewModel.createMapView(context, needMarker)
                     }
                 )
                 if (canSearch.value != null && canSearch.value!!) {
