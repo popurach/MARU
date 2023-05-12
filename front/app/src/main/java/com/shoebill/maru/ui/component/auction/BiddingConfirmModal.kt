@@ -21,21 +21,22 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.shoebill.maru.ui.component.common.CustomAlertDialog
 import com.shoebill.maru.ui.component.common.GradientButton
 import com.shoebill.maru.ui.component.common.GradientColoredText
 import com.shoebill.maru.ui.theme.MaruBrush
 import com.shoebill.maru.viewmodel.AuctionViewModel
-import com.shoebill.maru.viewmodel.MyPageViewModel
+import com.shoebill.maru.viewmodel.MemberViewModel
 import com.shoebill.maru.viewmodel.NavigateViewModel
 import java.text.DecimalFormat
 
 @Composable
 fun BiddingConfirmModal(
     navigateViewModel: NavigateViewModel = viewModel(),
+    memberViewModel: MemberViewModel = hiltViewModel(),
     auctionViewModel: AuctionViewModel = viewModel(),
-    myPageViewModel: MyPageViewModel = viewModel(),
     onDismissRequest: () -> Unit
 ) {
     val auctionInfo = auctionViewModel.auctionInfo.observeAsState()
@@ -85,8 +86,8 @@ fun BiddingConfirmModal(
                         if (auctionInfo.value?.myBidding == null) {
                             auctionViewModel.createBidding { success ->
                                 if (success) {
-                                    navigateToMyPage(3, myPageViewModel, navigateViewModel)
                                     auctionViewModel.exit()
+                                    navigateViewModel.navigator?.popBackStack()
                                 } else {
                                     Log.e("AUCTION", "createBidding fail")
                                 }
@@ -94,13 +95,14 @@ fun BiddingConfirmModal(
                         } else {
                             auctionViewModel.updateBidding { success ->
                                 if (success) {
-                                    navigateToMyPage(3, myPageViewModel, navigateViewModel)
                                     auctionViewModel.exit()
+                                    navigateViewModel.navigator?.popBackStack()
                                 } else {
                                     Log.e("AUCTION", "updateBidding fail")
                                 }
                             }
                         }
+                        memberViewModel.getMemberInfo(navigateViewModel)
                     }
                 )
                 Box(
@@ -124,15 +126,3 @@ fun BiddingConfirmModal(
         }
     }
 }
-
-fun navigateToMyPage(
-    tabIndex: Int,
-    myPageViewModel: MyPageViewModel,
-    navigateViewModel: NavigateViewModel,
-) {
-    myPageViewModel.switchTab(
-        tabIndex
-    )
-    navigateViewModel.navigator!!.navigate("mypage")
-}
-

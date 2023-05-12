@@ -12,7 +12,6 @@ import com.shoebill.maru.model.data.AuctionInfo
 import com.shoebill.maru.model.repository.AuctionRepository
 import com.shoebill.maru.util.PreferenceUtil
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.json.JSONObject
@@ -102,9 +101,9 @@ class AuctionViewModel @Inject constructor(
     fun createBidding(onComplete: (Boolean) -> Unit) {
         val requestBody = AuctionBiddingRequest(landmarkId, _bid.value!!)
         viewModelScope.launch {
-            val success = viewModelScope.async {
+            val success = withContext(viewModelScope.coroutineContext) {
                 auctionRepository.createBidding(requestBody)
-            }.await()
+            }
 
             onComplete(success)
         }
@@ -113,9 +112,9 @@ class AuctionViewModel @Inject constructor(
     fun updateBidding(onComplete: (Boolean) -> Unit) {
         val requestBody = AuctionBiddingRequest(landmarkId, _bid.value!!)
         viewModelScope.launch {
-            val success = viewModelScope.async {
+            val success = withContext(viewModelScope.coroutineContext) {
                 auctionRepository.updateBidding(requestBody)
-            }.await()
+            }
 
             onComplete(success)
         }

@@ -19,7 +19,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.Icon
-import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -165,35 +164,32 @@ fun AuctionPage(
             fontSize = 22.sp,
             fontWeight = FontWeight.Bold
         )
-        Surface(
-            modifier = Modifier.padding(horizontal = 20.dp)
-        ) {
-            Chart(
-                modifier = Modifier.padding(horizontal = 30.dp),
-                chart = lineChart(
-                    lines = listOf(
-                        lineSpec(
-                            lineColor = Color(0xFF6039DF),
-                            lineThickness = 4.dp,
-                            lineBackgroundShader = verticalGradient(
-                                arrayOf(
-                                    Color(0xFF6039DF).copy(0.5f),
-                                    Color(0xFFA14AB7).copy(alpha = 0f)
-                                ),
+        Chart(
+            modifier = Modifier.padding(start = 50.dp, end = 50.dp, top = 10.dp),
+            chart = lineChart(
+                lines = listOf(
+                    lineSpec(
+                        lineColor = Color(0xFF6039DF),
+                        lineThickness = 4.dp,
+                        lineBackgroundShader = verticalGradient(
+                            arrayOf(
+                                Color(0xFF6039DF).copy(0.5f),
+                                Color(0xFFA14AB7).copy(alpha = 0f)
                             ),
                         ),
                     ),
-                    axisValuesOverrider = AxisValuesOverrider.fixed(
-                        maxX = auctionHistory.value.size.minus(
-                            2
-                        ).toFloat()
-                    ),
-                    pointPosition = LineChart.PointPosition.Start,
                 ),
-                model = chartEntryModel,
-                marker = rememberMarker(),
-            )
-        }
+                axisValuesOverrider = AxisValuesOverrider.fixed(
+                    maxX = auctionHistory.value.size.minus(
+                        2
+                    ).toFloat(),
+                    minY = 7000f
+                ),
+                pointPosition = LineChart.PointPosition.Start,
+            ),
+            model = chartEntryModel,
+            marker = rememberMarker(),
+        )
         Text(
             modifier = Modifier.padding(top = 25.dp),
             fontSize = 12.sp,
