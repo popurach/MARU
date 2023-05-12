@@ -29,19 +29,21 @@ fun LandmarkPictureList(
     landmarkPictureListViewModel.initLandmarkId(landmarkId)
     val pictureList =
         landmarkPictureListViewModel.getLandmarkPicturePagination().collectAsLazyPagingItems()
-    if (pictureList.itemCount == 0) {
-        Box(modifier = Modifier.fillMaxSize()) {
-            Text(
-                text = "등록된 사진이 없습니다.",
-                modifier = Modifier.align(Alignment.Center),
-                fontSize = 18.sp,
-                fontWeight = FontWeight.Bold
-            )
-        }
-    } else {
+    Box(modifier = Modifier.fillMaxSize()) {
         LazyVerticalGrid(
             columns = GridCells.Adaptive(minSize = 128.dp)
         ) {
+            if (pictureList.itemCount == 0) {
+                item {
+                    Text(
+                        text = "등록된 사진이 없습니다.",
+                        modifier = Modifier.align(Alignment.Center),
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+            }
+            
             items(pictureList.itemCount) { idx ->
                 AsyncImage(
                     model = pictureList[idx]!!.imageUrl,
