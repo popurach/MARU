@@ -22,17 +22,20 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.shoebill.maru.ui.component.common.CustomAlertDialog
 import com.shoebill.maru.ui.component.common.GradientButton
 import com.shoebill.maru.ui.component.common.GradientColoredText
 import com.shoebill.maru.ui.theme.MaruBrush
+import com.shoebill.maru.viewmodel.CameraViewModel
 import com.shoebill.maru.viewmodel.NavigateViewModel
 
 @Composable
 fun ConfirmModal(
     bitmap: ImageBitmap,
-    navigateViewModel: NavigateViewModel = viewModel(),
+    landmarkId: Long,
+    cameraViewModel: CameraViewModel = hiltViewModel(),
+    navigateViewModel: NavigateViewModel = hiltViewModel(),
     onDismissRequest: () -> Unit
 ) {
 
@@ -75,7 +78,9 @@ fun ConfirmModal(
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(48.dp),
-                    onClick = {} // 해당 landmark 경매 페이지로 이동 ?
+                    onClick = {
+                        cameraViewModel.moveAuctionPage(navigateViewModel.navigator!!, landmarkId)
+                    } // 해당 landmark 경매 페이지로 이동 ?
                 )
                 Box(
                     modifier = Modifier
@@ -86,7 +91,9 @@ fun ConfirmModal(
                         .background(Color.Transparent)
                         .clickable {
                             onDismissRequest()
-                            navigateViewModel.navigator?.navigate("main")
+                            cameraViewModel.moveSpotDetail(
+                                navigateViewModel.navigator!!,
+                            )
                         }, // 메인 페이지 bottom sheet 해당 spot 을 띄움
                 ) {
                     GradientColoredText(

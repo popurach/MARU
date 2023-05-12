@@ -14,6 +14,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.Icon
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -39,14 +40,19 @@ fun SpotDetail(
     bottomSheetNavigatorViewModel: BottomSheetNavigatorViewModel = viewModel(),
     mapViewModel: MapViewModel = hiltViewModel(),
     navigateViewModel: NavigateViewModel = hiltViewModel(),
+    mapViewModel: MapViewModel = hiltViewModel(),
     spotViewModel: SpotViewModel = hiltViewModel() // 3. spotRepository 가 필요해서 컴포넌트랑 생명주기가 다른게 이상함
 ) {
+    mapViewModel.updateBottomSheetState(true)
     spotViewModel.initSpotId(spotId)
+    LaunchedEffect(Unit) {
+        spotViewModel.loadSpotDetailById(
+            spotId,
+            navigateViewModel.navigator!!
+        )
+    }
+
     val spotDetails = spotViewModel.spotDetails.observeAsState()
-    spotViewModel.loadSpotDetailById(
-        spotId,
-        navigateViewModel.navigator!!
-    ) // 1. 이렇게 호출해서 spotViewModel 안에 spot detail 을 직접 초기화 해주는게 이상함
 
     if (spotDetails.value != null) { // 2. 데이터가 로드 되기전, imageUrl 때문에 에러가 발생하지 않도록하는게 분기처리가 이상함
         mapViewModel.moveCamera(
@@ -69,7 +75,7 @@ fun SpotDetail(
                         modifier = Modifier
                             .size(30.dp)
                             .clickable {
-                                bottomSheetNavigatorViewModel.navController?.navigate("spot/list") {
+                                bottomSheetNavigatorViewModel.navController?.navigate("spot/list/-1") {
                                     launchSingleTop = true
                                     popUpTo(0)
                                 }

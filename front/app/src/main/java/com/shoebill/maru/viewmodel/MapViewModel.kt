@@ -64,7 +64,7 @@ import kotlin.math.cos
 import kotlin.math.sin
 import kotlin.math.sqrt
 
-const val TAG = "LANDMARK"
+const val TAG = "SPOT-DETAIL"
 
 @SuppressLint("StaticFieldLeak")
 @HiltViewModel
@@ -215,14 +215,14 @@ class MapViewModel @Inject constructor(
     private fun loadSpotPos(mine: Boolean = false) {
         Log.d(TAG, "loadSpotPos: ${_filterState.value}")
         val projection = getProjection()
+        val boundingBox = BoundingBox(
+            projection.west(),
+            projection.south(),
+            projection.east(),
+            projection.north(),
+            ceil(mapBoxMap.cameraState.zoom).toInt()
+        )
         viewModelScope.launch {
-            val boundingBox = BoundingBox(
-                projection.west(),
-                projection.south(),
-                projection.east(),
-                projection.north(),
-                ceil(mapBoxMap.cameraState.zoom).toInt()
-            )
             val spotList = apiCallback(navController!!) {
                 spotRepository.getSpotMarker(boundingBox, mine)
             }

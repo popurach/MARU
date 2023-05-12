@@ -68,7 +68,7 @@ class LoginViewModel @Inject constructor(
                     Log.d(TAG, "kakaoLogin: $isSuccess")
                     if (isSuccess) {
                         withContext(Dispatchers.Main) {
-                            navigator?.navigate("main") {
+                            navigator?.navigate("main/-1") {
                                 popUpTo(0)
                             }
                         }
@@ -96,7 +96,7 @@ class LoginViewModel @Inject constructor(
                         //back end 로그인 API 호출 부분
                         isSuccess = kakaoApiLogin(token)
                         if (isSuccess) {
-                            navigator?.navigate("main") {
+                            navigator?.navigate("main/-1") {
                                 popUpTo(0)
                             }
                         }
@@ -116,7 +116,7 @@ class LoginViewModel @Inject constructor(
                 viewModelScope.launch {
                     val isSuccess = naverApiLogin(accessToken)
                     if (isSuccess) {
-                        navigator.navigate("main") {
+                        navigator.navigate("main/-1") {
                             popUpTo(0)
                         }
                     }
@@ -168,7 +168,7 @@ class LoginViewModel @Inject constructor(
                     completedTask.getResult(ApiException::class.java)?.serverAuthCode
                 val isSuccess = authCode != null && googleApiLogin(authCode)
                 if (isSuccess) {
-                    navigator.navigate("main")
+                    navigator.navigate("main/-1")
                 }
             } catch (e: ApiException) {
                 Log.w(TAG, "handleSignInResult: error" + e.statusCode)

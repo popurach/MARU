@@ -16,7 +16,6 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.view.WindowCompat
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -75,7 +74,7 @@ class MainActivity : ComponentActivity() {
                     color = MaterialTheme.colors.background
                 ) {
                     CompositionLocalProvider(LocalRippleTheme provides NoRippleTheme) {
-                        MyApp(startDestination = if (prefUtil.isLogin()) "main" else "login")
+                        MyApp(startDestination = if (prefUtil.isLogin()) "main/{id}" else "login")
                     }
                 }
             }
@@ -94,7 +93,7 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun MyApp(
     navController: NavHostController = rememberNavController(),
-    startDestination: String = "main",
+    startDestination: String,
 ) {
     val viewModelStoreOwner = checkNotNull(LocalViewModelStoreOwner.current) {
         "No ViewModelStoreOwner was provided via LocalViewModelStoreOwner"
@@ -103,14 +102,20 @@ fun MyApp(
     navigateViewModel.init(navController)
 
     NavHost(
-        navController = navigateViewModel.navigator!!,
+        navController = navController,
         startDestination = startDestination
     ) {
-        composable("main") { backStackEntry ->
+        composable(
+            "main/{id}",
+            arguments = listOf(navArgument("id") {
+                type = NavType.LongType
+                defaultValue = -1L
+            })
+        ) {
             CompositionLocalProvider(LocalViewModelStoreOwner provides viewModelStoreOwner) {
                 val viewModel = hiltViewModel<MapViewModel>()
                 viewModel.initFocusManager(LocalFocusManager.current)
-                MainPage(mapViewModel = viewModel)
+                MainPage(mapViewModel = viewModel, spotId = it.arguments!!.getLong("id"))
             }
         }
         /** 이곳에 화면 추가 **/
@@ -139,11 +144,19 @@ fun MyApp(
             }
         }
 
-        composable("camera") { backStackEntry ->
+        composable(
+            "camera/{id}",
+            arguments = listOf(navArgument("id") {
+                type = NavType.LongType
+                defaultValue = -1L
+            })
+        ) {
             CompositionLocalProvider(LocalViewModelStoreOwner provides viewModelStoreOwner) {
-                CameraPage(onImageCaptured = { _, _ ->
-                }, onError = {
-                })
+                CameraPage(landmarkId = it.arguments!!.getLong("id"),
+                    onImageCaptured = { _, _ ->
+                    }, onError = {
+                    }
+                )
             }
         }
 
@@ -155,10 +168,10 @@ fun MyApp(
     }
 }
 
-@Preview(showBackground = true)
-@Composable
-fun DefaultPreview() {
-    MaruTheme {
-        MyApp()
-    }
-}
+//@Preview(showBackground = true)
+//@Composable
+//fun DefaultPreview() {
+//    MaruTheme {
+//        MyApp()
+//    }
+//}

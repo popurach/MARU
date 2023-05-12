@@ -30,6 +30,7 @@ import com.shoebill.maru.viewmodel.NavigateViewModel
 
 @Composable
 fun BottomSheetPage(
+    spotId: Long,
     bottomSheetNavigatorViewModel: BottomSheetNavigatorViewModel = hiltViewModel(),
     navController: NavHostController = rememberNavController(),
     navigatorViewModel: NavigateViewModel = viewModel(),
@@ -49,7 +50,9 @@ fun BottomSheetPage(
             "No ViewModelStoreOwner was provided via LocalViewModelStoreOwner"
         }
         NavHost(navController = navController, startDestination = startDestination) {
-            composable("spot/list") {
+            composable(
+                "spot/list",
+            ) {
                 CompositionLocalProvider(
                     LocalViewModelStoreOwner provides viewModelStoreOwner
                 ) {
@@ -59,20 +62,17 @@ fun BottomSheetPage(
                 }
             }
             composable(
-                "spot/detail/{id}",
-                arguments = listOf(navArgument("id") {
+                "spot/detail/{$spotId}",
+                arguments = listOf(navArgument(spotId.toString()) {
                     type = NavType.LongType
-                    defaultValue =
-                        navigatorViewModel.navigator?.previousBackStackEntry?.savedStateHandle?.get(
-                            "spotId"
-                        ) ?: 1
+                    defaultValue = -1L
                 })
             ) {
                 CompositionLocalProvider(
                     LocalViewModelStoreOwner provides viewModelStoreOwner
                 ) {
                     BottomSheetFrame {
-                        SpotDetail(it.arguments?.getLong("id")!!)
+                        SpotDetail(spotId)
                     }
                 }
             }
@@ -92,6 +92,7 @@ fun BottomSheetPage(
                     val landmarkId = it.arguments!!.getLong("landmarkId")
                     BottomSheetFrame(
                         hasFabCamera = true,
+                        landmarkId = landmarkId,
                         backgroundColor = MaruBackground,
                         cameraEnabled = visitingLandmarkId == landmarkId
                     ) {
@@ -115,6 +116,7 @@ fun BottomSheetPage(
                     val landmarkId = it.arguments!!.getLong("landmarkId")
                     BottomSheetFrame(
                         hasFabCamera = true,
+                        landmarkId = landmarkId,
                         backgroundColor = MaruBackground,
                         cameraEnabled = landmarkId == visitingLandmarkId
                     ) {
@@ -135,6 +137,7 @@ fun BottomSheetPage(
                     val landmarkId = it.arguments!!.getLong("landmarkId")
                     BottomSheetFrame(
                         hasFabCamera = true,
+                        landmarkId = landmarkId,
                         backgroundColor = MaruBackground,
                         cameraEnabled = landmarkId == visitingLandmarkId
                     ) {
@@ -155,6 +158,7 @@ fun BottomSheetPage(
                     val landmarkId = it.arguments!!.getLong("landmarkId")
                     BottomSheetFrame(
                         hasFabCamera = true,
+                        landmarkId = landmarkId,
                         backgroundColor = MaruBackground,
                         cameraEnabled = landmarkId == visitingLandmarkId
                     ) {
