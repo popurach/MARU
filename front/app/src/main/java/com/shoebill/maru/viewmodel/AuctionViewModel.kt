@@ -7,6 +7,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.shoebill.maru.BuildConfig
 import com.shoebill.maru.model.data.AuctionBiddingRequest
 import com.shoebill.maru.model.data.AuctionInfo
 import com.shoebill.maru.model.repository.AuctionRepository
@@ -138,15 +139,14 @@ class AuctionViewModel @Inject constructor(
 
     @SuppressLint("CheckResult")
     private fun runStomp(context: Context) {
-        val endpointUrl = "wss://k8a403.p.ssafy.io/socket"
-
         val prefUtil = PreferenceUtil(context)
         val accessToken = prefUtil.getString("accessToken")
         val tokenInfo = "Bearer $accessToken"
 
         val headers: MutableMap<String, String> = HashMap()
         headers["Authorization"] = tokenInfo
-        stompClient = Stomp.over(Stomp.ConnectionProvider.OKHTTP, endpointUrl, headers)
+        stompClient =
+            Stomp.over(Stomp.ConnectionProvider.OKHTTP, BuildConfig.END_POINT_URL, headers)
 
         stompClient.lifecycle().subscribe { lifecycleEvent ->
             when (lifecycleEvent.type) {

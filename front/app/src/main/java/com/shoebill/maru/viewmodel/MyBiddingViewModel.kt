@@ -4,8 +4,8 @@ import androidx.lifecycle.ViewModel
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
-import com.shoebill.maru.model.data.myBiddings.LandmarkInfo
-import com.shoebill.maru.model.data.myBiddings.MyBidding
+import com.shoebill.maru.model.data.myAuction.LandmarkInfo
+import com.shoebill.maru.model.data.myAuction.MyAuction
 import com.shoebill.maru.model.repository.MyBiddingRepository
 import com.shoebill.maru.model.repository.MyBiddingSource
 import com.shoebill.maru.model.repository.MyNonBiddingSource
@@ -17,7 +17,7 @@ import javax.inject.Inject
 class MyBiddingViewModel @Inject constructor(private val myBiddingRepository: MyBiddingRepository) :
     ViewModel() {
 
-    fun getMyBiddingPagination(): Flow<PagingData<MyBidding>> {
+    fun getMyBiddingPagination(): Flow<PagingData<MyAuction>> {
         return Pager(PagingConfig(pageSize = 20)) {
             MyBiddingSource(myBiddingRepository)
         }.flow
