@@ -68,9 +68,9 @@ fun MainPage(
     val context = LocalContext.current
     val scaffoldState = rememberBottomSheetScaffoldState()
     val isDrawerOpen = drawerViewModel.isOpen.observeAsState(initial = false)
-    val isTracking = mapViewModel.isTracking.observeAsState()
+    val isBottomSheetOpen = mapViewModel.bottomSheetOpen.observeAsState(initial = false)
 
-    val isBottomSheetOpen = mapViewModel.bottomSheetOpen.observeAsState()
+    val isTracking = mapViewModel.isTracking.observeAsState()
 
     val launcherMultiplePermissions = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
@@ -116,6 +116,9 @@ fun MainPage(
     }
     BackHandler(isDrawerOpen.value) {
         drawerViewModel.updateOpenState(false)
+    }
+    BackHandler(isBottomSheetOpen.value) {
+        mapViewModel.updateBottomSheetState(false)
     }
     BottomSheetScaffold(
         scaffoldState = scaffoldState,
