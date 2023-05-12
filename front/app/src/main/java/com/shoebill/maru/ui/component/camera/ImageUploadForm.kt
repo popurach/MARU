@@ -33,9 +33,7 @@ import com.shoebill.maru.ui.component.common.Chip
 import com.shoebill.maru.ui.component.common.GradientButton
 import com.shoebill.maru.ui.theme.MaruBackground
 import com.shoebill.maru.ui.theme.MaruBrush
-import com.shoebill.maru.viewmodel.BottomSheetNavigatorViewModel
 import com.shoebill.maru.viewmodel.CameraViewModel
-import com.shoebill.maru.viewmodel.MapViewModel
 import com.shoebill.maru.viewmodel.NavigateViewModel
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.launch
@@ -46,9 +44,7 @@ fun ImageUploadForm(
     bitmap: ImageBitmap,
     landmarkId: Long,
     cameraViewModel: CameraViewModel = hiltViewModel(),
-    mapViewModel: MapViewModel = hiltViewModel(),
     navigateViewModel: NavigateViewModel = hiltViewModel(),
-    bottomSheetNavigatorViewModel: BottomSheetNavigatorViewModel = hiltViewModel()
 ) {
     val inputTag = cameraViewModel.inputTag.observeAsState("")
     val tagList = cameraViewModel.tagList.observeAsState(listOf())
@@ -139,12 +135,7 @@ fun ImageUploadForm(
         }
         if (isModalOpen.value) {
             if (landmarkId == -1L) {
-                cameraViewModel.moveSpotDetail(
-                    navigateViewModel.navigator!!,
-                    bottomSheetNavigatorViewModel.navController!!
-                ) {
-                    mapViewModel.updateBottomSheetState(true)
-                }
+                cameraViewModel.moveSpotDetail(navigateViewModel.navigator!!)
             } else {
                 ConfirmModal(bitmap = bitmap, landmarkId = landmarkId) {
                     isModalOpen.value = false

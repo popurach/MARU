@@ -27,6 +27,7 @@ class SpotViewModel @Inject constructor(
     }
 
     fun loadSpotDetailById(spotId: Long, navController: NavHostController) {
+        Log.d(TAG, "loadSpotDetailById: isLoad")
         viewModelScope.launch {
             val mySpot = apiCallback(navController) {
                 spotRepository.getSpotDetail(spotId)

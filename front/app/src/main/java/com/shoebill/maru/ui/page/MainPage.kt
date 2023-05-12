@@ -14,9 +14,9 @@ import androidx.compose.material.BottomSheetScaffold
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.rememberBottomSheetScaffoldState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Rect
@@ -38,19 +38,26 @@ import com.shoebill.maru.viewmodel.DrawerViewModel
 import com.shoebill.maru.viewmodel.MapViewModel
 import com.shoebill.maru.viewmodel.MemberViewModel
 import com.shoebill.maru.viewmodel.NavigateViewModel
-import kotlinx.coroutines.async
-import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterialApi::class)
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter", "CoroutineCreationDuringComposition")
 @Composable
 fun MainPage(
+    spotId: Long,
     mapViewModel: MapViewModel = viewModel(),
     drawerViewModel: DrawerViewModel = viewModel(),
     memberViewModel: MemberViewModel = hiltViewModel(),
     navigateViewModel: NavigateViewModel = hiltViewModel(),
     cameraViewModel: CameraViewModel = hiltViewModel(),
 ) {
+    DisposableEffect(Unit) {
+        val expandState: Boolean = spotId != -1L
+        if (expandState) {
+            Log.d("EXPAND", "MainPage: expandState = true")
+            mapViewModel.updateBottomSheetState(true)
+        }
+        onDispose { }
+    }
     LaunchedEffect(Unit) {
         if (memberViewModel.memberInfo.value == null)
             memberViewModel.getMemberInfo(navigateViewModel)
@@ -63,24 +70,8 @@ fun MainPage(
     val isDrawerOpen = drawerViewModel.isOpen.observeAsState(initial = false)
     val isTracking = mapViewModel.isTracking.observeAsState()
 
-    val spotId: Long? =
-        navigateViewModel.navigator?.previousBackStackEntry?.savedStateHandle?.get("spotId")
-    val expandState: Boolean? =
-        navigateViewModel.navigator?.previousBackStackEntry?.savedStateHandle?.get("expandState")
-
     val isBottomSheetOpen = mapViewModel.bottomSheetOpen.observeAsState()
 
-    rememberCoroutineScope().launch {
-        if (expandState == true) {
-            Log.d("EXPAND", "MainPage: expandState = true")
-
-            async { scaffoldState.bottomSheetState.expand() }
-            navigateViewModel.navigator?.previousBackStackEntry?.savedStateHandle?.set(
-                key = "expandState",
-                value = false
-            )
-        }
-    }
     val launcherMultiplePermissions = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
     ) { permissionsMap ->
@@ -158,7 +149,7 @@ fun MainPage(
         drawerGesturesEnabled = scaffoldState.drawerState.isOpen,
         sheetShape = RoundedCornerShape(topEnd = 16.dp, topStart = 16.dp),
         sheetContent = {
-            BottomSheetPage(startDestination = if (spotId != null) "spot/detail/{id}" else "spot/list")
+            BottomSheetPage(startDestination = if (spotId != -1L) "spot/detail/{id}" else "spot/list")
         },
         sheetPeekHeight = 25.dp,
         floatingActionButton = null

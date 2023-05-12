@@ -1,17 +1,15 @@
 package com.shoebill.maru.model.repository
 
 import android.util.Log
-import com.google.gson.Gson
 import com.shoebill.maru.model.data.Spot
 import com.shoebill.maru.model.data.Tag
 import com.shoebill.maru.model.data.request.BoundingBox
 import com.shoebill.maru.model.data.request.SpotClusterDTO
+import com.shoebill.maru.model.data.spot.SaveSpot
 import com.shoebill.maru.model.data.spot.SpotMarker
 import com.shoebill.maru.model.interfaces.SpotApi
-import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
-import okhttp3.RequestBody.Companion.toRequestBody
 import retrofit2.Response
 import java.io.File
 import javax.inject.Inject
@@ -44,18 +42,11 @@ class SpotRepository @Inject constructor(
             tagsList.add(tag.name)
         }
 
-//        val tagsParam: RequestBody = Gson().toJson(tagsList)
-//            .toRequestBody("application/json".toMediaTypeOrNull())
-
-
-        val landmarkIdMap = mapOf("landmarkId" to landmarkId, "tags" to tagsList)
-        val landmarkIdParam = if (landmarkId != null) Gson().toJson(landmarkIdMap)
-            .toRequestBody("application/json".toMediaTypeOrNull()) else null
+        val data = SaveSpot(tags = tagsList, landmarkId = landmarkId)
 
         return spotApi.saveSpot(
             spotImage = spotImageParam,
-//            tags = tagsParam,
-            landmarkId = landmarkIdParam
+            data = data
         )
     }
 

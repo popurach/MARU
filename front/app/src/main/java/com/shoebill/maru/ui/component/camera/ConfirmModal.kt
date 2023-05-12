@@ -27,9 +27,7 @@ import com.shoebill.maru.ui.component.common.CustomAlertDialog
 import com.shoebill.maru.ui.component.common.GradientButton
 import com.shoebill.maru.ui.component.common.GradientColoredText
 import com.shoebill.maru.ui.theme.MaruBrush
-import com.shoebill.maru.viewmodel.BottomSheetNavigatorViewModel
 import com.shoebill.maru.viewmodel.CameraViewModel
-import com.shoebill.maru.viewmodel.MapViewModel
 import com.shoebill.maru.viewmodel.NavigateViewModel
 
 @Composable
@@ -38,8 +36,6 @@ fun ConfirmModal(
     landmarkId: Long,
     cameraViewModel: CameraViewModel = hiltViewModel(),
     navigateViewModel: NavigateViewModel = hiltViewModel(),
-    bottomSheetNavigatorViewModel: BottomSheetNavigatorViewModel = hiltViewModel(),
-    mapViewModel: MapViewModel = hiltViewModel(),
     onDismissRequest: () -> Unit
 ) {
 
@@ -97,10 +93,7 @@ fun ConfirmModal(
                             onDismissRequest()
                             cameraViewModel.moveSpotDetail(
                                 navigateViewModel.navigator!!,
-                                bottomSheetNavigatorViewModel.navController!!
-                            ) {
-                                mapViewModel.updateBottomSheetState(true)
-                            }
+                            )
                         }, // 메인 페이지 bottom sheet 해당 spot 을 띄움
                 ) {
                     GradientColoredText(

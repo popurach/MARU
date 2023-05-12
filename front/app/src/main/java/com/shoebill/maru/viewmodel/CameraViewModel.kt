@@ -113,6 +113,7 @@ class CameraViewModel @Inject constructor(private val spotRepository: SpotReposi
     ) {
         Log.d("TAKEPICTURE", "takePicture: called")
         val outputDirectory = context.getOutputDirectory()
+        Log.d("TAKEPICTURE", "takePicture: ${outputDirectory.absoluteFile}")
         // Create output file to hold the image
         val photoFile = createFile(outputDirectory)
         val outputFileOptions = getOutputFileOptions(lensFacing, photoFile)
@@ -197,23 +198,15 @@ class CameraViewModel @Inject constructor(private val spotRepository: SpotReposi
         return spotId
     }
 
-    fun moveSpotDetail(
-        navController: NavHostController,
-        bottomNavController: NavHostController,
-        onSuccess: () -> Unit
-    ) {
+    fun moveSpotDetail(navController: NavHostController) {
         clearCameraViewModel(false)
         viewModelScope.launch {
             withContext(Dispatchers.Main) {
-                navController.navigate("main") {
+                navController.navigate("main/$savedSpotId") {
                     popUpTo(navController.graph.id) {
                         inclusive = true
                     }
                 }
-                bottomNavController.navigate("spot/detail/$savedSpotId") {
-                    popUpTo("spot/list")
-                }
-                onSuccess()
             }
         }
     }
