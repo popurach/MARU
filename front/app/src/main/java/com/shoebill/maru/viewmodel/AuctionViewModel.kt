@@ -26,16 +26,14 @@ import kotlin.math.pow
 @HiltViewModel
 class AuctionViewModel @Inject constructor(
     private val auctionRepository: AuctionRepository,
-) :
-    ViewModel() {
-
+) : ViewModel() {
     private val _currentHighestBid = MutableLiveData<Int>(0)
     val currentHighestBid: LiveData<Int> = _currentHighestBid
 
     private val _bid = MutableLiveData<Int>(0)
     val bid: LiveData<Int> = _bid
 
-    private val _unit = MutableLiveData<Int>(1000)
+    private val _unit = MutableLiveData<Int>(0)
     val unit: LiveData<Int> = _unit
 
     val downPrice: Int get() = if (_bid.value == null) 1000 else _bid.value!!.minus(unit.value!!)
@@ -52,8 +50,9 @@ class AuctionViewModel @Inject constructor(
     private var isLoading = false
 
     fun initLandmarkId(value: Long, context: Context) {
-        if (isLoading) return
-        isLoading = true
+//        Log.d("AuctionViewModel", "initLandmarkId: $isLoading")
+//        if (isLoading) return
+//        isLoading = true
         landmarkId = value
         viewModelScope.launch {
             runStomp(context)
@@ -135,7 +134,7 @@ class AuctionViewModel @Inject constructor(
         isLoading = false
     }
 
-    private lateinit var stompClient: StompClient
+    lateinit var stompClient: StompClient
 
     @SuppressLint("CheckResult")
     private fun runStomp(context: Context) {
@@ -208,5 +207,6 @@ class AuctionViewModel @Inject constructor(
         _currentHighestBid.value = 0
         _bid.value = 0
         _unit.value = 0
+        isLoading = false
     }
 }

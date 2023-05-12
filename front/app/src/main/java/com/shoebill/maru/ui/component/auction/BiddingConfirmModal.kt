@@ -86,6 +86,8 @@ fun BiddingConfirmModal(
                         if (auctionInfo.value?.myBidding == null) {
                             auctionViewModel.createBidding { success ->
                                 if (success) {
+                                    onDismissRequest()
+                                    memberViewModel.getMemberInfo(navigateViewModel)
                                     auctionViewModel.exit()
                                     navigateViewModel.navigator?.navigateUp()
                                 } else {
@@ -95,6 +97,8 @@ fun BiddingConfirmModal(
                         } else {
                             auctionViewModel.updateBidding { success ->
                                 if (success) {
+                                    onDismissRequest()
+                                    memberViewModel.getMemberInfo(navigateViewModel)
                                     auctionViewModel.exit()
                                     navigateViewModel.navigator?.navigateUp()
                                 } else {
@@ -102,7 +106,6 @@ fun BiddingConfirmModal(
                                 }
                             }
                         }
-                        memberViewModel.getMemberInfo(navigateViewModel)
                     }
                 )
                 Box(

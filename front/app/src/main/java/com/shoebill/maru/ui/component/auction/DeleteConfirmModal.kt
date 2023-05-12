@@ -20,12 +20,14 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.shoebill.maru.ui.component.common.CustomAlertDialog
 import com.shoebill.maru.ui.component.common.GradientButton
 import com.shoebill.maru.ui.component.common.GradientColoredText
 import com.shoebill.maru.ui.theme.MaruBrush
 import com.shoebill.maru.viewmodel.AuctionViewModel
+import com.shoebill.maru.viewmodel.MemberViewModel
 import com.shoebill.maru.viewmodel.MyPageViewModel
 import com.shoebill.maru.viewmodel.NavigateViewModel
 
@@ -35,6 +37,7 @@ fun DeleteConfirmModal(
     navigateViewModel: NavigateViewModel = viewModel(),
     auctionViewModel: AuctionViewModel = viewModel(),
     myPageViewModel: MyPageViewModel = viewModel(),
+    memberViewModel: MemberViewModel = hiltViewModel(),
     onDismissRequest: () -> Unit
 ) {
 
@@ -79,12 +82,14 @@ fun DeleteConfirmModal(
                         .clip(RoundedCornerShape(40.dp))
                         .background(Color.Transparent)
                         .clickable {
-                            Log.d("AUCTION", "DeleteConfirmModal: $auctionLogId")
                             auctionViewModel.deleteBidding(auctionLogId) { success ->
                                 if (success) {
+                                    onDismissRequest()
+                                    memberViewModel.getMemberInfo(navigateViewModel)
+                                    navigateViewModel.navigator?.navigateUp()
                                     navigateToMyPage2(3, myPageViewModel, navigateViewModel)
                                 } else {
-                                    Log.e("AUCTION", "createBidding fail")
+                                    Log.e("AUCTION", "deleteBidding fail")
                                 }
                             }
                         },

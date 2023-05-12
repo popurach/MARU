@@ -66,7 +66,6 @@ fun AuctionPage(
     navigateViewModel: NavigateViewModel = viewModel(),
 ) {
     val context = LocalContext.current
-    auctionViewModel.initLandmarkId(id, context)
 
     val auctionInfo = auctionViewModel.auctionInfo.observeAsState()
     val auctionHistory = auctionViewModel.auctionHistory.observeAsState(arrayOf(1000))
@@ -95,6 +94,7 @@ fun AuctionPage(
     )
 
     DisposableEffect(Unit) {
+        auctionViewModel.initLandmarkId(id, context)
         onDispose {
             auctionViewModel.viewModelOnCleared()
         }
@@ -340,6 +340,7 @@ fun AuctionPage(
         ) {
             Button(
                 contentPadding = PaddingValues(horizontal = 20.dp, vertical = 18.dp),
+                enabled = auctionInfo.value?.myBidding != null,
                 onClick = { isDeleteModalOpen.value = true },
                 colors = ButtonDefaults.buttonColors(Color(0xFFD3D3D3)),
                 shape = RoundedCornerShape(10.dp)
