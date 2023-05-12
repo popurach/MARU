@@ -27,7 +27,7 @@ import com.shoebill.maru.viewmodel.MemberViewModel
 @Composable
 fun SpotList(
     mapViewModel: MapViewModel = viewModel(),
-    memberViewModel: MemberViewModel = hiltViewModel()
+    memberViewModel: MemberViewModel = hiltViewModel(),
 ) {
     val isBottomSheetOpen = mapViewModel.bottomSheetOpen.observeAsState()
     BackHandler(isBottomSheetOpen.value == true) {

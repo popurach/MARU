@@ -14,7 +14,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.Icon
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -30,6 +30,7 @@ import com.shoebill.maru.R
 import com.shoebill.maru.ui.component.bottomsheet.BottomSheetIndicator
 import com.shoebill.maru.ui.component.common.Chip
 import com.shoebill.maru.viewmodel.BottomSheetNavigatorViewModel
+import com.shoebill.maru.viewmodel.MapViewModel
 import com.shoebill.maru.viewmodel.NavigateViewModel
 import com.shoebill.maru.viewmodel.SpotViewModel
 
@@ -38,16 +39,16 @@ fun SpotDetail(
     spotId: Long,
     bottomSheetNavigatorViewModel: BottomSheetNavigatorViewModel = viewModel(),
     navigateViewModel: NavigateViewModel = hiltViewModel(),
+    mapViewModel: MapViewModel = hiltViewModel(),
     spotViewModel: SpotViewModel = hiltViewModel() // 3. spotRepository 가 필요해서 컴포넌트랑 생명주기가 다른게 이상함
 ) {
+    mapViewModel.updateBottomSheetState(true)
     spotViewModel.initSpotId(spotId)
-    DisposableEffect(Unit) {
+    LaunchedEffect(Unit) {
         spotViewModel.loadSpotDetailById(
             spotId,
             navigateViewModel.navigator!!
         )
-        onDispose {
-        }
     }
 
     val spotDetails = spotViewModel.spotDetails.observeAsState()
@@ -69,7 +70,7 @@ fun SpotDetail(
                         modifier = Modifier
                             .size(30.dp)
                             .clickable {
-                                bottomSheetNavigatorViewModel.navController?.navigate("spot/list") {
+                                bottomSheetNavigatorViewModel.navController?.navigate("spot/list/-1") {
                                     launchSingleTop = true
                                     popUpTo(0)
                                 }

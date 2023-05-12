@@ -11,7 +11,7 @@ suspend fun <T> apiCallback(
     activeFunction: suspend () -> Response<T>
 ): T? {
     val response = activeFunction()
-    Log.d("apiCallback", "response code: ${response.code()}")
+    Log.d("apiCallback", "response code: ${response.code()} $activeFunction")
     if (response.isSuccessful) {
         return response.body()
     } else if (response.code() == 401) {

@@ -63,16 +63,7 @@ fun ScrapItem(
         modifier = Modifier
             .size(120.dp)
             .clickable {
-                navigateViewModel.navigator?.currentBackStackEntry?.savedStateHandle?.set(
-                    key = "spotId",
-                    value = spot.id
-                )
-                navigateViewModel.navigator?.currentBackStackEntry?.savedStateHandle?.set(
-                    key = "expandState",
-                    value = true
-                )
-
-                navigateViewModel.navigator?.navigate("main")
+                navigateViewModel.navigator?.navigate("main/${spot.id}")
             },
         contentScale = ContentScale.Crop
     )

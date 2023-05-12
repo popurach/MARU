@@ -64,7 +64,7 @@ import kotlin.math.cos
 import kotlin.math.sin
 import kotlin.math.sqrt
 
-const val TAG = "LANDMARK"
+const val TAG = "SPOT-DETAIL"
 
 @SuppressLint("StaticFieldLeak")
 @HiltViewModel

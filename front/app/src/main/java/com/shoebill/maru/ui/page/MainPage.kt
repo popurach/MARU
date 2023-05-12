@@ -14,7 +14,6 @@ import androidx.compose.material.BottomSheetScaffold
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.rememberBottomSheetScaffoldState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
@@ -50,21 +49,6 @@ fun MainPage(
     navigateViewModel: NavigateViewModel = hiltViewModel(),
     cameraViewModel: CameraViewModel = hiltViewModel(),
 ) {
-    DisposableEffect(Unit) {
-        val expandState: Boolean = spotId != -1L
-        if (expandState) {
-            Log.d("EXPAND", "MainPage: expandState = true")
-            mapViewModel.updateBottomSheetState(true)
-        }
-        onDispose { }
-    }
-    LaunchedEffect(Unit) {
-        if (memberViewModel.memberInfo.value == null)
-            memberViewModel.getMemberInfo(navigateViewModel)
-        if (cameraViewModel.imageUrl.value != null)
-            cameraViewModel.clearCameraViewModel(false)
-    }
-
     val context = LocalContext.current
     val scaffoldState = rememberBottomSheetScaffoldState()
     val isDrawerOpen = drawerViewModel.isOpen.observeAsState(initial = false)
@@ -83,6 +67,15 @@ fun MainPage(
         /** 권한 요청시 거부 했을 경우 **/
         else {
             Toast.makeText(context, "권한이 거부되었습니다.", Toast.LENGTH_SHORT).show()
+        }
+    }
+    LaunchedEffect(Unit) {
+        Log.d("LaunchedEffect", "executed $spotId")
+        if (memberViewModel.memberInfo.value == null) {
+            memberViewModel.getMemberInfo(navigateViewModel)
+        }
+        if (cameraViewModel.imageUrl.value != null) {
+            cameraViewModel.clearCameraViewModel(false)
         }
     }
     LaunchedEffect(isDrawerOpen.value) {
@@ -105,6 +98,8 @@ fun MainPage(
     LaunchedEffect(key1 = scaffoldState.bottomSheetState.isExpanded) {
         if (!scaffoldState.bottomSheetState.isExpanded) {
             mapViewModel.updateBottomSheetState(false)
+        } else {
+            mapViewModel.updateBottomSheetState(true)
         }
     }
     LaunchedEffect(key1 = mapViewModel.bottomSheetOpen.value) {
@@ -117,7 +112,7 @@ fun MainPage(
     BackHandler(isDrawerOpen.value) {
         drawerViewModel.updateOpenState(false)
     }
-    BackHandler(isBottomSheetOpen.value) {
+    BackHandler(isBottomSheetOpen.value == true) {
         mapViewModel.updateBottomSheetState(false)
     }
     BottomSheetScaffold(
@@ -152,7 +147,10 @@ fun MainPage(
         drawerGesturesEnabled = scaffoldState.drawerState.isOpen,
         sheetShape = RoundedCornerShape(topEnd = 16.dp, topStart = 16.dp),
         sheetContent = {
-            BottomSheetPage(startDestination = if (spotId != -1L) "spot/detail/{id}" else "spot/list")
+            BottomSheetPage(
+                spotId = spotId,
+                startDestination = if (spotId == -1L) "spot/list" else "spot/detail/{$spotId}"
+            )
         },
         sheetPeekHeight = 25.dp,
         floatingActionButton = null
