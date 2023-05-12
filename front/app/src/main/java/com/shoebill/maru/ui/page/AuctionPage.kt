@@ -117,7 +117,7 @@ fun AuctionPage(
                     .size(30.dp)
                     .clickable {
                         auctionViewModel.exit()
-                        navigateViewModel.navigator?.popBackStack()
+                        navigateViewModel.navigator?.navigateUp()
                     },
                 painter = painterResource(id = R.drawable.arrow_back),
                 contentDescription = "뒤로가기",

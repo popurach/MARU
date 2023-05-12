@@ -87,7 +87,7 @@ fun BiddingConfirmModal(
                             auctionViewModel.createBidding { success ->
                                 if (success) {
                                     auctionViewModel.exit()
-                                    navigateViewModel.navigator?.popBackStack()
+                                    navigateViewModel.navigator?.navigateUp()
                                 } else {
                                     Log.e("AUCTION", "createBidding fail")
                                 }
@@ -96,7 +96,7 @@ fun BiddingConfirmModal(
                             auctionViewModel.updateBidding { success ->
                                 if (success) {
                                     auctionViewModel.exit()
-                                    navigateViewModel.navigator?.popBackStack()
+                                    navigateViewModel.navigator?.navigateUp()
                                 } else {
                                     Log.e("AUCTION", "updateBidding fail")
                                 }
