@@ -1,9 +1,13 @@
 package com.shoebill.maru.model
 
+import android.util.Log
+import com.shoebill.maru.BuildConfig
 import com.shoebill.maru.util.PreferenceUtil
 import okhttp3.Interceptor
 import okhttp3.Response
 import javax.inject.Inject
+
+const val TAG = "INTERCEPTOR"
 
 class AppInterceptor @Inject constructor(
     private val prefUtil: PreferenceUtil,
@@ -11,7 +15,7 @@ class AppInterceptor @Inject constructor(
     override fun intercept(chain: Interceptor.Chain): Response {
         val originRequest = chain.request()
         val accessToken = prefUtil.getString("accessToken", "")
-
+        Log.d(TAG, "originRequest: $originRequest")
         // 1. accessToken 존재한 다면 header 에 추가
         if (accessToken != "") {
             val requestWithAccessToken =
@@ -21,18 +25,20 @@ class AppInterceptor @Inject constructor(
 
             // 2. 요청 결과가 401 이라면 refresh token 으로 access token을 재발급 받음
             if (response.code == 401) {
+                Log.d(TAG, "엑세스 토큰 만료!")
                 response.close()
                 val refreshToken = prefUtil.getString("refreshToken", "")
                 if (refreshToken != "") {
                     // 재발급 api 호출 -> 결과는 accessToken : String
                     val refreshRequest =
                         originRequest.newBuilder().header("Authorization", "Bearer $refreshToken")
-                            .url("http://k8a403.p.ssafy.io/api/auth/access-token").build()
+                            .url("${BuildConfig.BASE_URL}api/auth/access-token").build()
                     val refreshResponse = chain.proceed(refreshRequest)
 
                     // 3. 재발급 받은 accessToken 으로 동일 요청 시도
                     // 재발급 성공시
                     if (refreshResponse.isSuccessful) {
+                        Log.d(TAG, "엑세스 토큰 갱신 성공!")
                         val newAccessToken = refreshResponse.headers["Access-Token"]
                         prefUtil.setString("accessToken", newAccessToken!!)
 
@@ -47,6 +53,7 @@ class AppInterceptor @Inject constructor(
                         }
                         return newResponse
                     } else {
+                        Log.d(TAG, "엑세스 토큰 갱신 실패!")
                         // 재발급 실패시, 로그인 취소
                         prefUtil.clear()
                     }

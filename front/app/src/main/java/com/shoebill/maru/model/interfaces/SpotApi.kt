@@ -16,6 +16,15 @@ import retrofit2.http.Query
 
 interface SpotApi {
 
+    @GET("/api/spots/map")
+    suspend fun getAroundSpots(
+        @Query("west") west: Double,
+        @Query("south") south: Double,
+        @Query("east") east: Double,
+        @Query("north") north: Double,
+        @Query("filter") filter: String
+    ): Response<List<Spot>>
+
     @Multipart
     @POST("/api/spots") // spot 등록
     suspend fun saveSpot(
@@ -46,7 +55,7 @@ interface SpotApi {
     @POST("/api/map/spots")
     suspend fun getSpotMarker(
         @Body parameter: SpotClusterDTO
-    ): List<SpotMarker>
+    ): Response<List<SpotMarker>>
 
     @GET("/api/spots/{id}")
     suspend fun getSpotDetail(

@@ -30,6 +30,7 @@ import com.shoebill.maru.ui.component.common.GradientButton
 import com.shoebill.maru.ui.theme.MaruBackground
 import com.shoebill.maru.ui.theme.MaruBrush
 import com.shoebill.maru.viewmodel.CameraViewModel
+import com.shoebill.maru.viewmodel.NavigateViewModel
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -38,7 +39,8 @@ import kotlinx.coroutines.launch
 @Composable
 fun ImageUploadForm(
     bitmap: ImageBitmap,
-    cameraViewModel: CameraViewModel = hiltViewModel()
+    cameraViewModel: CameraViewModel = hiltViewModel(),
+    navigateViewModel: NavigateViewModel = hiltViewModel()
 ) {
     val inputTag = cameraViewModel.inputTag.observeAsState("")
     val tagList = cameraViewModel.tagList.observeAsState(listOf())
@@ -104,7 +106,7 @@ fun ImageUploadForm(
                     onClick = {
                         // spot 등록 API 호출
                         GlobalScope.launch {
-                            cameraViewModel.saveSpot()
+                            cameraViewModel.saveSpot(navigateViewModel.navigator!!)
                             isModalOpen.value = true
                         }
                     }

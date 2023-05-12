@@ -14,10 +14,13 @@ import androidx.core.net.toFile
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import androidx.navigation.NavHostController
 import com.google.android.gms.location.LocationServices
 import com.shoebill.maru.R
 import com.shoebill.maru.model.data.Tag
 import com.shoebill.maru.model.repository.SpotRepository
+import com.shoebill.maru.util.apiCallback
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -180,19 +183,16 @@ class CameraViewModel @Inject constructor(private val spotRepository: SpotReposi
             mediaDir else this.filesDir
     }
 
-    suspend fun saveSpot() {
-        val response = spotRepository.saveSpot(
-            spotImage = capturedFile!!,
-            tags = _tagList.value,
-            landmarkId = _landmarkId.value
-        )
-
-        if (response.isSuccessful) {
-            Log.d("SPOT", "spot 등록 성공")
-        } else {
-            Log.d("SPOT", "saveSpot: spot 등록 실패")
+    suspend fun saveSpot(navController: NavHostController) {
+        viewModelScope.launch {
+            apiCallback(navController) {
+                spotRepository.saveSpot(
+                    spotImage = capturedFile!!,
+                    tags = _tagList.value,
+                    landmarkId = _landmarkId.value
+                )
+            }
         }
-
     }
 }
 

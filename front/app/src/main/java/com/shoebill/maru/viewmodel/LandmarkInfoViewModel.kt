@@ -6,8 +6,10 @@ import android.widget.Toast
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.navigation.NavHostController
 import com.shoebill.maru.model.data.landmark.Owner
 import com.shoebill.maru.model.repository.LandmarkRepository
+import com.shoebill.maru.util.apiCallback
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -26,25 +28,29 @@ class LandmarkInfoViewModel @Inject constructor(
 
     var landmarkId: Long? = null
 
-    fun initLandmarkInfo(landmarkId: Long) {
+    fun initLandmarkInfo(landmarkId: Long, navController: NavHostController) {
         Log.d(TAG, "initLandmarkInfo: $landmarkId")
         this.landmarkId = landmarkId
-        loadLandmarkName(landmarkId)
-        loadOwnerInfo(landmarkId)
+        loadLandmarkName(landmarkId, navController)
+        loadOwnerInfo(landmarkId, navController)
     }
 
-    private fun loadOwnerInfo(landmarkId: Long) {
+    private fun loadOwnerInfo(landmarkId: Long, navController: NavHostController) {
         viewModelScope.launch {
             _owner.value = withContext(Dispatchers.IO) {
-                landmarkRepository.getLandmarkOwner(landmarkId)
+                apiCallback(navController) {
+                    landmarkRepository.getLandmarkOwner(landmarkId)
+                }
             }
         }
     }
 
-    fun loadLandmarkName(landmarkId: Long) {
+    fun loadLandmarkName(landmarkId: Long, navController: NavHostController) {
         viewModelScope.launch {
             _landmarkName.value = withContext(Dispatchers.IO) {
-                landmarkRepository.getLandmarkName(landmarkId)
+                apiCallback(navController) {
+                    landmarkRepository.getLandmarkName(landmarkId)
+                }?.name
             }
         }
     }
