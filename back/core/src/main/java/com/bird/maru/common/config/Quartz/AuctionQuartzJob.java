@@ -15,17 +15,23 @@ import java.util.Date;
 
 @Component
 public class AuctionQuartzJob extends QuartzJobBean {
+
     @Autowired
     private Job auctionLogsJob;
+    @Autowired
+    private Job auctionAlarmJob;
+    @Autowired
+    private Job auctionClosedJob;
 
     @Autowired
     private JobLauncher jobLauncher;
 
     /**
      * 배치를 실행시키는 구문 : 스케줄링된 이벤트가 발생할때마다 한번씩 호출된다.
+     *
      * @param context : 예정
      * @throws org.springframework.batch.core.JobExecutionException : 예정
-     * */
+     */
     @SneakyThrows
     @Override
     protected void executeInternal(JobExecutionContext context) throws JobExecutionException {
@@ -33,6 +39,20 @@ public class AuctionQuartzJob extends QuartzJobBean {
                 .addLong("id", new Date().getTime())
                 .toJobParameters();
 
-        jobLauncher.run(auctionLogsJob, jobParameters);
+        String jobName = context.getJobDetail().getJobDataMap().getString("jobName");
+
+        if (jobName.equals("auctionLogsJob")) {
+            // auctionLogsJob 실행
+            jobLauncher.run(auctionLogsJob, jobParameters);
+        }
+        else if (jobName.equals("auctionAlarmJob")) {
+            // auctionAlarmJob 실행
+            jobLauncher.run(auctionAlarmJob, jobParameters);
+        }
+        else if (jobName.equals("auctionClosedJob")) {
+            // auctionClosedJob 실행
+            jobLauncher.run(auctionClosedJob, jobParameters);
+        }
     }
+
 }

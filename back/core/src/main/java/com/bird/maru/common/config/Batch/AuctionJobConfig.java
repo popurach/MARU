@@ -1,4 +1,4 @@
-package com.bird.maru.common.config;
+package com.bird.maru.common.config.Batch;
 
 import com.bird.maru.auction.repository.AuctionRepository;
 import com.bird.maru.auctionlog.repository.AuctionLogRepository;
@@ -51,7 +51,6 @@ public class AuctionJobConfig {
     private final AuctionLogRepository auctionLogsRepository;
     private final LandmarkRepository landmarkRepository;
     private final AuctionRepository auctionRepository;
-    private final AuctionLogCustomQueryRepository auctionLogCustomQueryRepository;
     private final AuctionLogService auctionService;
     private final PointService pointService;
 

@@ -8,8 +8,6 @@ import com.bird.maru.notice.model.Notice;
 import com.bird.maru.notice.model.NoticeRequestDto;
 import com.bird.maru.notice.repository.CustomNoticeRepository;
 import com.bird.maru.notice.repository.NoticeRepository;
-import java.util.LinkedList;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
@@ -22,7 +20,6 @@ import org.springframework.stereotype.Service;
 public class NoticeServiceImpl implements NoticeService {
 
     private final NoticeRepository noticeRepository;
-    private final CustomNoticeRepository customNoticeRepository;
     private final FCMService fcmService;
 
     @Override
@@ -33,25 +30,20 @@ public class NoticeServiceImpl implements NoticeService {
     /**
      * 경매 알림 - 1 시간 뒤 마감
      *
-     * @param members 알림을 보낼 회원 List
+     * @param member 알림을 보낼 회원 List
      */
-    public void notifyAuctionClosingSoon(List<Member> members) {
+    public void notifyAuctionClosingSoon(Member member) {
 
-        List<Notice> notices = new LinkedList<>();
-        for (Member member :
-                members) {
-            notices.add(
-                    Notice.builder().memberId(member.getId())
-                          .noticeToken(member.getNoticeToken())
-                          .category(Category.AUCTION)
-                          .content("모든 랜드마크의 경매 마감 1시간 전 입니다. 서두르세요!")
-                          .build());
-        }
+        Notice notice = Notice.builder().memberId(member.getId())
+                              .noticeToken(member.getNoticeToken())
+                              .category(Category.AUCTION)
+                              .content("모든 랜드마크의 경매 마감 1시간 전 입니다. 서두르세요!")
+                              .build();
 
-        customNoticeRepository.bulkInsertNotices(notices);
+        noticeRepository.save(notice);
 
-        // FCM Service 호출 추가 (다수)
-        fcmService.sendMessageToMembers(notices);
+        // FCM Service 호출 추가 (단건)
+        fcmService.sendMessage(notice);
     }
 
     /**
@@ -60,6 +52,7 @@ public class NoticeServiceImpl implements NoticeService {
      * @param requestDto -> 빼앗긴 회원, 빼앗긴 랜드마크 정보 포함
      */
     public void notifyTopBidderRevoked(NoticeRequestDto requestDto) {
+
         // 뻇긴 사람한테만 보내야지
         Member member = requestDto.getMember();
         Landmark landmark = requestDto.getLandmark();
@@ -79,25 +72,20 @@ public class NoticeServiceImpl implements NoticeService {
     /**
      * 경매가 종료되었음을 알림
      *
-     * @param members 알림을 보낼 회원 목록
+     * @param member 알림을 보낼 회원 목록
      */
-    public void notifyAuctionClosed(List<Member> members) {
-        List<Notice> notices = new LinkedList<>();
+    public void notifyAuctionClosed(Member member) {
 
-        for (Member member :
-                members) {
-            notices.add(
-                    Notice.builder().memberId(member.getId())
-                          .noticeToken(member.getNoticeToken())
-                          .category(Category.AUCTION)
-                          .content("모든 랜드마크의 경매가 마감되었습니다. 결과를 확인하세요!")
-                          .build());
-        }
+        Notice notice = Notice.builder().memberId(member.getId())
+                              .noticeToken(member.getNoticeToken())
+                              .category(Category.AUCTION)
+                              .content("모든 랜드마크의 경매가 마감되었습니다. 결과를 확인하세요!")
+                              .build();
 
-        customNoticeRepository.bulkInsertNotices(notices);
+        noticeRepository.save(notice);
 
-        // FCM Service 호출 추가 (다수)
-        fcmService.sendMessageToMembers(notices);
+        // FCM Service 호출 추가 (단건)
+        fcmService.sendMessage(notice);
     }
 
     /**
