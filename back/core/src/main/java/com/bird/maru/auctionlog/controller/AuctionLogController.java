@@ -17,7 +17,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -49,23 +48,13 @@ public class AuctionLogController {
     }
 
     /**
-     * 경매 입찰 처리 (LandmarkId, 입찰 금액) / 입찰 금액 유효성 체크 필요
+     * 경매 입찰 & 재입찰 처리 (LandmarkId, 입찰 금액) / 입찰 금액 유효성 체크 필요
      *
      * @Param auctionLogRequestDto [landmarkId, price]
      */
     @PostMapping("/bidding")
     public void auctionsBidding(@AuthenticationPrincipal CustomUserDetails member, @RequestBody AuctionLogRequestDto auctionLogRequestDto) {
         auctionLogService.auctionsBidding(member.getId(), auctionLogRequestDto.getLandmarkId(), auctionLogRequestDto.getPrice());
-    }
-
-    /**
-     * 경매 재입찰 처리 (AuctionLogId, 입찰 금액)/ 입찰 금액 유효성 체크 필요
-     *
-     * @Param auctionLogRequestDto [landmarkId, price]
-     */
-    @PutMapping("/bidding")
-    public void auctionsReBidding(@AuthenticationPrincipal CustomUserDetails member, @RequestBody AuctionLogRequestDto auctionLogRequestDto) {
-        auctionLogService.auctionsReBidding(member.getId(), auctionLogRequestDto.getLandmarkId(), auctionLogRequestDto.getPrice());
     }
 
     /**
