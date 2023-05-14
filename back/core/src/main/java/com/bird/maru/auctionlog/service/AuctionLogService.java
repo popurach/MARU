@@ -7,8 +7,6 @@ public interface AuctionLogService {
 
     void auctionsBidding(Long memberId, Long landmarkId, int price);
 
-    void auctionsReBidding(Long memberId, Long landmarkId, int price);
-
     void auctionsCancelBidding(Long memberId, Long auctionLogId);
 
     void auctionExecute(AuctionLog auctionLogs);
