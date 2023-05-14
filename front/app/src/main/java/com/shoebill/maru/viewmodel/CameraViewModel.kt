@@ -213,7 +213,11 @@ class CameraViewModel @Inject constructor(private val spotRepository: SpotReposi
 
     fun moveAuctionPage(navController: NavHostController, landmarkId: Long) {
         clearCameraViewModel(false)
-        navController.navigate("auction/$landmarkId")
+        navController.navigate("auction/$landmarkId") {
+            popUpTo(navController.graph.id) {
+                inclusive = true
+            }
+        }
     }
 }
 
