@@ -109,17 +109,6 @@ class AuctionViewModel @Inject constructor(
         }
     }
 
-    fun updateBidding(onComplete: (Boolean) -> Unit) {
-        val requestBody = AuctionBiddingRequest(landmarkId, _bid.value!!)
-        viewModelScope.launch {
-            val success = withContext(viewModelScope.coroutineContext) {
-                auctionRepository.updateBidding(requestBody)
-            }
-
-            onComplete(success)
-        }
-    }
-
     fun deleteBidding(auctionLogId: Long, onComplete: (Boolean) -> Unit) {
         viewModelScope.launch {
             val success = withContext(viewModelScope.coroutineContext) {
