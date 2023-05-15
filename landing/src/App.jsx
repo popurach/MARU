@@ -1,12 +1,12 @@
 import styled from "styled-components";
-import Lottie from "lottie-web";
-import animationData from "./asset/lottie_building.json";
-import backgroundImg from "./asset/background_layer.svg";
-import logoImg from "./asset/maru_logo.png";
-import gitImg from "./asset/git_logo.png";
-import phoneImg from "./asset/phone2.png";
-import googleImg from "./asset/google_play.png";
-import qrImg from "./asset/qrcode.png";
+import Lottie from "lottie-react";
+import animationData from "./assets/lottie_building.json";
+import backgroundImg from "./assets/background_layer.svg";
+import logoImg from "./assets/maru_logo.png";
+import gitImg from "./assets/git_logo.png";
+import phoneImg from "./assets/phone2.png";
+import googleImg from "./assets/google_play.png";
+import qrImg from "./assets/qrcode.png";
 
 const Sbackground = styled.div`
   background: url(${backgroundImg}), linear-gradient(118.85deg, #6039df 8.23%, #a14ab7 91.34%);
@@ -100,13 +100,27 @@ const SButton = styled.img`
   height: 6vh;
 `;
 
-const SRight = styled.div``;
+const SRight = styled.div`
+  position: relative;
+`;
 
 const SPhone = styled.img`
   height: 80vh;
   @media screen and (max-width: 468px) {
     height: auto;
     width: 100%;
+  }
+`;
+
+const AnimatedLottie = styled(Lottie)`
+  height: 30.5vh;
+  position: absolute;
+  top: 230px;
+  left: 133px;
+  @media screen and (max-width: 468px) {
+    height: 25.5vh;
+    top: 150px;
+    left: 86px;
   }
 `;
 
@@ -139,6 +153,7 @@ function App() {
         </SLeft>
         <SRight>
           <SPhone src={phoneImg} alt="phone.png" />
+          <AnimatedLottie animationData={animationData} />
         </SRight>
       </SBody>
     </Sbackground>
