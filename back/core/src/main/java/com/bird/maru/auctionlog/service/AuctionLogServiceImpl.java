@@ -4,7 +4,7 @@ import com.bird.maru.auction.repository.AuctionRepository;
 import com.bird.maru.auctionlog.repository.AuctionLogRepository;
 import com.bird.maru.auctionlog.repository.query.AuctionLogCustomQueryRepository;
 import com.bird.maru.common.config.WebSocket.Bid;
-import com.bird.maru.common.exception.NotEnoughMoney;
+import com.bird.maru.common.exception.NotEnoughMoneyException;
 import com.bird.maru.common.exception.ResourceNotFoundException;
 import com.bird.maru.domain.model.entity.Auction;
 import com.bird.maru.domain.model.entity.AuctionLog;
@@ -62,11 +62,11 @@ public class AuctionLogServiceImpl implements AuctionLogService {
 
         if (!auctionLog.isPresent()) { // 2-1. auctionLog 값이 없다면 신규 입찰자 - 포인트 넉넉 체크
             if (member.getPoint() < price) {
-                throw new NotEnoughMoney("포인트가 부족합니다.");
+                throw new NotEnoughMoneyException("포인트가 부족합니다.");
             }
         } else { // 2-2. auctionLog 값이 있다면 재 입찰자 - 포인트 넉넉 체크
             if (member.getPoint() + auctionLog.get().getPrice() < price) {
-                throw new NotEnoughMoney("포인트가 부족합니다.");
+                throw new NotEnoughMoneyException("포인트가 부족합니다.");
             }
         }
 
@@ -75,7 +75,7 @@ public class AuctionLogServiceImpl implements AuctionLogService {
                                                             .orElseThrow(() -> new ResourceNotFoundException("해당 리소스 존재하지 않습니다."));
             int prevCost = prevAuctionLog.getPrice();
             if (price <= prevCost) {
-                throw new NotEnoughMoney("입찰 금액이 최고가보다 낮습니다.");
+                throw new NotEnoughMoneyException("입찰 금액이 최고가보다 낮습니다.");
             }
             // 상위 입찰자 알림 설정
             if (!prevAuctionLog.getMember().getId().equals(memberId)) {
@@ -167,7 +167,7 @@ public class AuctionLogServiceImpl implements AuctionLogService {
         Landmark landmark = auction.getLandmark();
         Long successfulBidId = auction.getLastLogId();
 
-        if (auction.getFinished()) {
+        if (Boolean.TRUE.equals(auction.getFinished())) {
             throw new ResourceNotFoundException("해당 리소스는 끝난 경매 기록입니다.");
         }
         if (successfulBidId != null && successfulBidId.equals(auctionLog.getId())) { // 낙찰자

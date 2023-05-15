@@ -6,6 +6,7 @@ import javax.annotation.PostConstruct;
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 import org.springframework.data.mongodb.config.EnableMongoAuditing;
 
@@ -13,6 +14,7 @@ import org.springframework.data.mongodb.config.EnableMongoAuditing;
 @EnableMongoAuditing
 @EnableJpaAuditing
 @EnableBatchProcessing
+@EnableAspectJAutoProxy
 public class CoreApplication {
 
     public static void main(String[] args) {
