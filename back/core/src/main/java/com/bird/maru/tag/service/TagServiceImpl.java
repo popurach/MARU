@@ -17,7 +17,7 @@ public class TagServiceImpl implements TagService {
     private final TagElasticSearchRepository tagElasticSearchRepository;
 
     @Override
-    public void saveTags(List<Tag> tags) {
+    public void saveTagsToElasticSearch(List<Tag> tags) {
         tagElasticSearchRepository.saveAll(
                 tags.stream()
                     .map(TagDoc::new)

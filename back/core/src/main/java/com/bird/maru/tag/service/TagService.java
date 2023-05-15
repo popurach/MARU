@@ -5,6 +5,6 @@ import java.util.List;
 
 public interface TagService {
 
-    void saveTags(List<Tag> tags);
+    void saveTagsToElasticSearch(List<Tag> tags);
 
 }

@@ -80,7 +80,7 @@ public class SpotServiceImpl implements SpotService {
             log.debug("{}", newTags);
             // 4. 신규 태그 조회
             List<Tag> founds = tagQueryRepository.findAllByNames(newTags);
-            tagService.saveTags(founds);
+            tagService.saveTagsToElasticSearch(founds);
             newTagIds = founds.stream()
                               .map(Tag::getId)
                               .collect(Collectors.toList());
