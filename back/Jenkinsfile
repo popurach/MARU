@@ -100,18 +100,22 @@ private boolean isBlue(deployedCount) {
 }
 
 private boolean isHealthy(dir, containerCnt) {
-    def retryCnt = 10
-    while (retryCnt-- > 0) {
+    for (int i = 0; i < 10; i++) {
         def healthyCnt = sh(
                 script: "docker-compose -f ${dir}/docker-compose.yml ps | grep healthy | wc -l",
                 returnStdout: true
         ).trim().toInteger()
 
-        if (containerCnt == healthyCnt) {
+        def unhealthyCnt = sh(
+                script: "docker-compose -f ${dir}/docker-compose.yml ps | grep unhealthy | wc -l",
+                returnStdout: true
+        ).trim().toInteger()
+
+        if (containerCnt == healthyCnt - unhealthyCnt) {
             return true
         }
 
-        sleep 10
+        sleep 5
     }
 
     return false
