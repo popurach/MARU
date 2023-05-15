@@ -12,45 +12,20 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Icon
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.shoebill.maru.R
-import com.shoebill.maru.model.data.Place
-import com.shoebill.maru.ui.component.SearchListItem
+import com.shoebill.maru.model.data.search.SearchTag
 import com.shoebill.maru.viewmodel.MapViewModel
 import com.shoebill.maru.viewmodel.SearchBarViewModel
 
 @Composable
-fun SuggestionList(
-    searchBarViewModel: SearchBarViewModel = hiltViewModel(),
-) {
-    val recommendedPlaces = searchBarViewModel.recommendedPlaces.observeAsState()
-    val recommendedTags = searchBarViewModel.recommendedTags.observeAsState()
-
-    Column {
-        val searchItems = searchBarViewModel.prefUtil.loadSearchHistory()
-        for (searchedItem in searchItems) {
-            SearchListItem(searchedItem)
-        }
-        for (place in recommendedPlaces.value!!) {
-            SearchRecommendListItem(place)
-        }
-        for (tag in recommendedTags.value!!) {
-            TagListItem(tag)
-        }
-    }
-}
-
-
-@Composable
-fun SearchRecommendListItem(
-    place: Place,
+fun TagListItem(
+    tag: SearchTag,
     searchBarViewModel: SearchBarViewModel = hiltViewModel(),
     mapViewModel: MapViewModel = hiltViewModel()
 ) {
@@ -64,9 +39,10 @@ fun SearchRecommendListItem(
             modifier = Modifier
                 .padding(horizontal = 10.dp)
                 .clickable {
-                    mapViewModel.moveCamera(lng = place.lng, lat = place.lat)
-                    searchBarViewModel.updateKeyword("")
-                    searchBarViewModel.prefUtil.saveSearchHistory(place)
+                    searchBarViewModel.updateKeyword("# ${tag.name}")
+                    mapViewModel.updateTagId(tag.id)
+                    mapViewModel.loadMarker()
+                    
                     mapViewModel.clearFocus()
                 },
             verticalAlignment = Alignment.CenterVertically
@@ -78,8 +54,7 @@ fun SearchRecommendListItem(
                 tint = Color.Unspecified
             )
             Column() {
-                Text(text = place.placeName)
-                Text(text = place.addressName, fontSize = 12.sp, color = Color.Gray)
+                Text(text = "# ${tag.name}")
             }
         }
     }

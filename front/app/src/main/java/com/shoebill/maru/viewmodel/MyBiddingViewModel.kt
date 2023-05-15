@@ -7,8 +7,8 @@ import androidx.paging.PagingData
 import com.shoebill.maru.model.data.myAuction.LandmarkInfo
 import com.shoebill.maru.model.data.myAuction.MyAuction
 import com.shoebill.maru.model.repository.MyBiddingRepository
-import com.shoebill.maru.model.repository.MyBiddingSource
-import com.shoebill.maru.model.repository.MyNonBiddingSource
+import com.shoebill.maru.model.source.MyBiddingSource
+import com.shoebill.maru.model.source.MyNonBiddingSource
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject

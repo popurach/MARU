@@ -22,7 +22,13 @@ interface SpotApi {
         @Query("south") south: Double,
         @Query("east") east: Double,
         @Query("north") north: Double,
-        @Query("filter") filter: String
+        @Query("filter") filter: String,
+        @Query(
+            "lastOffset",
+            encoded = true
+        ) lastOffset: Long? = null,
+        @Query("size") size: Int = 20,
+        @Query("tagId") tagId: Long?
     ): Response<List<Spot>>
 
     @Multipart
@@ -51,6 +57,7 @@ interface SpotApi {
         @Query("size") size: Int = 20
     ): List<Spot>
 
+    // 지도 기반 스팟 목록 조회
     @POST("/api/map/spots")
     suspend fun getSpotMarker(
         @Body parameter: SpotClusterDTO

@@ -14,6 +14,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavHostController
+import androidx.paging.PagingData
 import com.google.gson.JsonObject
 import com.mapbox.android.gestures.MoveGestureDetector
 import com.mapbox.geojson.Point
@@ -48,6 +49,7 @@ import com.shoebill.maru.model.data.Spot
 import com.shoebill.maru.model.data.request.BoundingBox
 import com.shoebill.maru.model.repository.LandmarkRepository
 import com.shoebill.maru.model.repository.SpotRepository
+import com.shoebill.maru.util.Filter
 import com.shoebill.maru.util.Filter.ALL
 import com.shoebill.maru.util.Filter.LANDMARK
 import com.shoebill.maru.util.Filter.MYSPOT
@@ -110,13 +112,19 @@ class MapViewModel @Inject constructor(
     private val _bottomSheetOpen = MutableLiveData(false)
     val bottomSheetOpen get() = _bottomSheetOpen
 
+    private var tagId: Long? = null
+
+    fun updateTagId(value: Long?) {
+        tagId = value
+    }
+
     fun updateBottomSheetState(value: Boolean) {
         _bottomSheetOpen.value = value
     }
 
-    private val _spotList = MutableLiveData<List<Spot>>()
+    private val _spotList = MutableLiveData<PagingData<List<Spot>>>()
 
-    val spotList: LiveData<List<Spot>> get() = _spotList
+    val spotList: LiveData<PagingData<List<Spot>> get() = _spotList
 
     var navController: NavHostController? = null
 
@@ -227,7 +235,7 @@ class MapViewModel @Inject constructor(
         )
         viewModelScope.launch {
             val spotList = apiCallback(navController!!) {
-                spotRepository.getSpotMarker(boundingBox, mine)
+                spotRepository.getSpotMarker(boundingBox, mine, tagId)
             }
             spotList?.forEach {
                 addMarker(
@@ -502,19 +510,21 @@ class MapViewModel @Inject constructor(
     private fun loadAroundSpots() {
         val projection = getProjection()
         viewModelScope.launch {
-            val result = apiCallback(navController!!) {
-                spotRepository.getAroundSpots(
-                    west = projection.west(),
-                    south = projection.south(),
-                    east = projection.east(),
-                    north = projection.north()
-                )
-            }
+            val result = spotRepository.getAroundSpots(
+                west = projection.west(),
+                south = projection.south(),
+                east = projection.east(),
+                north = projection.north(),
+                tagId = tagId
+            )
+
+            Log.d(TAG, "tagId: $tagId")
+            Log.d(TAG, "loadAroundSpots: $result")
             _spotList.value = result ?: return@launch
         }
     }
 
-    fun moveCamera(lat: Double, lng: Double) {
+    fun moveCamera(lat: Double, lng: Double, setFilterAll: Boolean = true) {
         val point = Point.fromLngLat(lng, lat)
         val cameraOptions = CameraOptions.Builder()
             .center(point)
@@ -528,7 +538,7 @@ class MapViewModel @Inject constructor(
                     }
 
                     override fun onAnimationEnd(animation: Animator) {
-                        updateFilterState(ALL)
+                        if (setFilterAll) updateFilterState(ALL)
                         loadMarker()
                     }
 

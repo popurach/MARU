@@ -1,6 +1,12 @@
 package com.shoebill.maru.model.repository
 
 import android.util.Log
+import androidx.lifecycle.LiveData
+import androidx.navigation.NavHostController
+import androidx.paging.Pager
+import androidx.paging.PagingConfig
+import androidx.paging.PagingData
+import androidx.paging.liveData
 import com.shoebill.maru.model.data.Spot
 import com.shoebill.maru.model.data.Tag
 import com.shoebill.maru.model.data.request.BoundingBox
@@ -8,6 +14,7 @@ import com.shoebill.maru.model.data.request.SpotClusterDTO
 import com.shoebill.maru.model.data.spot.SaveSpot
 import com.shoebill.maru.model.data.spot.SpotMarker
 import com.shoebill.maru.model.interfaces.SpotApi
+import com.shoebill.maru.model.source.SpotSource
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
 import retrofit2.Response
@@ -18,14 +25,17 @@ import javax.inject.Inject
 class SpotRepository @Inject constructor(
     private val spotApi: SpotApi
 ) {
-    suspend fun getAroundSpots(
+    fun getAroundSpots(
+        navController: NavHostController,
         west: Double,
         south: Double,
         east: Double,
         north: Double,
-        filter: String = "ALL"
-    ): Response<List<Spot>> =
-        spotApi.getAroundSpots(west, south, east, north, filter)
+        filter: String = "ALL",
+        tagId: Long?
+    ): LiveData<PagingData<Spot>> = Pager(config = PagingConfig(pageSize = 20)) {
+        SpotSource(spotApi, navController, west, south, east, north, filter, tagId)
+    }.liveData
 
     suspend fun saveSpot(spotImage: File, tags: List<Tag>?, landmarkId: Long?): Response<Long> {
         val spotImageParam = MultipartBody.Part.createFormData(
@@ -56,9 +66,13 @@ class SpotRepository @Inject constructor(
     suspend fun getMyScrapedSpots(lastOffset: Long?): List<Spot> =
         spotApi.getMyScrapedSpots(lastOffset = lastOffset, size = 20)
 
-    suspend fun getSpotMarker(boundingBox: BoundingBox, mine: Boolean): Response<List<SpotMarker>> =
+    suspend fun getSpotMarker(
+        boundingBox: BoundingBox,
+        mine: Boolean,
+        tagId: Long? = null
+    ): Response<List<SpotMarker>> =
         spotApi.getSpotMarker(
-            SpotClusterDTO(boundingBox, filter = if (mine) "mine" else "all")
+            SpotClusterDTO(boundingBox, filter = if (mine) "mine" else "all", tagId)
         )
 
     suspend fun getSpotDetail(spotId: Long): Response<Spot> = spotApi.getSpotDetail(spotId)
