@@ -26,16 +26,14 @@ import kotlin.math.pow
 @HiltViewModel
 class AuctionViewModel @Inject constructor(
     private val auctionRepository: AuctionRepository,
-) :
-    ViewModel() {
-
+) : ViewModel() {
     private val _currentHighestBid = MutableLiveData<Int>(0)
     val currentHighestBid: LiveData<Int> = _currentHighestBid
 
     private val _bid = MutableLiveData<Int>(0)
     val bid: LiveData<Int> = _bid
 
-    private val _unit = MutableLiveData<Int>(1000)
+    private val _unit = MutableLiveData<Int>(0)
     val unit: LiveData<Int> = _unit
 
     val downPrice: Int get() = if (_bid.value == null) 1000 else _bid.value!!.minus(unit.value!!)
@@ -49,14 +47,12 @@ class AuctionViewModel @Inject constructor(
 
     private var landmarkId: Long = 2
 
-    private var isLoading = false
+    private val _isConnected = MutableLiveData(false)
+    val isConnected get() = _isConnected
 
-    fun initLandmarkId(value: Long, context: Context) {
-        if (isLoading) return
-        isLoading = true
+    fun initLandmarkId(value: Long) {
         landmarkId = value
         viewModelScope.launch {
-            runStomp(context)
             getAuctionInfo(landmarkId)
         }
     }
@@ -110,97 +106,84 @@ class AuctionViewModel @Inject constructor(
         }
     }
 
-    fun updateBidding(onComplete: (Boolean) -> Unit) {
-        val requestBody = AuctionBiddingRequest(landmarkId, _bid.value!!)
-        viewModelScope.launch {
-            val success = withContext(viewModelScope.coroutineContext) {
-                auctionRepository.updateBidding(requestBody)
-            }
-
-            onComplete(success)
-        }
-    }
-
     fun deleteBidding(auctionLogId: Long, onComplete: (Boolean) -> Unit) {
         viewModelScope.launch {
             val success = withContext(viewModelScope.coroutineContext) {
                 auctionRepository.deleteBidding(auctionLogId)
             }
-
             onComplete(success)
         }
     }
 
-    fun exit() {
-        isLoading = false
-    }
-
-    private lateinit var stompClient: StompClient
+    lateinit var stompClient: StompClient
 
     @SuppressLint("CheckResult")
-    private fun runStomp(context: Context) {
-        val prefUtil = PreferenceUtil(context)
-        val accessToken = prefUtil.getString("accessToken")
-        val tokenInfo = "Bearer $accessToken"
+    fun runStomp(context: Context) {
+        viewModelScope.launch {
+            _isConnected.value = true
+            val prefUtil = PreferenceUtil(context)
+            val accessToken = prefUtil.getString("accessToken")
+            val tokenInfo = "Bearer $accessToken"
 
-        val headers: MutableMap<String, String> = HashMap()
-        headers["Authorization"] = tokenInfo
-        stompClient =
-            Stomp.over(Stomp.ConnectionProvider.OKHTTP, BuildConfig.END_POINT_URL, headers)
+            val headers: MutableMap<String, String> = HashMap()
+            headers["Authorization"] = tokenInfo
+            stompClient =
+                Stomp.over(Stomp.ConnectionProvider.OKHTTP, BuildConfig.END_POINT_URL, headers)
 
-        stompClient.lifecycle().subscribe { lifecycleEvent ->
-            when (lifecycleEvent.type) {
-                LifecycleEvent.Type.OPENED -> {
-                    Log.i("OPEND", "!!")
+            stompClient.lifecycle().subscribe { lifecycleEvent ->
+                when (lifecycleEvent.type) {
+                    LifecycleEvent.Type.OPENED -> {
+                        Log.i("OPEND", "!!")
 
-                    val data = JSONObject()
-                    data.put("price", 0)
-                    data.put("landmarkId", landmarkId)
+                        val data = JSONObject()
+                        data.put("price", 0)
+                        data.put("landmarkId", landmarkId)
 
-                    stompClient.send("/app/bid", data.toString()).subscribe(
-                        {
-                            Log.i("Send Success", "Message sent successfully")
-                        },
-                        { error ->
-                            Log.e("Send Error", "Failed to send message", error)
-                        })
-                }
+                        stompClient.send("/app/bid", data.toString()).subscribe(
+                            {
+                                Log.i("Send Success", "Message sent successfully")
+                            },
+                            { error ->
+                                Log.e("Send Error", "Failed to send message", error)
+                            })
+                    }
 
-                LifecycleEvent.Type.CLOSED -> {
-                    Log.i("CLOSED", "!!")
+                    LifecycleEvent.Type.CLOSED -> {
+                        Log.i("CLOSED", "!!")
+                        _isConnected.value = false
+                    }
 
-                }
+                    LifecycleEvent.Type.ERROR -> {
+                        Log.i("ERROR", "!!")
+                        Log.e("CONNECT ERROR", lifecycleEvent.exception.toString())
+                    }
 
-                LifecycleEvent.Type.ERROR -> {
-                    Log.i("ERROR", "!!")
-                    Log.e("CONNECT ERROR", lifecycleEvent.exception.toString())
-                }
-
-                else -> {
-                    Log.i("ELSE", lifecycleEvent.message)
+                    else -> {
+                        Log.i("ELSE", lifecycleEvent.message)
+                    }
                 }
             }
+
+            stompClient.connect()
+
+            stompClient.topic("/bidding/price").subscribe({ topicMessage ->
+                val body = JSONObject(topicMessage.payload)
+                val getLandmarkId = body.getLong("landmarkId")
+                val price = body.getInt("price")
+                if (getLandmarkId == landmarkId) {
+                    Log.i("Received Message", "price: $price")
+                    _currentHighestBid.postValue(price)
+                    val divideValue = price.div(10)
+                    val stringValue = divideValue.toString()
+                    val lengthValue = stringValue.length - 1
+                    _unit.postValue(10.0.pow(lengthValue.toDouble()).toInt())
+                    _bid.postValue(price.plus(10.0.pow(lengthValue.toDouble()).toInt()))
+                    getAuctionHistory(landmarkId)
+                }
+            }, { error ->
+                Log.e("Subscription Error", "Failed to subscribe to topic", error)
+            })
         }
-
-        stompClient.connect()
-
-        stompClient.topic("/bidding/price").subscribe({ topicMessage ->
-            val body = JSONObject(topicMessage.payload)
-            val getLandmarkId = body.getLong("landmarkId")
-            val price = body.getInt("price")
-            if (getLandmarkId == landmarkId) {
-                Log.i("Received Message", "price: $price")
-                _currentHighestBid.postValue(price)
-                val divideValue = price.div(10)
-                val stringValue = divideValue.toString()
-                val lengthValue = stringValue.length - 1
-                _unit.postValue(10.0.pow(lengthValue.toDouble()).toInt())
-                _bid.postValue(price.plus(10.0.pow(lengthValue.toDouble()).toInt()))
-                getAuctionHistory(landmarkId)
-            }
-        }, { error ->
-            Log.e("Subscription Error", "Failed to subscribe to topic", error)
-        })
     }
 
     fun viewModelOnCleared() {

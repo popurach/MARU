@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -49,6 +50,21 @@ fun MyAuction(
         modifier = Modifier
             .fillMaxSize()
     ) {
+        if (myBiddings.itemCount == 0) {
+            item {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .height(400.dp)
+                ) {
+                    Text(
+                        text = "참여 중인 경매가 없습니다.",
+                        modifier = Modifier.align(Alignment.Center),
+                        letterSpacing = -(0.3).sp
+                    )
+                }
+            }
+        }
         items(myBiddings) { myBidding ->
             Box {
                 myBidding?.let {

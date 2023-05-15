@@ -31,25 +31,9 @@ class AuctionRepository @Inject constructor(private val auctionApi: AuctionApi) 
         }
     }
 
-    suspend fun getBiddingPrice(landmarkId: Long): Int {
-        val response = auctionApi.getBiddingPrice(landmarkId)
-        if (response.isSuccessful) {
-            val body = response.body()
-            return body ?: 0
-        } else {
-            throw Exception("getBiddingPrice fail: ${response.code()}")
-        }
-    }
-
     suspend fun createBidding(requestBody: AuctionBiddingRequest): Boolean {
         val response = auctionApi.createBidding(requestBody)
         Log.d("AUCTION", "createBidding: $response")
-        return response.isSuccessful
-    }
-
-    suspend fun updateBidding(requestBody: AuctionBiddingRequest): Boolean {
-        val response = auctionApi.updateBidding(requestBody)
-        Log.d("AUCTION", "updateBidding: $response")
         return response.isSuccessful
     }
 

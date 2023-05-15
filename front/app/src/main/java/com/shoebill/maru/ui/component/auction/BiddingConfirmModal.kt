@@ -39,7 +39,6 @@ fun BiddingConfirmModal(
     auctionViewModel: AuctionViewModel = viewModel(),
     onDismissRequest: () -> Unit
 ) {
-    val auctionInfo = auctionViewModel.auctionInfo.observeAsState()
     val bid = auctionViewModel.bid.observeAsState()
     val dec = DecimalFormat("#,###")
 
@@ -83,26 +82,15 @@ fun BiddingConfirmModal(
                         .height(48.dp)
                         .clip(RoundedCornerShape(40.dp)),
                     onClick = {
-                        if (auctionInfo.value?.myBidding == null) {
-                            auctionViewModel.createBidding { success ->
-                                if (success) {
-                                    auctionViewModel.exit()
-                                    navigateViewModel.navigator?.navigateUp()
-                                } else {
-                                    Log.e("AUCTION", "createBidding fail")
-                                }
-                            }
-                        } else {
-                            auctionViewModel.updateBidding { success ->
-                                if (success) {
-                                    auctionViewModel.exit()
-                                    navigateViewModel.navigator?.navigateUp()
-                                } else {
-                                    Log.e("AUCTION", "updateBidding fail")
-                                }
+                        auctionViewModel.createBidding { success ->
+                            if (success) {
+                                onDismissRequest()
+                                memberViewModel.getMemberInfo(navigateViewModel)
+                                navigateViewModel.navigator?.navigateUp()
+                            } else {
+                                Log.e("AUCTION", "createBidding fail")
                             }
                         }
-                        memberViewModel.getMemberInfo(navigateViewModel)
                     }
                 )
                 Box(

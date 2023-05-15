@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -40,6 +41,21 @@ fun OpenAuction(
         modifier = Modifier
             .fillMaxSize()
     ) {
+        if (landmarkInfos.itemCount == 0) {
+            item {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .height(400.dp)
+                ) {
+                    Text(
+                        text = "참여 가능한 경매가 없습니다.",
+                        modifier = Modifier.align(Alignment.Center),
+                        letterSpacing = -(0.3).sp
+                    )
+                }
+            }
+        }
         items(landmarkInfos) { landmarkInfo ->
             Box {
                 landmarkInfo?.let {
