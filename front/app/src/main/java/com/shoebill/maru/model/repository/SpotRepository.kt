@@ -1,12 +1,10 @@
 package com.shoebill.maru.model.repository
 
 import android.util.Log
-import androidx.lifecycle.LiveData
 import androidx.navigation.NavHostController
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
-import androidx.paging.liveData
 import com.shoebill.maru.model.data.Spot
 import com.shoebill.maru.model.data.Tag
 import com.shoebill.maru.model.data.request.BoundingBox
@@ -15,6 +13,7 @@ import com.shoebill.maru.model.data.spot.SaveSpot
 import com.shoebill.maru.model.data.spot.SpotMarker
 import com.shoebill.maru.model.interfaces.SpotApi
 import com.shoebill.maru.model.source.SpotSource
+import kotlinx.coroutines.flow.Flow
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
 import retrofit2.Response
@@ -33,9 +32,9 @@ class SpotRepository @Inject constructor(
         north: Double,
         filter: String = "ALL",
         tagId: Long?
-    ): LiveData<PagingData<Spot>> = Pager(config = PagingConfig(pageSize = 20)) {
+    ): Flow<PagingData<Spot>> = Pager(config = PagingConfig(pageSize = 20)) {
         SpotSource(spotApi, navController, west, south, east, north, filter, tagId)
-    }.liveData
+    }.flow
 
     suspend fun saveSpot(spotImage: File, tags: List<Tag>?, landmarkId: Long?): Response<Long> {
         val spotImageParam = MultipartBody.Part.createFormData(

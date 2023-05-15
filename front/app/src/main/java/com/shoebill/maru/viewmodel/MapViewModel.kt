@@ -9,12 +9,12 @@ import android.graphics.drawable.Drawable
 import android.util.Log
 import androidx.appcompat.content.res.AppCompatResources.getDrawable
 import androidx.compose.ui.focus.FocusManager
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavHostController
 import androidx.paging.PagingData
+import androidx.paging.cachedIn
 import com.google.gson.JsonObject
 import com.mapbox.android.gestures.MoveGestureDetector
 import com.mapbox.geojson.Point
@@ -49,7 +49,6 @@ import com.shoebill.maru.model.data.Spot
 import com.shoebill.maru.model.data.request.BoundingBox
 import com.shoebill.maru.model.repository.LandmarkRepository
 import com.shoebill.maru.model.repository.SpotRepository
-import com.shoebill.maru.util.Filter
 import com.shoebill.maru.util.Filter.ALL
 import com.shoebill.maru.util.Filter.LANDMARK
 import com.shoebill.maru.util.Filter.MYSPOT
@@ -58,6 +57,7 @@ import com.shoebill.maru.util.SpotType
 import com.shoebill.maru.util.apiCallback
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -122,9 +122,9 @@ class MapViewModel @Inject constructor(
         _bottomSheetOpen.value = value
     }
 
-    private val _spotList = MutableLiveData<PagingData<List<Spot>>>()
+    private val _spotList = MutableStateFlow<PagingData<Spot>>(PagingData.empty())
 
-    val spotList: LiveData<PagingData<List<Spot>> get() = _spotList
+    val spotList get() = _spotList
 
     var navController: NavHostController? = null
 
@@ -510,17 +510,17 @@ class MapViewModel @Inject constructor(
     private fun loadAroundSpots() {
         val projection = getProjection()
         viewModelScope.launch {
-            val result = spotRepository.getAroundSpots(
+            spotRepository.getAroundSpots(
+                navController = navController!!,
                 west = projection.west(),
                 south = projection.south(),
                 east = projection.east(),
                 north = projection.north(),
+                filter = if (_filterState.value == MYSPOT) "MINE" else "ALL",
                 tagId = tagId
-            )
-
-            Log.d(TAG, "tagId: $tagId")
-            Log.d(TAG, "loadAroundSpots: $result")
-            _spotList.value = result ?: return@launch
+            ).cachedIn(viewModelScope).collect {
+                _spotList.value = it
+            }
         }
     }
 
