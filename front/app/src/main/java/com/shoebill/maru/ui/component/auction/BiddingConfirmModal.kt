@@ -86,7 +86,6 @@ fun BiddingConfirmModal(
                             if (success) {
                                 onDismissRequest()
                                 memberViewModel.getMemberInfo(navigateViewModel)
-                                auctionViewModel.exit()
                                 navigateViewModel.navigator?.navigateUp()
                             } else {
                                 Log.e("AUCTION", "createBidding fail")

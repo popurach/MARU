@@ -22,6 +22,7 @@ import androidx.compose.material.Icon
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
@@ -54,6 +55,7 @@ import com.shoebill.maru.R
 import com.shoebill.maru.ui.component.auction.BiddingConfirmModal
 import com.shoebill.maru.ui.component.auction.DeleteConfirmModal
 import com.shoebill.maru.ui.component.common.GradientButton
+import com.shoebill.maru.ui.theme.MaruBrush
 import com.shoebill.maru.ui.theme.Pretendard
 import com.shoebill.maru.viewmodel.AuctionViewModel
 import com.shoebill.maru.viewmodel.NavigateViewModel
@@ -66,17 +68,18 @@ fun AuctionPage(
     navigateViewModel: NavigateViewModel = viewModel(),
 ) {
     val context = LocalContext.current
+    val dec = DecimalFormat("#,###")
 
     val auctionInfo = auctionViewModel.auctionInfo.observeAsState()
     val auctionHistory = auctionViewModel.auctionHistory.observeAsState(arrayOf(1000))
     val currentHighestBid = auctionViewModel.currentHighestBid.observeAsState()
 
-    val chartEntryModel = entryModelOf(*(auctionHistory.value))
-    val gradient = Brush.horizontalGradient(listOf(Color(0xFF6039DF), Color(0xFFA14AB7)))
     val bid = auctionViewModel.bid.observeAsState()
-    val dec = DecimalFormat("#,###")
     val isDeleteModalOpen = remember { mutableStateOf(false) }
     val isBiddingModalOpen = remember { mutableStateOf(false) }
+    val isConnected = auctionViewModel.isConnected.observeAsState()
+
+    val chartEntryModel = entryModelOf(*(auctionHistory.value))
 
     val currentHighestBidAnimation by animateIntAsState(
         targetValue = currentHighestBid.value ?: 0,
@@ -93,8 +96,17 @@ fun AuctionPage(
         )
     )
 
+    LaunchedEffect(key1 = isConnected.value) {
+        if (isConnected.value == false) {
+            auctionViewModel.runStomp(context)
+        }
+    }
+
     DisposableEffect(Unit) {
-        auctionViewModel.initLandmarkId(id, context)
+        auctionViewModel.initLandmarkId(id)
+        if (isConnected.value == false) {
+            auctionViewModel.runStomp(context)
+        }
         onDispose {
             auctionViewModel.viewModelOnCleared()
         }
@@ -116,7 +128,6 @@ fun AuctionPage(
                     .padding(start = 16.dp)
                     .size(30.dp)
                     .clickable {
-                        auctionViewModel.exit()
                         navigateViewModel.navigator?.navigateUp()
                     },
                 painter = painterResource(id = R.drawable.arrow_back),
@@ -356,7 +367,7 @@ fun AuctionPage(
             }
             GradientButton(
                 text = "입찰 하기",
-                gradient = gradient,
+                gradient = MaruBrush,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(vertical = 18.dp),
