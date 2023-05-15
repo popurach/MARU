@@ -41,19 +41,23 @@ const SBody = styled.div`
   align-items: start;
   flex-wrap: wrap;
   margin-top: 3vh;
-  gap: 8vh;
 `;
 
 const SLeft = styled.div`
-  margin-top: 4vh;
+  margin-top: 6vh;
+  margin-left: 7vh;
+  margin-right: 8vh;
   display: flex;
   flex-direction: column;
   align-items: start;
   line-height: 7vh;
-  @media screen and (max-width: 1312px) {
+  @media screen and (max-width: 1350px) {
     align-items: center;
     line-height: 6.5vh;
     margin-top: 4vh;
+    margin-left: 0vh;
+    margin-right: 0vh;
+    margin-bottom: 4vh;
   }
 `;
 
@@ -72,7 +76,7 @@ const SContent = styled.span`
   font-weight: 200;
   color: white;
   line-height: 3.5vh;
-  @media screen and (max-width: 1312px) {
+  @media screen and (max-width: 1350px) {
     width: 80vw;
     text-align: center;
   }
@@ -81,7 +85,7 @@ const SContent = styled.span`
 const SQr = styled.img`
   margin-top: 4vh;
   height: 25vh;
-  @media screen and (max-width: 1312px) {
+  @media screen and (max-width: 1350px) {
     display: none;
   }
 `;
@@ -90,7 +94,7 @@ const SBottom = styled.div`
   display: none;
   margin-top: 4vh;
   gap: 2vh;
-  @media screen and (max-width: 1312px) {
+  @media screen and (max-width: 1350px) {
     display: flex;
   }
 `;
