@@ -4,7 +4,7 @@
       "analysis": {
         "analyzer": {
           "custom_analyzer": {
-            "tokenizer": "whitespace",
+            "tokenizer": "my_nori_tokenizer",
             "filter": [
               "lowercase",
               "my_english_stemmer",
@@ -32,38 +32,25 @@
               "E",
               "IC",
               "J",
-              "MAG",
               "MM",
               "NA",
               "NR",
-              "SC",
               "SE",
               "SF",
-              "SH",
-              "SL",
               "SN",
               "SP",
-              "SSC",
-              "SSO",
               "SY",
-              "UNA",
-              "UNKNOWN",
-              "VA",
               "VCN",
               "VCP",
-              "VSV",
               "VV",
               "VX",
-              "XPN",
-              "XR",
               "XSA",
               "XSN",
               "XSV"
-            ],
-            "tokenizer": "my_nori_tokenizer"
+            ]
           },
           "edge_ngram_filter_front": {
-            "type": "edgeNGram",
+            "type": "edge_ngram",
             "min_gram": "1",
             "max_gram": "5",
             "side": "front"
