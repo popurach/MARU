@@ -32,7 +32,7 @@ public class Tag {
 
     @NotNull
     @NotBlank
-    @Length(max = 30)
+    @Length(max = 15)
     private String name;
 
 }
