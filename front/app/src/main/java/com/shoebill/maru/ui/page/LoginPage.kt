@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -36,6 +37,7 @@ import com.google.android.gms.tasks.Task
 import com.shoebill.maru.BuildConfig
 import com.shoebill.maru.R
 import com.shoebill.maru.ui.component.LottieOwl
+import com.shoebill.maru.ui.component.common.CustomCircularProgressBar
 import com.shoebill.maru.viewmodel.LoginViewModel
 import com.shoebill.maru.viewmodel.NavigateViewModel
 
@@ -45,7 +47,8 @@ fun LoginPage(
     navigateViewModel: NavigateViewModel = viewModel(),
 ) {
     val context = LocalContext.current
-    
+    val isLoading = loginViewModel.isLoading.observeAsState()
+
     val startForResult =
         rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { result: ActivityResult ->
             if (result.resultCode == Activity.RESULT_OK) {
@@ -80,7 +83,7 @@ fun LoginPage(
             painter = painterResource(id = R.drawable.maru_logo),
             contentDescription = "로고"
         )
-        Box() {
+        Box {
             Box(
                 modifier = Modifier.height(300.dp)
             ) {
@@ -165,5 +168,8 @@ fun LoginPage(
             color = Color(0xFFC0C0C0),
             textAlign = TextAlign.Center
         )
+    }
+    if (isLoading.value == true) {
+        CustomCircularProgressBar(text = "로그인 중...")
     }
 }

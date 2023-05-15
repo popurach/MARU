@@ -30,6 +30,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.shoebill.maru.ui.component.bottomsheet.BottomSheetIndicator
 import com.shoebill.maru.ui.component.common.Chip
+import com.shoebill.maru.ui.component.common.CustomCircularProgressBar
 import com.shoebill.maru.ui.component.common.GradientButton
 import com.shoebill.maru.ui.theme.MaruBackground
 import com.shoebill.maru.ui.theme.MaruBrush
@@ -46,10 +47,11 @@ fun ImageUploadForm(
     cameraViewModel: CameraViewModel = hiltViewModel(),
     navigateViewModel: NavigateViewModel = hiltViewModel(),
 ) {
-    val inputTag = cameraViewModel.inputTag.observeAsState("")
+    val inputTag = cameraViewModel.inputTag.observeAsState()
     val tagList = cameraViewModel.tagList.observeAsState(listOf())
     val isModalOpen = remember { mutableStateOf(false) }
     val location = cameraViewModel.location.observeAsState()
+    val isLoading = remember { mutableStateOf(false) }
 
     val coroutineScope = rememberCoroutineScope()
     val context = LocalContext.current
@@ -68,7 +70,7 @@ fun ImageUploadForm(
                 Box(modifier = Modifier.padding(top = 14.dp)) {
                     TextField(
                         modifier = Modifier.fillMaxWidth(),
-                        value = inputTag.value,
+                        value = inputTag.value ?: "",
                         onValueChange = { value: String ->
                             cameraViewModel.updateInputTag(value)
                         },
@@ -112,6 +114,7 @@ fun ImageUploadForm(
                         .height(48.dp),
                     onClick = {
                         // spot 등록 API 호출
+                        isLoading.value = true
                         coroutineScope.launch {
                             val spotId = cameraViewModel.saveSpot(
                                 navigateViewModel.navigator!!,
@@ -127,11 +130,14 @@ fun ImageUploadForm(
                                 isModalOpen.value = true
                             }
                             Log.d("SAVE-SPOT", "add spot: $spotId")
-
+                            isLoading.value = false
                         }
                     }
                 )
             }
+        }
+        if (isLoading.value) {
+            CustomCircularProgressBar(text = "등록중...")
         }
         if (isModalOpen.value) {
             if (landmarkId == -1L) {
@@ -141,7 +147,6 @@ fun ImageUploadForm(
                     isModalOpen.value = false
                 }
             }
-
         }
     }
 }

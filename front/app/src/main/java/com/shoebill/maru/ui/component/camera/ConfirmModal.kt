@@ -38,7 +38,6 @@ fun ConfirmModal(
     navigateViewModel: NavigateViewModel = hiltViewModel(),
     onDismissRequest: () -> Unit
 ) {
-
     CustomAlertDialog(onDismissRequest = { onDismissRequest() }) {
         Column(
             modifier = Modifier
