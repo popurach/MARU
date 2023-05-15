@@ -98,8 +98,6 @@ class MapViewModel @Inject constructor(
     private val landmarkAnnotations = mutableListOf<PointAnnotationOptions>()
     private val spotAnnotations = mutableListOf<PointAnnotationOptions>()
 
-    val visitingLandmark = MutableLiveData<PointAnnotationOptions?>(null)
-
     private val _filterState = MutableLiveData(ALL)
     val filterState get() = _filterState
 
@@ -127,6 +125,7 @@ class MapViewModel @Inject constructor(
     val spotList get() = _spotList
 
     var navController: NavHostController? = null
+    private var visitingLandmarkId: Long? = null
 
     private val searchNearLandmarkListener = OnIndicatorPositionChangedListener { myPos ->
         // 0.1Km == 100m
@@ -139,16 +138,15 @@ class MapViewModel @Inject constructor(
         landmarkAnnotations.forEach { landmark ->
             val jsonObject = landmark.getData()!!.asJsonObject!!
             val landmarkPos = landmark.getPoint()
+            val landmarkId = jsonObject.get("id")?.asLong
             val distance = getDistance(myPos, landmarkPos!!)
             // 멀어질 때
-            if (visitingLandmark.value == landmark && distance > minDist) {
-                visitingLandmark.value = null
+            if (visitingLandmarkId == jsonObject.get("id")?.asLong && distance > minDist) {
+                visitingLandmarkId = null
             }
             // 랜드마크 범위에 들어갔을 때
-            if (visitingLandmark.value != landmark && distance <= minDist) {
-                visitingLandmark.value = landmark
-                val landmarkId =
-                    jsonObject.get("id")?.asLong
+            if (visitingLandmarkId != jsonObject.get("id")?.asLong && distance <= minDist) {
+                visitingLandmarkId = landmarkId
                 val isVisit = jsonObject.get("isVisit")?.asBoolean!!
                 _bottomSheetOpen.value = true
                 bottomSheetController.navigate(if (isVisit) "landmark/main/$landmarkId" else "landmark/first/$landmarkId")
@@ -415,7 +413,7 @@ class MapViewModel @Inject constructor(
 
     fun unTrackUser() {
         _isTracking.value = false
-        visitingLandmark.value = null
+        visitingLandmarkId = null
         mapView.location.removeOnIndicatorPositionChangedListener(searchNearLandmarkListener)
         mapView.location.updateSettings {
             enabled = false
