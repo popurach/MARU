@@ -13,10 +13,12 @@ import com.bird.maru.spot.repository.SpotRepository;
 import com.bird.maru.spot.service.dto.SpotImage;
 import com.bird.maru.tag.repository.TagJDBCRepository;
 import com.bird.maru.tag.repository.query.TagQueryRepository;
+import com.bird.maru.tag.service.TagService;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import lombok.RequiredArgsConstructor;
@@ -33,6 +35,7 @@ public class SpotServiceImpl implements SpotService {
 
     private final AwsS3Service awsS3Service;
     private final PointService pointService;
+    private final TagService tagService;
     private final LandmarkQueryRepository landmarkQueryRepository;
     private final MemberQueryRepository memberQueryRepository;
     private final TagQueryRepository tagQueryRepository;
@@ -56,7 +59,7 @@ public class SpotServiceImpl implements SpotService {
 
         // 2. 태그 조회
         List<Tag> existTags = new ArrayList<>();
-        if(!tags.isEmpty()) {
+        if (!tags.isEmpty()) {
             existTags = tagQueryRepository.findAllByNames(tags);
 
         }
@@ -68,16 +71,19 @@ public class SpotServiceImpl implements SpotService {
 
         // 3. 태그 등록
         List<String> newTags = tags.stream()
-                                          .filter(tag -> !existTagNames.contains(tag))
-                                          .collect(Collectors.toList());
+                                   .filter(Predicate.not(existTagNames::contains))
+                                   .collect(Collectors.toList());
         List<Long> newTagIds = new ArrayList<>();
         if (!newTags.isEmpty()) {
             tagJDBCRepository.bulkInsertTags(newTags);
             log.debug("---------------태그 등록-------------------");
             log.debug("{}", newTags);
             // 4. 신규 태그 조회
-            newTagIds = tagQueryRepository.findAllByNames(newTags)
-                                          .stream().map(Tag::getId).collect(Collectors.toList());
+            List<Tag> founds = tagQueryRepository.findAllByNames(newTags);
+            tagService.saveTagsToElasticSearch(founds);
+            newTagIds = founds.stream()
+                              .map(Tag::getId)
+                              .collect(Collectors.toList());
             log.debug("-------------------신규 태그 조회--------------");
             log.debug("{}", newTagIds);
         }

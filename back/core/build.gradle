@@ -41,7 +41,7 @@ dependencies {
     implementation 'com.h2database:h2'
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
     implementation 'org.springframework.boot:spring-boot-starter-data-mongodb'
-//	implementation 'org.springframework.boot:spring-boot-starter-data-elasticsearch'
+	implementation 'org.springframework.boot:spring-boot-starter-data-elasticsearch'
 
     // Spring Security, JWT 의존성 추가
     implementation 'org.springframework.boot:spring-boot-starter-security'

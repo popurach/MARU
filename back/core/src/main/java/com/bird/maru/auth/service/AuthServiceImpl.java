@@ -60,9 +60,8 @@ public class AuthServiceImpl implements AuthService {
     }
 
     private boolean isDenied(CustomUserDetails member) {
-        String refreshToken = this.redisTemplate.opsForValue()
-                                                .get(createRedisKey(member.getId()));
-        return refreshToken == null;
+        return this.redisTemplate.opsForValue()
+                                 .get(createRedisKey(member.getId())) == null;
     }
 
     private String createRedisKey(Long memberId) {
