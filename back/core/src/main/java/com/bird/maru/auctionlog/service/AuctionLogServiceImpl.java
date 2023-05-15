@@ -99,7 +99,8 @@ public class AuctionLogServiceImpl implements AuctionLogService {
             noticeService.notifyBidSuccessful(new NoticeRequestDto(member, landmark, price));
         } else { // 재 입찰자
             // Member point 깎기
-            member.bidPoint(price - auctionLog.get().getPrice());
+            int totalPrice = price - auctionLog.get().getPrice();
+            member.bidPoint(totalPrice);
 
             // 입찰 기록 업데이트
             auctionLog.get().bidding(price);
@@ -107,8 +108,8 @@ public class AuctionLogServiceImpl implements AuctionLogService {
             // auction 테이블 갱신
             auction.changeLastLogId(auctionLog.get().getId());
 
-            // 인찰 성공 알림
-            noticeService.notifyBidSuccessful(new NoticeRequestDto(member, landmark, price - auctionLog.get().getPrice()));
+            // 입찰 성공 알림
+            noticeService.notifyBidSuccessful(new NoticeRequestDto(member, landmark, totalPrice));
         }
         // websocket 통신
         Bid updateBid = new Bid(price, auction.getLandmark().getId());
