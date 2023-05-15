@@ -3,6 +3,7 @@ package com.shoebill.maru.viewmodel
 import android.content.Context
 import android.util.Log
 import android.widget.Toast
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavHostController
@@ -32,28 +33,31 @@ class LoginViewModel @Inject constructor(
     private val memberRepository: MemberRepository,
 ) : ViewModel() {
     private val TAG = "LOGIN"
+    private val _isLoading = MutableLiveData(false)
+    val isLoading get() = _isLoading
+
     private suspend fun kakaoApiLogin(token: OAuthToken): Boolean {
         val deferredResponse = withContext(Dispatchers.IO) {
             memberRepository.kakaoNaverLogin("KAKAO ${token.accessToken}")
         }
-        val response = deferredResponse
-        Log.d(TAG, "kakaoApiLogin: ${response.isSuccessful}")
-        if (response.isSuccessful) {
-            val accessToken = response.headers()["access-token"]
-            val refreshToken = response.headers()["refresh-token"]
+        Log.d(TAG, "kakaoApiLogin: ${deferredResponse.isSuccessful}")
+        return if (deferredResponse.isSuccessful) {
+            val accessToken = deferredResponse.headers()["access-token"]
+            val refreshToken = deferredResponse.headers()["refresh-token"]
 
             prefUtil.setString("accessToken", accessToken!!)
             Log.d("LOGIN", "accessToken -> $accessToken") // backend 테스트 용으로 남겨둠
             prefUtil.setString("refreshToken", refreshToken!!)
             Log.d("LOGIN", "refreshToken -> $refreshToken")
 
-            return true
+            true
         } else {
-            return false
+            false
         }
     }
 
     fun kakaoLogin(context: Context, navigator: NavHostController?) {
+        _isLoading.value = true
         // 카카오계정으로 로그인 공통 callback 구성
         // 카카오톡으로 로그인 할 수 없어 카카오계정으로 로그인할 경우 사용됨
         var isSuccess: Boolean
@@ -68,6 +72,7 @@ class LoginViewModel @Inject constructor(
                     Log.d(TAG, "kakaoLogin: $isSuccess")
                     if (isSuccess) {
                         withContext(Dispatchers.Main) {
+                            _isLoading.value = false
                             navigator?.navigate("main/-1") {
                                 popUpTo(0)
                             }
@@ -95,6 +100,7 @@ class LoginViewModel @Inject constructor(
                     viewModelScope.launch {
                         //back end 로그인 API 호출 부분
                         isSuccess = kakaoApiLogin(token)
+                        _isLoading.value = false
                         if (isSuccess) {
                             navigator?.navigate("main/-1") {
                                 popUpTo(0)
@@ -109,12 +115,14 @@ class LoginViewModel @Inject constructor(
     }
 
     fun naverLogin(context: Context, navigator: NavHostController) {
+        _isLoading.value = true
         val oauthLoginCallback = object : OAuthLoginCallback {
             override fun onSuccess() {
                 // 네이버 로그인 인증이 성공했을 때 수행할 코드 추가
                 val accessToken = NaverIdLoginSDK.getAccessToken()
                 viewModelScope.launch {
                     val isSuccess = naverApiLogin(accessToken)
+                    _isLoading.value = false
                     if (isSuccess) {
                         navigator.navigate("main/-1") {
                             popUpTo(0)
@@ -126,6 +134,7 @@ class LoginViewModel @Inject constructor(
             override fun onFailure(httpStatus: Int, message: String) {
                 val errorCode = NaverIdLoginSDK.getLastErrorCode().code
                 val errorDescription = NaverIdLoginSDK.getLastErrorDescription()
+                _isLoading.value = false
                 Toast.makeText(
                     context,
                     "errorCode:$errorCode, errorDesc:$errorDescription",
@@ -141,7 +150,7 @@ class LoginViewModel @Inject constructor(
     }
 
     private suspend fun naverApiLogin(token: String?) =
-        withContext(viewModelScope.coroutineContext) {
+        withContext(Dispatchers.IO) {
             val deferredResponse = async {
                 memberRepository.kakaoNaverLogin("NAVER $token")
             }
@@ -163,11 +172,13 @@ class LoginViewModel @Inject constructor(
 
     fun handleSignInResult(completedTask: Task<GoogleSignInAccount>, navigator: NavHostController) =
         viewModelScope.launch {
+            _isLoading.value = true
             try {
                 val authCode: String? =
                     completedTask.getResult(ApiException::class.java)?.serverAuthCode
                 val isSuccess = authCode != null && googleApiLogin(authCode)
                 if (isSuccess) {
+                    _isLoading.value = false
                     navigator.navigate("main/-1")
                 }
             } catch (e: ApiException) {
