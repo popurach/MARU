@@ -156,7 +156,7 @@ public class SpotCustomQueryRepository {
                             .where(spot.createdDateTime.after(TimeUtil.getThisWeekStartDateTime()),
                                    spot.member.id.eq(memberId),
                                    spot.landmark.id.eq(landmarkId))
-                            .fetchOne()
+                            .fetchFirst()
         ).isPresent();
     }
 
