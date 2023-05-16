@@ -8,14 +8,23 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.quartz.Scheduler;
 import org.quartz.ee.servlet.QuartzInitializerListener;
+import org.quartz.spi.JobFactory;
+import org.springframework.batch.core.launch.JobLauncher;
+import org.springframework.batch.core.launch.support.SimpleJobLauncher;
+import org.springframework.batch.core.repository.JobRepository;
+import org.springframework.batch.core.repository.support.JobRepositoryFactoryBean;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.task.SimpleAsyncTaskExecutor;
+import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.quartz.SchedulerFactoryBean;
+import org.springframework.transaction.PlatformTransactionManager;
 
 @Configuration
-@ConfigurationProperties(prefix = "spring.datasource")
 @RequiredArgsConstructor
 @Slf4j
 public class QuartzConfiguration {
@@ -27,9 +36,10 @@ public class QuartzConfiguration {
     @Value(("${spring.datasource.hikari.password}"))
     private String password;
     private final DataSource dataSource;
+    private final PlatformTransactionManager transactionManager;
 
     @Bean(name = "SchedulerFactory")
-    public SchedulerFactoryBean schedulerFactoryBean() throws IOException {
+    public SchedulerFactoryBean schedulerFactoryBean(JobFactory jobFactory) throws Exception {
         SchedulerFactoryBean schedulerFactoryBean = new SchedulerFactoryBean();
 
         // 스프링에서 Quartz 스케줄러를 빈으로 등록하기 위해 QuartzScheduler를 설정합니다.
@@ -65,13 +75,22 @@ public class QuartzConfiguration {
         properties.setProperty("org.quartz.dataSource.qzDS.validationQuery", "select 1");
 
         schedulerFactoryBean.setDataSource(dataSource);
+        schedulerFactoryBean.setJobFactory(jobFactory);
         schedulerFactoryBean.setQuartzProperties(properties);
-        schedulerFactoryBean.setApplicationContextSchedulerContextKey("applicationContext");
+//        schedulerFactoryBean.setApplicationContextSchedulerContextKey("applicationContext");
 
         // 스케줄러가 시작될 때 실행할 리스너를 등록합니다.
         schedulerFactoryBean.setGlobalJobListeners(new MyJobListener());
 
+        // Quartz의 트랜젝션 관리자를 설정합니다.
+        schedulerFactoryBean.setTransactionManager(transactionManager);
+
         return schedulerFactoryBean;
+    }
+
+    @Bean
+    public JobFactory jobFactory(ApplicationContext applicationContext) {
+        return new AutowiringSpringBeanJobFactory(applicationContext);
     }
 
     @Bean
@@ -80,8 +99,8 @@ public class QuartzConfiguration {
     }
 
     @Bean
-    public Scheduler scheduler() throws IOException {
-        return schedulerFactoryBean().getScheduler();
+    public Scheduler scheduler(JobFactory jobFactory) throws Exception {
+        return schedulerFactoryBean(jobFactory).getScheduler();
     }
 
 }
