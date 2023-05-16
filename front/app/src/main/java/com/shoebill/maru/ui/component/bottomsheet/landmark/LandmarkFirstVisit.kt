@@ -83,7 +83,7 @@ fun LandmarkFirstVisit(
             LottieDiamond(
                 onClick = {
                     coroutineScope.launch {
-                        landmarkInfoViewModel.visitLandmark(context)
+                        landmarkInfoViewModel.visitLandmark(context, navigatorViewModel.navigator!!)
                         memberViewModel.getMemberInfo(navigatorViewModel)
                         bottomSheetNavigatorViewModel.navController?.navigate("landmark/main/$landmarkId") {
                             popUpTo("landmark/first/$landmarkId") { inclusive = true }

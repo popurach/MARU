@@ -55,10 +55,12 @@ class LandmarkInfoViewModel @Inject constructor(
         }
     }
 
-    suspend fun visitLandmark(context: Context) {
+    suspend fun visitLandmark(context: Context, navController: NavHostController) {
         val point = withContext(Dispatchers.IO) {
             Log.d(TAG, "landmarkId: $landmarkId")
-            landmarkRepository.visitLandmark(landmarkId!!)
+            apiCallback(navController) {
+                landmarkRepository.visitLandmark(landmarkId!!)
+            }
         }
         withContext(Dispatchers.Main) {
             Toast.makeText(context, "$point 포인트 획득!", Toast.LENGTH_SHORT).show()

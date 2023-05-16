@@ -1,8 +1,9 @@
-package com.shoebill.maru.model.repository
+package com.shoebill.maru.model.source
 
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
 import com.shoebill.maru.model.data.myAuction.MyAuction
+import com.shoebill.maru.model.repository.MyBiddingRepository
 
 class MyBiddingSource(private val myBiddingRepository: MyBiddingRepository) :
     PagingSource<Any, MyAuction>() {

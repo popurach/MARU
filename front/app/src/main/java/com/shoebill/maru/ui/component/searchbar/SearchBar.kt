@@ -42,6 +42,7 @@ import com.shoebill.maru.ui.component.filter.FilterChips
 import com.shoebill.maru.ui.theme.MaruBrush
 import com.shoebill.maru.viewmodel.DrawerViewModel
 import com.shoebill.maru.viewmodel.MapViewModel
+import com.shoebill.maru.viewmodel.NavigateViewModel
 import com.shoebill.maru.viewmodel.SearchBarViewModel
 
 @Composable
@@ -49,6 +50,7 @@ fun SearchBar(
     mapViewModel: MapViewModel = viewModel(),
     drawerViewModel: DrawerViewModel = viewModel(),
     searchBarViewModel: SearchBarViewModel = hiltViewModel(),
+    navigateViewModel: NavigateViewModel = hiltViewModel()
 ) {
     val keyword = searchBarViewModel.keyword.observeAsState("")
     var isFocused by remember { mutableStateOf(true) }
@@ -93,7 +95,10 @@ fun SearchBar(
                                 searchBarViewModel.getRecommendPlacesByKeyword(it)
                             } else {
                                 // 태그로 검색 시 태그 추천 목록 보여주기
-
+                                searchBarViewModel.loadRecommendTagsByKeyword(
+                                    it,
+                                    navigateViewModel.navigator!!
+                                )
                             }
                         } else {
                             // 추천 목록 싹 제거하기

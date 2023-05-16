@@ -4,14 +4,13 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.paging.compose.collectAsLazyPagingItems
 import com.shoebill.maru.ui.component.bottomsheet.spotlist.SpotListItem
 import com.shoebill.maru.viewmodel.MapViewModel
 
@@ -19,14 +18,10 @@ import com.shoebill.maru.viewmodel.MapViewModel
 fun BottomSheetSpotList(
     mapViewModel: MapViewModel = viewModel(),
 ) {
-    val spotList = mapViewModel.spotList.observeAsState(listOf())
+    val spotList = mapViewModel.spotList.collectAsLazyPagingItems()
 
     LazyColumn() {
-        if (spotList.value.isNotEmpty())
-            items(spotList.value) { spot ->
-                SpotListItem(spot)
-            }
-        else {
+        if (spotList.itemCount == 0)
             item {
                 Box(
                     modifier = Modifier
@@ -38,6 +33,10 @@ fun BottomSheetSpotList(
                         modifier = Modifier.align(Alignment.Center)
                     )
                 }
+            }
+        else {
+            items(spotList.itemCount) { idx ->
+                SpotListItem(spotList[idx]!!)
             }
         }
     }
