@@ -20,7 +20,8 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 @Builder
 public class CustomUserDetails implements UserDetails, OAuth2User {
 
-    public static final String EMAIL_PATTERN = "email";
+    private static final String EMAIL_PATTERN = "email";
+    private static final String NICKNAME_PATTERN = "nickname";
 
     private Long id;
 
@@ -57,7 +58,7 @@ public class CustomUserDetails implements UserDetails, OAuth2User {
         return CustomUserDetails.builder()
                                 .provider(Provider.KAKAO)
                                 .email((String) account.get(EMAIL_PATTERN))
-                                .nickname((String) profile.get("nickname"))
+                                .nickname((String) profile.get(NICKNAME_PATTERN))
                                 .build();
     }
 
@@ -68,7 +69,7 @@ public class CustomUserDetails implements UserDetails, OAuth2User {
         return CustomUserDetails.builder()
                                 .provider(Provider.NAVER)
                                 .email((String) response.get(EMAIL_PATTERN))
-                                .nickname((String) response.get("name"))
+                                .nickname((String) response.get(NICKNAME_PATTERN))
                                 .build();
     }
 
@@ -146,7 +147,7 @@ public class CustomUserDetails implements UserDetails, OAuth2User {
         return Map.of(
                 EMAIL_PATTERN, this.email,
                 "provider", this.provider,
-                "nickname", this.nickname
+                NICKNAME_PATTERN, this.nickname
         );
     }
 
