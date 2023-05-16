@@ -14,6 +14,7 @@ import androidx.compose.material.BottomSheetScaffold
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.rememberBottomSheetScaffoldState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
@@ -71,9 +72,7 @@ fun MainPage(
     }
     LaunchedEffect(Unit) {
         Log.d("LaunchedEffect", "executed $spotId")
-        if (memberViewModel.memberInfo.value == null) {
-            memberViewModel.getMemberInfo(navigateViewModel)
-        }
+        memberViewModel.getMemberInfo(navigateViewModel)
         if (cameraViewModel.imageUrl.value != null) {
             cameraViewModel.clearCameraViewModel(false)
         }
@@ -107,6 +106,11 @@ fun MainPage(
             scaffoldState.bottomSheetState.expand()
         } else {
             scaffoldState.bottomSheetState.collapse()
+        }
+    }
+    DisposableEffect(Unit) {
+        onDispose {
+
         }
     }
     BackHandler(isDrawerOpen.value) {

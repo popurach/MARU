@@ -125,7 +125,8 @@ class MapViewModel @Inject constructor(
     val spotList get() = _spotList
 
     var navController: NavHostController? = null
-    private var visitingLandmarkId: Long? = null
+    private val _visitingLandmarkId = MutableLiveData<Long?>(null)
+    val visitingLandmarkId get() = _visitingLandmarkId
 
     private val searchNearLandmarkListener = OnIndicatorPositionChangedListener { myPos ->
         // 0.1Km == 100m
@@ -141,12 +142,12 @@ class MapViewModel @Inject constructor(
             val landmarkId = jsonObject.get("id")?.asLong
             val distance = getDistance(myPos, landmarkPos!!)
             // 멀어질 때
-            if (visitingLandmarkId == jsonObject.get("id")?.asLong && distance > minDist) {
-                visitingLandmarkId = null
+            if (_visitingLandmarkId.value == jsonObject.get("id")?.asLong && distance > minDist) {
+                _visitingLandmarkId.value = null
             }
             // 랜드마크 범위에 들어갔을 때
-            if (visitingLandmarkId != jsonObject.get("id")?.asLong && distance <= minDist) {
-                visitingLandmarkId = landmarkId
+            if (_visitingLandmarkId.value != jsonObject.get("id")?.asLong && distance <= minDist) {
+                _visitingLandmarkId.value = landmarkId
                 val isVisit = jsonObject.get("isVisit")?.asBoolean!!
                 _bottomSheetOpen.value = true
                 bottomSheetController.navigate(if (isVisit) "landmark/main/$landmarkId" else "landmark/first/$landmarkId")
@@ -232,9 +233,15 @@ class MapViewModel @Inject constructor(
             ceil(mapBoxMap.cameraState.zoom).toInt()
         )
         viewModelScope.launch {
-            val spotList = apiCallback(navController!!) {
-                spotRepository.getSpotMarker(boundingBox, mine, tagId)
+//            val spotList = apiCallback(navController!!) {
+//                spotRepository.getSpotMarker(boundingBox, mine, tagId)
+//            }
+            val spotList = withContext(Dispatchers.IO) {
+                apiCallback(navController!!) {
+                    spotRepository.getSpotMarker(boundingBox, mine, tagId)
+                }
             }
+            Log.d(TAG, "loadSpotPos: ${spotList?.size}")
             spotList?.forEach {
                 addMarker(
                     spotType = when (it.properties.geoType) {
@@ -289,7 +296,6 @@ class MapViewModel @Inject constructor(
             }
             loadMarker()
         }
-
     }
 
     fun createMapView(context: Context, needMarker: Boolean): MapView {
@@ -322,7 +328,7 @@ class MapViewModel @Inject constructor(
                             false
                         )
                     )
-                    .minZoom(10.0)
+                    .minZoom(15.0)
                     .build()
                 mapBoxMap.setBounds(boundsOptions)
 
@@ -413,7 +419,7 @@ class MapViewModel @Inject constructor(
 
     fun unTrackUser() {
         _isTracking.value = false
-        visitingLandmarkId = null
+        _visitingLandmarkId.value = null
         mapView.location.removeOnIndicatorPositionChangedListener(searchNearLandmarkListener)
         mapView.location.updateSettings {
             enabled = false

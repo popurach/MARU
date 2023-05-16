@@ -15,7 +15,6 @@ import com.shoebill.maru.model.repository.MemberRepository
 import com.shoebill.maru.util.PreferenceUtil
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.RequestBody.Companion.toRequestBody
 import java.io.File
@@ -35,13 +34,12 @@ class MemberViewModel @Inject constructor(
 
     val memberInfo: LiveData<Member> get() = _memberInfo
 
-    fun updateMemberInfo(value: Member) {
+    private fun updateMemberInfo(value: Member) {
         _memberInfo.value = value
     }
 
-    fun getPoint(): String {
-        return NumberFormat.getNumberInstance(Locale.US).format(_memberInfo.value?.point ?: 0)
-    }
+    fun getPoint(): String =
+        NumberFormat.getNumberInstance(Locale.US).format(_memberInfo.value?.point ?: 0)
 
     private fun updateNoticeToken() {
         val TAG = "MyFirebaseMessagingService"
@@ -59,33 +57,28 @@ class MemberViewModel @Inject constructor(
             // Get new FCM registration token
             val token = task.result
 
-            runBlocking {
-                launch {
-                    memberRepository.updateNoticeToken(
-                        token.toRequestBody("text/plain".toMediaType())
-                    )
-                }
+            viewModelScope.launch {
+                memberRepository.updateNoticeToken(
+                    token.toRequestBody("text/plain".toMediaType())
+                )
             }
         })
     }
 
     fun getMemberInfo(navigateViewModel: NavigateViewModel) {
-        runBlocking {
-            launch {
-                val response = memberRepository.getMemberInfo()
-                if (response.isSuccessful) {
-                    Log.d("MEMBER", "회원 정보 조회 발생")
-                    updateMemberInfo(response.body()!!)
-                    // notice token update 필요
-                    updateNoticeToken()
-                } else {
-                    Log.d("MEMBER", "회원 정보 조회 실패")
-                    preferenceUtil.clear()
-                    navigateViewModel.navigator?.navigate("login")
-                }
+        viewModelScope.launch {
+            val response = memberRepository.getMemberInfo()
+            if (response.isSuccessful) {
+                Log.d("MEMBER", "회원 정보 조회 발생")
+                updateMemberInfo(response.body()!!)
+                // notice token update 필요
+                updateNoticeToken()
+            } else {
+                Log.d("MEMBER", "회원 정보 조회 실패")
+                preferenceUtil.clear()
+                navigateViewModel.navigator?.navigate("login")
             }
         }
-
     }
 
     fun logout() {
@@ -128,5 +121,4 @@ class MemberViewModel @Inject constructor(
 
         return file
     }
-
 }

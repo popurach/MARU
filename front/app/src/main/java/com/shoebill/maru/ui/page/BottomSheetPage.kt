@@ -39,10 +39,7 @@ fun BottomSheetPage(
 ) {
     bottomSheetNavigatorViewModel.init(navController)
     mapViewModel.initBottomSheetController(navController)
-    val visitingLandmark = mapViewModel.visitingLandmark.observeAsState()
-    val visitingLandmarkId: Long? =
-        visitingLandmark.value?.getData()?.asJsonObject?.get("id")?.asLong
-
+    val visitingLandmarkId = mapViewModel.visitingLandmarkId.observeAsState()
     val arg = "id"
 
     Column(
@@ -99,7 +96,7 @@ fun BottomSheetPage(
                         hasFabCamera = true,
                         landmarkId = landmarkId,
                         backgroundColor = MaruBackground,
-                        cameraEnabled = visitingLandmarkId == landmarkId
+                        cameraEnabled = visitingLandmarkId.value == landmarkId
                     ) {
                         LandmarkFirstVisit(landmarkId)
                     }
@@ -123,7 +120,7 @@ fun BottomSheetPage(
                         hasFabCamera = true,
                         landmarkId = landmarkId,
                         backgroundColor = MaruBackground,
-                        cameraEnabled = landmarkId == visitingLandmarkId
+                        cameraEnabled = visitingLandmarkId.value == landmarkId
                     ) {
                         LandmarkMain(landmarkId = landmarkId)
                     }
@@ -144,7 +141,7 @@ fun BottomSheetPage(
                         hasFabCamera = true,
                         landmarkId = landmarkId,
                         backgroundColor = MaruBackground,
-                        cameraEnabled = landmarkId == visitingLandmarkId
+                        cameraEnabled = visitingLandmarkId.value == landmarkId
                     ) {
                         LandMarkPicture()
                     }
@@ -165,7 +162,7 @@ fun BottomSheetPage(
                         hasFabCamera = true,
                         landmarkId = landmarkId,
                         backgroundColor = MaruBackground,
-                        cameraEnabled = landmarkId == visitingLandmarkId
+                        cameraEnabled = visitingLandmarkId.value == landmarkId
                     ) {
                         LandmarkPictureList(landmarkId = landmarkId)
                     }

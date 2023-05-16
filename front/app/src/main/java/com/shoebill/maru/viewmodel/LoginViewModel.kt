@@ -70,9 +70,9 @@ class LoginViewModel @Inject constructor(
                     // back end 로그인 API 호출부분
                     isSuccess = kakaoApiLogin(token)
                     Log.d(TAG, "kakaoLogin: $isSuccess")
+                    _isLoading.value = false
                     if (isSuccess) {
                         withContext(Dispatchers.Main) {
-                            _isLoading.value = false
                             navigator?.navigate("main/-1") {
                                 popUpTo(0)
                             }
@@ -122,8 +122,8 @@ class LoginViewModel @Inject constructor(
                 val accessToken = NaverIdLoginSDK.getAccessToken()
                 viewModelScope.launch {
                     val isSuccess = naverApiLogin(accessToken)
-                    _isLoading.value = false
                     if (isSuccess) {
+                        _isLoading.value = false
                         navigator.navigate("main/-1") {
                             popUpTo(0)
                         }
