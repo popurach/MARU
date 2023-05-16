@@ -119,12 +119,12 @@ const SPhone = styled.img`
 const AnimatedLottie = styled(Lottie)`
   height: 30.5vh;
   position: absolute;
-  top: 230px;
-  left: 133px;
+  top: 25vh;
+  left: 14.2vh;
   @media screen and (max-width: 468px) {
     height: 25.5vh;
-    top: 150px;
-    left: 86px;
+    top: 21vh;
+    left: 11.6vh;
   }
 `;
 
