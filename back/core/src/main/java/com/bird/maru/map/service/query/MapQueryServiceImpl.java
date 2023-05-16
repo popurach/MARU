@@ -5,9 +5,7 @@ import com.bird.maru.cluster.geo.Marker;
 import com.bird.maru.cluster.geo.SuperClusterParams;
 import com.bird.maru.cluster.util.DistanceMeasure;
 import com.bird.maru.cluster.util.PointConverter;
-import com.bird.maru.domain.model.entity.Spot;
 import com.bird.maru.map.controller.dto.MapCondition;
-import com.bird.maru.spot.mapper.SpotMapper;
 import com.bird.maru.spot.repository.query.SpotCustomQueryRepository;
 import java.util.ArrayList;
 import java.util.List;
@@ -36,12 +34,11 @@ public class MapQueryServiceImpl implements MapQueryService {
      */
     @Override
     public List<Feature> spotsCluster(Long memberId, MapCondition condition) {
-        List<Spot> spots = spotCustomQueryRepository.findMarkerByBoundingBoxWithCondition(condition, memberId);
+        List<Marker> spots = spotCustomQueryRepository.findMarkerByBoundingBoxWithCondition(condition, memberId);
         if (spots.isEmpty()) {
             return new ArrayList<>();
         }
-        List<Marker> markers = SpotMapper.toMarkers(spots);
-        SuperCluster superCluster = new SuperCluster(superClusterParams, markers, pointConverter, distanceMeasure);
+        SuperCluster superCluster = new SuperCluster(superClusterParams, spots, pointConverter, distanceMeasure);
         return superCluster.run(condition.getBoundingBox());
     }
 

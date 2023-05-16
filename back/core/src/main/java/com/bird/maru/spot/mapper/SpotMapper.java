@@ -94,7 +94,6 @@ public final class SpotMapper {
     public static Marker toMarker(Spot spot) {
         return Marker.builder()
                      .id(spot.getId())
-                     .memberId(spot.getMember().getId())
                      .coordinate(spot.getCoordinate())
                      .build();
     }

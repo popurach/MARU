@@ -15,7 +15,6 @@ import lombok.ToString;
 public class Marker {
 
     private Long id;
-    private Long memberId;
     private Coordinate coordinate;
 
 }
