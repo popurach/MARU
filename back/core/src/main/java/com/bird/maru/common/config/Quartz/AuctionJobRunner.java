@@ -1,5 +1,6 @@
 package com.bird.maru.common.config.Quartz;
 
+import lombok.RequiredArgsConstructor;
 import org.quartz.JobDataMap;
 import org.quartz.JobDetail;
 import org.quartz.Scheduler;
@@ -10,10 +11,10 @@ import org.springframework.boot.ApplicationArguments;
 import org.springframework.stereotype.Component;
 
 @Component
+@RequiredArgsConstructor
 public class AuctionJobRunner extends JobRunner {
 
-    @Autowired
-    private Scheduler scheduler;
+    private final Scheduler scheduler;
 
     @Override
     protected void doRun(ApplicationArguments args) {
@@ -31,9 +32,9 @@ public class AuctionJobRunner extends JobRunner {
 
 //        Trigger trigger = buildJobTrigger("0 */1 * ? * *"); // 2분마다 실행
 //        Trigger trigger = buildJobTrigger("0 30 0 ? * MON"); // 매주 월요일 00:30마다 실행
-//        Trigger trigger = buildJobTrigger( "0 6 13 ? * *"); // 5분마다 실행
-//        Trigger auctionAlarmTrigger = buildJobTrigger( "0 4 13 ? * *"); // 매일 23:00에 1시간 뒤 마감 알림
-//        Trigger auctionClosedTrigger = buildJobTrigger( "0 2 13 ? * *"); // 매일 00:00 경매 종료 알림
+//        Trigger trigger = buildJobTrigger( "0 34 17 ? * *"); // 5분마다 실행
+//        Trigger auctionAlarmTrigger = buildJobTrigger( "0 30 17 ? * *"); // 매일 23:00에 1시간 뒤 마감 알림
+//        Trigger auctionClosedTrigger = buildJobTrigger( "0 32 17 ? * *"); // 매일 00:00 경매 종료 알림
 
         try {
             scheduler.scheduleJob(jobDetail, trigger);
