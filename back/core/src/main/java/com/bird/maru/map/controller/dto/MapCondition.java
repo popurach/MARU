@@ -3,6 +3,7 @@ package com.bird.maru.map.controller.dto;
 import com.bird.maru.cluster.geo.BoundingBox;
 import com.bird.maru.domain.model.type.MapFilterType;
 import javax.annotation.Nullable;
+import javax.validation.constraints.Max;
 import javax.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
@@ -24,5 +25,9 @@ public class MapCondition {
     private MapFilterType filter;
     @Nullable
     private Long tagId;
+
+    @NotNull
+    @Max(5000)
+    private Integer size;
 
 }

@@ -10,6 +10,7 @@ import static com.querydsl.core.group.GroupBy.list;
 
 import com.bird.maru.cluster.geo.BoundingBox;
 import com.bird.maru.auction.controller.dto.AuctionSearchCondition;
+import com.bird.maru.cluster.geo.Marker;
 import com.bird.maru.common.util.TimeUtil;
 import com.bird.maru.domain.model.entity.Spot;
 import com.bird.maru.domain.model.entity.Tag;
@@ -133,19 +134,24 @@ public class SpotCustomQueryRepository {
 //                           .fetch();
 //    }
 
-    public List<Spot> findMarkerByBoundingBoxWithCondition(MapCondition condition, Long memberId) {
+    public List<Marker> findMarkerByBoundingBoxWithCondition(MapCondition condition, Long memberId) {
         BoundingBox boundingBox = condition.getBoundingBox();
         MapFilterType filter = condition.getFilter();
         Long tagId = condition.getTagId();
-        return queryFactory.selectDistinct(spot)
+        return queryFactory.select(Projections.fields(Marker.class,
+                                                      spot.id.as("id"),
+                                                      spot.coordinate.as("coordinate")))
+                           .distinct()
                            .from(spot)
-                           .leftJoin(spot.tags, spotHasTag).fetchJoin()
-                           .where(containsLng(boundingBox.getWest(), boundingBox.getEast()),
-                                  containsLat(boundingBox.getSouth(), boundingBox.getNorth()),
+                           .leftJoin(spot.tags, spotHasTag)
+                           .where(isMine(filter, memberId),
                                   spot.deleted.isFalse(),
                                   spot.landmark.id.isNull(),
-                                  isMine(filter, memberId),
-                                  containTagId(condition.getTagId()))
+                                  containTagId(tagId),
+                                  containsLng(boundingBox.getWest(), boundingBox.getEast()),
+                                  containsLat(boundingBox.getSouth(), boundingBox.getNorth()))
+                           .orderBy(spot.id.desc())
+                           .limit(condition.getSize())
                            .fetch();
     }
 
