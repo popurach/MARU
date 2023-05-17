@@ -18,6 +18,7 @@ import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
 import retrofit2.Response
 import java.io.File
+import java.lang.Integer.max
 import javax.inject.Inject
 
 
@@ -69,10 +70,13 @@ class SpotRepository @Inject constructor(
         boundingBox: BoundingBox,
         mine: Boolean,
         tagId: Long? = null
-    ): Response<List<SpotMarker>> =
-        spotApi.getSpotMarker(
-            SpotClusterDTO(boundingBox, filter = if (mine) "mine" else "all", tagId)
+    ): Response<List<SpotMarker>> {
+        val size = max(100, boundingBox.zoom * (-1450) + 24750)
+        return spotApi.getSpotMarker(
+            SpotClusterDTO(boundingBox, filter = if (mine) "mine" else "all", tagId, size)
         )
+    }
+
 
     suspend fun getSpotDetail(spotId: Long): Response<Spot> = spotApi.getSpotDetail(spotId)
 

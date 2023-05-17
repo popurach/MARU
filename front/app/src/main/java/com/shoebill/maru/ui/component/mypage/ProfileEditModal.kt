@@ -179,7 +179,7 @@ fun ProfileEditModal(
                                 memberViewModel.updateMemberProfileToServer(context)
                             }
                             launch(Dispatchers.Main) {
-                                navigateViewModel.navigator?.navigate("main")
+                                navigateViewModel.navigator?.navigate("main/-1")
                             }
                         }
                     })
