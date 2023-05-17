@@ -7,6 +7,7 @@ import com.bird.maru.auctionlog.mapper.AuctionLogMapper;
 import com.bird.maru.auctionlog.service.AuctionLogService;
 import com.bird.maru.auctionlog.service.query.AuctionLogQueryService;
 import com.bird.maru.auth.service.dto.CustomUserDetails;
+import com.bird.maru.common.util.NamedLockExecutor;
 import java.util.List;
 import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -29,6 +30,7 @@ public class AuctionLogController {
 
     private final AuctionLogService auctionLogService;
     private final AuctionLogQueryService auctionLogQueryService;
+    private final NamedLockExecutor namedLockExecutor;
 
     /**
      * 내가 참여한 경매 정보를 조회합니다.
@@ -54,7 +56,11 @@ public class AuctionLogController {
      */
     @PostMapping("/bidding")
     public void auctionsBidding(@AuthenticationPrincipal CustomUserDetails member, @RequestBody AuctionLogRequestDto auctionLogRequestDto) {
-        auctionLogService.auctionsBidding(member.getId(), auctionLogRequestDto.getLandmarkId(), auctionLogRequestDto.getPrice());
+        namedLockExecutor.executeWithLock(
+                "bidding:" + auctionLogRequestDto.getLandmarkId(),
+                5,
+                () -> auctionLogService.auctionsBidding(member.getId(), auctionLogRequestDto.getLandmarkId(), auctionLogRequestDto.getPrice())
+        );
     }
 
     /**
@@ -79,9 +85,10 @@ public class AuctionLogController {
 
     /**
      * @Param id : landmarkId
-     * */
+     */
     @GetMapping("/landmarks/price/{id}")
     public Integer searchLandmarkBestPriceById(@PathVariable Long id) {
         return auctionLogService.auctionBestPrice(id);
     }
+
 }
