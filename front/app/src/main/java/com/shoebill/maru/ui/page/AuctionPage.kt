@@ -98,14 +98,14 @@ fun AuctionPage(
 
     LaunchedEffect(key1 = isConnected.value) {
         if (isConnected.value == false) {
-            auctionViewModel.runStomp(context)
+            auctionViewModel.runStomp(context, navigateViewModel.navigator!!)
         }
     }
 
     DisposableEffect(Unit) {
         auctionViewModel.initLandmarkId(id)
         if (isConnected.value == false) {
-            auctionViewModel.runStomp(context)
+            auctionViewModel.runStomp(context, navigateViewModel.navigator!!)
         }
         onDispose {
             auctionViewModel.viewModelOnCleared()

@@ -1,6 +1,6 @@
 package com.shoebill.maru.ui.component.auction
 
-import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -17,6 +17,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -39,6 +40,7 @@ fun BiddingConfirmModal(
     auctionViewModel: AuctionViewModel = viewModel(),
     onDismissRequest: () -> Unit
 ) {
+    val context = LocalContext.current
     val bid = auctionViewModel.bid.observeAsState()
     val dec = DecimalFormat("#,###")
 
@@ -86,9 +88,10 @@ fun BiddingConfirmModal(
                             if (success) {
                                 onDismissRequest()
                                 memberViewModel.getMemberInfo(navigateViewModel)
-                                navigateViewModel.navigator?.navigateUp()
+//                                navigateViewModel.navigator?.navigateUp()
                             } else {
-                                Log.e("AUCTION", "createBidding fail")
+                                Toast.makeText(context, "입찰에 실패하였습니다", Toast.LENGTH_SHORT).show()
+
                             }
                         }
                     }

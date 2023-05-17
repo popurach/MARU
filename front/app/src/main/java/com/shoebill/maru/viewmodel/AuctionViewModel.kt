@@ -7,12 +7,14 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.navigation.NavHostController
 import com.shoebill.maru.BuildConfig
 import com.shoebill.maru.model.data.AuctionBiddingRequest
 import com.shoebill.maru.model.data.AuctionInfo
 import com.shoebill.maru.model.repository.AuctionRepository
 import com.shoebill.maru.util.PreferenceUtil
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.json.JSONObject
@@ -27,7 +29,7 @@ import kotlin.math.pow
 class AuctionViewModel @Inject constructor(
     private val auctionRepository: AuctionRepository,
 ) : ViewModel() {
-    private val _currentHighestBid = MutableLiveData<Int>(0)
+    private val _currentHighestBid = MutableLiveData(0)
     val currentHighestBid: LiveData<Int> = _currentHighestBid
 
     private val _bid = MutableLiveData<Int>(0)
@@ -54,6 +56,7 @@ class AuctionViewModel @Inject constructor(
         landmarkId = value
         viewModelScope.launch {
             getAuctionInfo(landmarkId)
+            getAuctionHistory(landmarkId)
         }
     }
 
@@ -68,11 +71,10 @@ class AuctionViewModel @Inject constructor(
     private fun getAuctionHistory(landmarkId: Long) {
         viewModelScope.launch {
             try {
-                val result = auctionRepository.getAuctionHistory(landmarkId).toTypedArray()
-                val modifiedList = mutableListOf<Int>()
-                modifiedList.addAll(result)
-                modifiedList.add(_bid.value!!)
-                _auctionHistory.value = modifiedList.toTypedArray()
+                val result = withContext(Dispatchers.IO) {
+                    auctionRepository.getAuctionHistory(landmarkId).toTypedArray()
+                }
+                _auctionHistory.value = result
                 Log.d(
                     "AUCTION",
                     "getAuctionHistory: ${_auctionHistory.value.contentDeepToString()}"
@@ -98,10 +100,9 @@ class AuctionViewModel @Inject constructor(
     fun createBidding(onComplete: (Boolean) -> Unit) {
         val requestBody = AuctionBiddingRequest(landmarkId, _bid.value!!)
         viewModelScope.launch {
-            val success = withContext(viewModelScope.coroutineContext) {
+            val success = withContext(Dispatchers.IO) {
                 auctionRepository.createBidding(requestBody)
             }
-
             onComplete(success)
         }
     }
@@ -118,7 +119,7 @@ class AuctionViewModel @Inject constructor(
     lateinit var stompClient: StompClient
 
     @SuppressLint("CheckResult")
-    fun runStomp(context: Context) {
+    fun runStomp(context: Context, navController: NavHostController) {
         viewModelScope.launch {
             _isConnected.value = true
             val prefUtil = PreferenceUtil(context)
@@ -129,7 +130,6 @@ class AuctionViewModel @Inject constructor(
             headers["Authorization"] = tokenInfo
             stompClient =
                 Stomp.over(Stomp.ConnectionProvider.OKHTTP, BuildConfig.END_POINT_URL, headers)
-
             stompClient.lifecycle().subscribe { lifecycleEvent ->
                 when (lifecycleEvent.type) {
                     LifecycleEvent.Type.OPENED -> {
@@ -150,12 +150,16 @@ class AuctionViewModel @Inject constructor(
 
                     LifecycleEvent.Type.CLOSED -> {
                         Log.i("CLOSED", "!!")
-                        _isConnected.value = false
+                        _isConnected.postValue(false)
                     }
 
                     LifecycleEvent.Type.ERROR -> {
-                        Log.i("ERROR", "!!")
-                        Log.e("CONNECT ERROR", lifecycleEvent.exception.toString())
+                        Log.i("CONNECT ERROR", lifecycleEvent.exception.toString())
+                        stompClient.disconnect()
+                        viewModelScope.launch {
+                            _isConnected.value = false
+                            navController.navigateUp()
+                        }
                     }
 
                     else -> {
@@ -167,23 +171,28 @@ class AuctionViewModel @Inject constructor(
             stompClient.connect()
 
             stompClient.topic("/bidding/price").subscribe({ topicMessage ->
+                Log.d("ReceivedMessage", "ReceivedMessage")
                 val body = JSONObject(topicMessage.payload)
                 val getLandmarkId = body.getLong("landmarkId")
                 val price = body.getInt("price")
                 if (getLandmarkId == landmarkId) {
                     Log.i("Received Message", "price: $price")
                     _currentHighestBid.postValue(price)
+                    val history = _auctionHistory.value?.toMutableList() ?: mutableListOf()
+                    if (history.size > 1) history.removeAt(history.size - 1)
+                    history.add(price)
+                    _auctionHistory.postValue(history.toTypedArray())
                     val divideValue = price.div(10)
                     val stringValue = divideValue.toString()
                     val lengthValue = stringValue.length - 1
                     _unit.postValue(10.0.pow(lengthValue.toDouble()).toInt())
                     _bid.postValue(price.plus(10.0.pow(lengthValue.toDouble()).toInt()))
-                    getAuctionHistory(landmarkId)
                 }
             }, { error ->
                 Log.e("Subscription Error", "Failed to subscribe to topic", error)
             })
         }
+
     }
 
     fun viewModelOnCleared() {
