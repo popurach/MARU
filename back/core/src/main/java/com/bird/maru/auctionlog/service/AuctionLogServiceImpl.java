@@ -113,6 +113,7 @@ public class AuctionLogServiceImpl implements AuctionLogService {
         }
         // websocket 통신
         Bid updateBid = new Bid(price, auction.getLandmark().getId());
+        log.info("websocket 통신 보냄 !!! : {} {}", updateBid.getPrice(), updateBid.getLandmarkId());
         messagingTemplate.convertAndSend("/bidding/price", updateBid);
 
 
