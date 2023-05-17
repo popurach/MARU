@@ -170,6 +170,6 @@ fun LoginPage(
         )
     }
     if (isLoading.value == true) {
-        CustomCircularProgressBar(text = "로그인 중...")
+        CustomCircularProgressBar()
     }
 }

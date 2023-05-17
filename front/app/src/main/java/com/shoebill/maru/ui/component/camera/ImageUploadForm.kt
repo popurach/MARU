@@ -137,7 +137,7 @@ fun ImageUploadForm(
             }
         }
         if (isLoading.value) {
-            CustomCircularProgressBar(text = "등록중...")
+            CustomCircularProgressBar()
         }
         if (isModalOpen.value) {
             if (landmarkId == -1L) {
