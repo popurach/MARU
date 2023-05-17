@@ -45,7 +45,6 @@ public class WebSocketController {
     @MessageMapping("/bid")
     @SendTo("/bidding/price")
     public Bid updateBid(@RequestBody Bid bid) {
-        log.info("websocket 실질적 보냄 !!! : {} {}", bid.getPrice(), bid.getLandmarkId());
         return webSocketService.maxBidPrice(bid.getLandmarkId());
     }
 
