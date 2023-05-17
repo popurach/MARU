@@ -14,8 +14,11 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.Icon
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -50,8 +53,17 @@ fun SpotDetail(
         navigateViewModel.navigator!!
     )
     val spotDetails = spotViewModel.spotDetails.observeAsState()
+    val isMoved = remember { mutableStateOf(false) }
+
+    DisposableEffect(Unit) {
+        onDispose {
+            isMoved.value = false
+        }
+    }
+
     LaunchedEffect(spotDetails.value) {
-        if (spotDetails.value != null) {
+        if (spotDetails.value != null && !isMoved.value) {
+            isMoved.value = true
             delay(1000)
             mapViewModel.moveCamera(
                 spotDetails.value!!.coordinate.lat,
