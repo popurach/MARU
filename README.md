@@ -80,7 +80,7 @@
 
 ---
 
-![maru-architecture](output/시스템_아키텍처/Maru_Architecture.png)
+![maru-architecture](output/시스템_아키텍처/images/Maru_Architecture.png)
 
 ## 기술 스택
 
