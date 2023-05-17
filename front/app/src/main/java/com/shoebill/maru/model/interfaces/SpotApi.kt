@@ -28,7 +28,7 @@ interface SpotApi {
             encoded = true
         ) lastOffset: Long? = null,
         @Query("size") size: Int = 20,
-        @Query("tagId") tagId: Long?
+        @Query("tagId") tagId: Long?,
     ): Response<List<Spot>>
 
     @Multipart

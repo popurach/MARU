@@ -19,6 +19,7 @@ import androidx.compose.material.Icon
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -71,6 +72,12 @@ fun MapboxScreen(
         /** 권한 요청시 거부 했을 경우 **/
         else {
             Toast.makeText(context, "권한이 거부되었습니다.", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    DisposableEffect(Unit) {
+        onDispose {
+            mapViewModel.clear()
         }
     }
 

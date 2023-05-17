@@ -142,11 +142,11 @@ class MapViewModel @Inject constructor(
             val landmarkId = jsonObject.get("id")?.asLong
             val distance = getDistance(myPos, landmarkPos!!)
             // 멀어질 때
-            if (_visitingLandmarkId.value == jsonObject.get("id")?.asLong && distance > minDist) {
+            if (_visitingLandmarkId.value == landmarkId && distance > minDist) {
                 _visitingLandmarkId.value = null
             }
             // 랜드마크 범위에 들어갔을 때
-            if (_visitingLandmarkId.value != jsonObject.get("id")?.asLong && distance <= minDist) {
+            if (_visitingLandmarkId.value != landmarkId && distance <= minDist) {
                 _visitingLandmarkId.value = landmarkId
                 val isVisit = jsonObject.get("isVisit")?.asBoolean!!
                 _bottomSheetOpen.value = true
@@ -285,16 +285,8 @@ class MapViewModel @Inject constructor(
     private fun clusterClicked(point: Point) {
         val curZoomLevel = mapBoxMap.cameraState.zoom
         if (curZoomLevel >= 17.0) return
-        val nextZoomLevel = curZoomLevel + 1.0
-        val cameraOptions = CameraOptions.Builder()
-            .zoom(nextZoomLevel)
-            .center(point)
-            .build()
         viewModelScope.launch {
-            withContext(Dispatchers.Main) {
-                mapBoxMap.flyTo(cameraOptions)
-            }
-            loadMarker()
+            moveCamera(point.latitude(), point.longitude(), false, curZoomLevel + 1)
         }
     }
 
@@ -528,11 +520,16 @@ class MapViewModel @Inject constructor(
         }
     }
 
-    fun moveCamera(lat: Double, lng: Double, setFilterAll: Boolean = true) {
+    fun moveCamera(
+        lat: Double,
+        lng: Double,
+        setFilterAll: Boolean = true,
+        zoomLevel: Double = 17.0
+    ) {
         val point = Point.fromLngLat(lng, lat)
         val cameraOptions = CameraOptions.Builder()
             .center(point)
-            .zoom(max(17.0, mapBoxMap.cameraState.zoom))
+            .zoom(max(zoomLevel, mapBoxMap.cameraState.zoom))
             .build()
         mapBoxMap.flyTo(
             cameraOptions,
@@ -554,7 +551,13 @@ class MapViewModel @Inject constructor(
                 })
             }
         )
+    }
 
+    fun clear() {
+        _isTracking.value = false
+        _visitingLandmarkId.value = null
+        lastRequestPos = Point.fromLngLat(-74.005974, 40.712776)
+        deletePin()
     }
 }
 
