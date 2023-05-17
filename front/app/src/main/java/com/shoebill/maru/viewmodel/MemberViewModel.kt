@@ -12,7 +12,7 @@ import com.google.firebase.messaging.FirebaseMessaging
 import com.shoebill.maru.model.data.Member
 import com.shoebill.maru.model.data.MemberUpdateRequest
 import com.shoebill.maru.model.repository.MemberRepository
-import com.shoebill.maru.util.PreferenceUtil
+import com.shoebill.maru.util.apiCallback
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import okhttp3.MediaType.Companion.toMediaType
@@ -26,7 +26,6 @@ import javax.inject.Inject
 @HiltViewModel
 class MemberViewModel @Inject constructor(
     private val memberRepository: MemberRepository,
-    private val preferenceUtil: PreferenceUtil,
 ) : ViewModel() {
     private val _memberInfo = MutableLiveData<Member>()
     val modifiedNickname = MutableLiveData<String?>()
@@ -67,17 +66,11 @@ class MemberViewModel @Inject constructor(
 
     fun getMemberInfo(navigateViewModel: NavigateViewModel) {
         viewModelScope.launch {
-            val response = memberRepository.getMemberInfo()
-            if (response.isSuccessful) {
-                Log.d("MEMBER", "회원 정보 조회 발생")
-                updateMemberInfo(response.body()!!)
-                // notice token update 필요
-                updateNoticeToken()
-            } else {
-                Log.d("MEMBER", "회원 정보 조회 실패")
-                preferenceUtil.clear()
-                navigateViewModel.navigator?.navigate("login")
+            val memberInfo = apiCallback(navigateViewModel.navigator!!) {
+                memberRepository.getMemberInfo()
             }
+            updateMemberInfo(memberInfo!!)
+            updateNoticeToken()
         }
     }
 
