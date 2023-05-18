@@ -85,7 +85,7 @@ public class SpotController {
             @PathVariable Long spotId
     ) {
         namedLockExecutor.executeWithLock(
-                "spot::" + spotId.toString(),
+                "spot:" + spotId.toString(),
                 5,
                 () -> likeService.toggleLike(member.getId(), spotId)
         );
