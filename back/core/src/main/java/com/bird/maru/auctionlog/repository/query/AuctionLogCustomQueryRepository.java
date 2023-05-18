@@ -65,7 +65,7 @@ public class AuctionLogCustomQueryRepository {
                            .join(auctionLog.auction, auction).on(auctionLog.id.eq(auction.lastLogId))
                            .where(auction.landmark.id.eq(landmarkId),
                                   auction.finished.isTrue())
-                           .orderBy(auction.createdDate.desc())
+                           .orderBy(auctionLog.createdDateTime.asc())
                            .limit(10)
                            .fetch();
     }
@@ -87,7 +87,10 @@ public class AuctionLogCustomQueryRepository {
         return Optional.ofNullable(
                 queryFactory.selectFrom(auctionLog)
                             .join(auctionLog.auction, auction).fetchJoin()
-                            .where(auction.landmark.id.eq(landmarkId))
+                            .where(
+                                    auction.finished.isFalse(),
+                                    auction.landmark.id.eq(landmarkId)
+                            )
                             .orderBy(auctionLog.price.desc())
                             .fetchFirst()
         );
