@@ -52,6 +52,8 @@ class AuctionViewModel @Inject constructor(
     private val _isConnected = MutableLiveData(false)
     val isConnected get() = _isConnected
 
+    private var isPop: Boolean = false
+
     fun initLandmarkId(value: Long) {
         landmarkId = value
         viewModelScope.launch {
@@ -156,9 +158,12 @@ class AuctionViewModel @Inject constructor(
                     LifecycleEvent.Type.ERROR -> {
                         Log.i("CONNECT ERROR", lifecycleEvent.exception.toString())
                         stompClient.disconnect()
-                        viewModelScope.launch {
-                            _isConnected.value = false
-                            navController.navigateUp()
+                        if (!isPop) {
+                            isPop = true
+                            viewModelScope.launch {
+                                _isConnected.value = false
+                                navController.navigateUp()
+                            }
                         }
                     }
 
@@ -200,5 +205,6 @@ class AuctionViewModel @Inject constructor(
         _currentHighestBid.value = 0
         _bid.value = 0
         _unit.value = 0
+        isPop = false
     }
 }
