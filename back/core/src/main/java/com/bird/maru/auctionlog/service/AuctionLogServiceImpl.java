@@ -60,7 +60,7 @@ public class AuctionLogServiceImpl implements AuctionLogService {
         // 1. 현재 auctionLog 입찰 기록이 있는지 확인
         Optional<AuctionLog> auctionLog = auctionLogCustomQueryRepository.findByLandmarkAndMember(member.getId(), landmarkId);
 
-        if (!auctionLog.isPresent()) { // 2-1. auctionLog 값이 없다면 신규 입찰자 - 포인트 넉넉 체크
+        if (auctionLog.isEmpty()) { // 2-1. auctionLog 값이 없다면 신규 입찰자 - 포인트 넉넉 체크
             if (member.getPoint() < price) {
                 throw new NotEnoughMoneyException("포인트가 부족합니다.");
             }
@@ -71,8 +71,10 @@ public class AuctionLogServiceImpl implements AuctionLogService {
         }
 
         if (auction.getLastLogId() != null) { // 기존 최고 입찰 기록 < 입찰가 넘는지 체크
-            AuctionLog prevAuctionLog = auctionLogRepository.findById(auction.getLastLogId())
+            AuctionLog prevAuctionLog = auctionLogRepository.findWithMemberById(auction.getLastLogId())
                                                             .orElseThrow(() -> new ResourceNotFoundException("해당 리소스 존재하지 않습니다."));
+//            AuctionLog prevAuctionLog = auctionLogRepository.findById(auction.getLastLogId())
+//                                                            .orElseThrow(() -> new ResourceNotFoundException("해당 리소스 존재하지 않습니다."));
             int prevCost = prevAuctionLog.getPrice();
             if (price <= prevCost) {
                 throw new NotEnoughMoneyException("입찰 금액이 최고가보다 낮습니다.");
@@ -84,7 +86,7 @@ public class AuctionLogServiceImpl implements AuctionLogService {
         }
 
         // 포인트에 대한 조건은 모두 충족 시
-        if (!auctionLog.isPresent()) { // 신규 입찰자
+        if (auctionLog.isEmpty()) { // 신규 입찰자
             // Member point 깎기
             member.bidPoint(price);
 
