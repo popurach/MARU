@@ -14,7 +14,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.Icon
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
@@ -36,7 +35,6 @@ import com.shoebill.maru.viewmodel.BottomSheetNavigatorViewModel
 import com.shoebill.maru.viewmodel.MapViewModel
 import com.shoebill.maru.viewmodel.NavigateViewModel
 import com.shoebill.maru.viewmodel.SpotViewModel
-import kotlinx.coroutines.delay
 
 @Composable
 fun SpotDetail(
@@ -55,20 +53,14 @@ fun SpotDetail(
     val spotDetails = spotViewModel.spotDetails.observeAsState()
     val isMoved = remember { mutableStateOf(false) }
 
-    DisposableEffect(Unit) {
-        onDispose {
-            isMoved.value = false
-        }
-    }
-
     LaunchedEffect(spotDetails.value) {
         if (spotDetails.value != null && !isMoved.value) {
             isMoved.value = true
-            delay(1000)
             mapViewModel.moveCamera(
                 spotDetails.value!!.coordinate.lat,
                 spotDetails.value!!.coordinate.lng
             )
+            isMoved.value = false
         }
     }
     if (spotDetails.value != null) { // 2. 데이터가 로드 되기전, imageUrl 때문에 에러가 발생하지 않도록하는게 분기처리가 이상함
