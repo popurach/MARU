@@ -68,7 +68,7 @@ fun LandmarkMain(
         ) {
             Box(Modifier.height(267.dp)) {
                 AsyncImage(
-                    model = owner.value!!.profileImageUrl,
+                    model = owner.value?.profileImageUrl ?: "",
                     contentDescription = "occupant profile",
                     contentScale = ContentScale.Crop,
                     modifier = Modifier

@@ -39,7 +39,7 @@ class LandmarkInfoViewModel @Inject constructor(
                 apiCallback(navController) {
                     landmarkRepository.getLandmarkOwner(landmarkId)
                 }
-            }
+            } ?: Owner()
         }
     }
 

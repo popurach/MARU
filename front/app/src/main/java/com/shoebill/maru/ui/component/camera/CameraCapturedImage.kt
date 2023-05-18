@@ -3,7 +3,7 @@ package com.shoebill.maru.ui.component.camera
 import android.graphics.drawable.Drawable
 import android.net.Uri
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.BottomSheetScaffold
 import androidx.compose.material.BottomSheetState
 import androidx.compose.material.BottomSheetValue
@@ -42,9 +42,9 @@ fun CameraCapturedImage(
             sheetContent = {
                 ImageUploadForm(bitmap, landmarkId)
             },
-            sheetGesturesEnabled = false,
+            sheetGesturesEnabled = true,
         ) {
-            Image(bitmap, null, Modifier.fillMaxHeight(), contentScale = ContentScale.Crop)
+            Image(bitmap, null, Modifier.fillMaxSize(), contentScale = ContentScale.FillBounds)
         }
     }
 }
