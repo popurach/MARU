@@ -1,6 +1,5 @@
 package com.shoebill.maru.model.repository
 
-import android.util.Log
 import com.shoebill.maru.model.data.AuctionBiddingRequest
 import com.shoebill.maru.model.data.AuctionInfo
 import com.shoebill.maru.model.interfaces.AuctionApi
@@ -33,14 +32,12 @@ class AuctionRepository @Inject constructor(private val auctionApi: AuctionApi) 
 
     suspend fun createBidding(requestBody: AuctionBiddingRequest): Boolean {
         val response = auctionApi.createBidding(requestBody)
-        Log.d("AUCTION", "createBidding: $response")
         return response.isSuccessful
     }
 
     suspend fun deleteBidding(auctionLogId: Long): Boolean {
         val response = auctionApi.deleteBidding(auctionLogId)
         if (response.isSuccessful) {
-            Log.d("AUCTION", "deleteBidding: $response")
             return response.isSuccessful
         } else {
             throw Exception("deleteBidding fail: ${response.code()}")

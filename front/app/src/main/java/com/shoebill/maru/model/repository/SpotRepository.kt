@@ -1,6 +1,5 @@
 package com.shoebill.maru.model.repository
 
-import android.util.Log
 import androidx.navigation.NavHostController
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
@@ -43,13 +42,10 @@ class SpotRepository @Inject constructor(
             filename = spotImage.name,
             body = spotImage.asRequestBody()
         )
-
-        Log.d("SPOT", "saveSpot: ${spotImage.name}")
-
-        Log.d("SPOT", "${tags!!.size}")
+        
         val tagsList = ArrayList<String>()
-        for (tag in tags) {
-            tagsList.add(tag.name)
+        tags?.forEach {
+            tagsList.add(it.name)
         }
 
         val data = SaveSpot(tags = tagsList, landmarkId = landmarkId)

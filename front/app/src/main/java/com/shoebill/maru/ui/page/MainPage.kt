@@ -2,7 +2,6 @@ package com.shoebill.maru.ui.page
 
 import android.Manifest
 import android.annotation.SuppressLint
-import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -71,7 +70,6 @@ fun MainPage(
         }
     }
     LaunchedEffect(Unit) {
-        Log.d("LaunchedEffect", "executed $spotId")
         memberViewModel.getMemberInfo(navigateViewModel)
         if (cameraViewModel.imageUrl.value != null) {
             cameraViewModel.clearCameraViewModel(false)

@@ -40,15 +40,12 @@ class LoginViewModel @Inject constructor(
         val deferredResponse = withContext(Dispatchers.IO) {
             memberRepository.kakaoNaverLogin("KAKAO ${token.accessToken}")
         }
-        Log.d(TAG, "kakaoApiLogin: ${deferredResponse.isSuccessful}")
         return if (deferredResponse.isSuccessful) {
             val accessToken = deferredResponse.headers()["access-token"]
             val refreshToken = deferredResponse.headers()["refresh-token"]
 
             prefUtil.setString("accessToken", accessToken!!)
-            Log.d("LOGIN", "accessToken -> $accessToken") // backend 테스트 용으로 남겨둠
             prefUtil.setString("refreshToken", refreshToken!!)
-            Log.d("LOGIN", "refreshToken -> $refreshToken")
 
             true
         } else {
@@ -69,7 +66,6 @@ class LoginViewModel @Inject constructor(
                 viewModelScope.launch {
                     // back end 로그인 API 호출부분
                     isSuccess = kakaoApiLogin(token)
-                    Log.d(TAG, "kakaoLogin: $isSuccess")
                     _isLoading.value = false
                     if (isSuccess) {
                         withContext(Dispatchers.Main) {
@@ -160,9 +156,7 @@ class LoginViewModel @Inject constructor(
                 val refreshToken = response.headers()["refresh-token"]
 
                 prefUtil.setString("accessToken", accessToken!!)
-                Log.d("LOGIN", "accessToken -> $accessToken") // backend 테스트 용으로 남겨둠
                 prefUtil.setString("refreshToken", refreshToken!!)
-                Log.d("LOGIN", "refreshToken -> $refreshToken")
 
                 true
             } else {
@@ -200,7 +194,6 @@ class LoginViewModel @Inject constructor(
             }
             val response = deferredResponse.await()
             if (response.isSuccessful) {
-                Log.d("LOGIN", "GOOGLE ACCESS TOKEN : ${response.body()?.accessToken}")
                 val accessToken = response.body()?.accessToken
                 val myResponse = memberRepository.kakaoNaverLogin("GOOGLE $accessToken")
 
@@ -209,14 +202,10 @@ class LoginViewModel @Inject constructor(
                     val backRefreshToken = myResponse.headers()["refresh-token"]
 
                     prefUtil.setString("accessToken", backAccessToken!!)
-                    Log.d("LOGIN", "accessToken -> $backAccessToken") // backend 테스트 용으로 남겨둠
                     prefUtil.setString("refreshToken", backRefreshToken!!)
-                    Log.d("LOGIN", "refreshToken -> $backRefreshToken")
 
                     true
                 } else {
-                    Log.d("LOGIN", "GOOGLE Login FAILED")
-
                     false
                 }
 

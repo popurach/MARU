@@ -5,7 +5,6 @@ import android.content.Context
 import android.location.Location
 import android.media.MediaScannerConnection
 import android.net.Uri
-import android.util.Log
 import android.webkit.MimeTypeMap
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageCapture
@@ -96,9 +95,7 @@ class CameraViewModel @Inject constructor(private val spotRepository: SpotReposi
 
         fusedLocationClient.lastLocation.addOnSuccessListener { location ->
             location.also {
-                Log.d("TEST", "CameraPage: ${_location.value}")
                 setLocation(location)
-                Log.d("TEST", "CameraPage: ${_location.value}")
                 imageCapture.takePicture(context, scope, lensFacing, onImageCaptured, onError)
             }
         }
@@ -111,9 +108,7 @@ class CameraViewModel @Inject constructor(private val spotRepository: SpotReposi
         onImageCaptured: (Uri, Boolean) -> Unit,
         onError: (ImageCaptureException) -> Unit,
     ) {
-        Log.d("TAKEPICTURE", "takePicture: called")
         val outputDirectory = context.getOutputDirectory()
-        Log.d("TAKEPICTURE", "takePicture: ${outputDirectory.absoluteFile}")
         // Create output file to hold the image
         val photoFile = createFile(outputDirectory)
         val outputFileOptions = getOutputFileOptions(lensFacing, photoFile)
@@ -158,10 +153,8 @@ class CameraViewModel @Inject constructor(private val spotRepository: SpotReposi
         val metadata = ImageCapture.Metadata().apply {
             // Mirror image when using the front camera
             isReversedHorizontal = lensFacing == CameraSelector.LENS_FACING_FRONT
-            Log.d("Location", "getOutputFileOptions: ${_location.value}")
             _location.value?.let {
                 this.location = it
-                Log.d("Location", "getOutputFileOptions: ${_location.value} saved")
             }
         }
         // Create output options object which contains file + metadata

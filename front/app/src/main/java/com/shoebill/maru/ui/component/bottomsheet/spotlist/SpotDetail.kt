@@ -80,10 +80,7 @@ fun SpotDetail(
                         modifier = Modifier
                             .size(30.dp)
                             .clickable {
-                                bottomSheetNavigatorViewModel.navController?.navigate("spot/list") {
-                                    launchSingleTop = true
-                                    popUpTo(0)
-                                }
+                                bottomSheetNavigatorViewModel.navController?.navigateUp()
                             }
                     )
                 }

@@ -77,10 +77,6 @@ class AuctionViewModel @Inject constructor(
                     auctionRepository.getAuctionHistory(landmarkId).toTypedArray()
                 }
                 _auctionHistory.value = result
-                Log.d(
-                    "AUCTION",
-                    "getAuctionHistory: ${_auctionHistory.value.contentDeepToString()}"
-                )
             } catch (e: Exception) {
                 Log.e("AUCTION", "Error while getting auction info: $e")
             }
@@ -92,9 +88,8 @@ class AuctionViewModel @Inject constructor(
             try {
                 val result = auctionRepository.getAuctionInfo(landmarkId)
                 _auctionInfo.value = result
-                Log.d("AUCTION", "getAuctionInfo: ${_auctionInfo.value}")
             } catch (e: Exception) {
-                Log.e("AUCTION", "getAuctionInfo fail: $e")
+                Log.d(TAG, "getAuctionInfo: $e")
             }
         }
     }
@@ -176,12 +171,10 @@ class AuctionViewModel @Inject constructor(
             stompClient.connect()
 
             stompClient.topic("/bidding/price").subscribe({ topicMessage ->
-                Log.d("ReceivedMessage", "ReceivedMessage")
                 val body = JSONObject(topicMessage.payload)
                 val getLandmarkId = body.getLong("landmarkId")
                 val price = body.getInt("price")
                 if (getLandmarkId == landmarkId) {
-                    Log.i("Received Message", "price: $price")
                     _currentHighestBid.postValue(price)
                     val history = _auctionHistory.value?.toMutableList() ?: mutableListOf()
                     if (history.size > 1) history.removeAt(history.size - 1)

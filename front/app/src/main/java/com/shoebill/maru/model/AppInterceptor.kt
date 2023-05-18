@@ -1,13 +1,10 @@
 package com.shoebill.maru.model
 
-import android.util.Log
 import com.shoebill.maru.BuildConfig
 import com.shoebill.maru.util.PreferenceUtil
 import okhttp3.Interceptor
 import okhttp3.Response
 import javax.inject.Inject
-
-const val TAG = "INTERCEPTOR"
 
 class AppInterceptor @Inject constructor(
     private val prefUtil: PreferenceUtil,
@@ -20,7 +17,6 @@ class AppInterceptor @Inject constructor(
             val requestWithAccessToken =
                 originRequest.newBuilder().header("Authorization", "Bearer $accessToken")
                     .build()
-            Log.d(TAG, "originRequest: $originRequest")
             val response = chain.proceed(requestWithAccessToken)
 
             // 2. 요청 결과가 401 이라면 refresh token 으로 access token을 재발급 받음

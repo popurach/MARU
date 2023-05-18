@@ -2,10 +2,11 @@ package com.shoebill.maru.ui.page
 
 import android.annotation.SuppressLint
 import android.net.Uri
-import android.util.Log
+import android.util.Size
 import androidx.activity.compose.BackHandler
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageCapture
+import androidx.camera.core.ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY
 import androidx.camera.core.ImageCaptureException
 import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.Composable
@@ -32,7 +33,6 @@ fun CameraPage(
     navigateViewModel: NavigateViewModel = viewModel()
 ) {
     val isCapture = cameraViewModel.isCapture.observeAsState()
-    Log.d("CAMERA", "LandmarkId: $landmarkId")
     BackHandler {
         if (isCapture.value == true) {
             cameraViewModel.clearCameraViewModel(false)
@@ -47,7 +47,10 @@ fun CameraPage(
             val scope = rememberCoroutineScope()
             val lensFacing by remember { mutableStateOf(CameraSelector.LENS_FACING_BACK) }
             val imageCapture: ImageCapture = remember {
-                ImageCapture.Builder().build()
+                ImageCapture.Builder()
+                    .setCaptureMode(CAPTURE_MODE_MINIMIZE_LATENCY)
+                    .setTargetResolution(Size(720, 1600))
+                    .build()
             }
             CameraPreview(
                 imageCapture,

@@ -1,6 +1,5 @@
 package com.shoebill.maru.ui.component.common
 
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
@@ -36,7 +35,6 @@ fun GradientButton(
         enabled = enabled,
         shape = RoundedCornerShape(10.dp)
     ) {
-        Log.d("TEST", "GradientButton: $enabled")
         Box(
             modifier = Modifier
                 .background(gradient)

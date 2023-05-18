@@ -95,10 +95,8 @@ class MemberViewModel @Inject constructor(
             )
 
             if (response.isSuccessful) {
-                Log.d("TEST", "updateMemberProfileToServer: 회원정보 업데이트 완료")
                 response.body()?.let { updateMemberInfo(it) }
             } else {
-                Log.d("TEST", "updateMemberProfileToServer: 회원정보 업데이트 실패")
             }
         }
     }

@@ -1,7 +1,6 @@
 package com.shoebill.maru.viewmodel
 
 import android.content.Context
-import android.util.Log
 import android.widget.Toast
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -29,7 +28,6 @@ class LandmarkInfoViewModel @Inject constructor(
     var landmarkId: Long? = null
 
     fun initLandmarkInfo(landmarkId: Long, navController: NavHostController) {
-        Log.d(TAG, "initLandmarkInfo: $landmarkId")
         this.landmarkId = landmarkId
         loadLandmarkName(landmarkId, navController)
         loadOwnerInfo(landmarkId, navController)
@@ -57,7 +55,6 @@ class LandmarkInfoViewModel @Inject constructor(
 
     suspend fun visitLandmark(context: Context, navController: NavHostController) {
         val point = withContext(Dispatchers.IO) {
-            Log.d(TAG, "landmarkId: $landmarkId")
             apiCallback(navController) {
                 landmarkRepository.visitLandmark(landmarkId!!)
             }

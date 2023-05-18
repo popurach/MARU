@@ -1,6 +1,5 @@
 package com.shoebill.maru.viewmodel
 
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -27,7 +26,6 @@ class SpotViewModel @Inject constructor(
     }
 
     fun loadSpotDetailById(spotId: Long, navController: NavHostController) {
-        Log.d(TAG, "loadSpotDetailById: isLoad")
         viewModelScope.launch {
             val mySpot = apiCallback(navController) {
                 spotRepository.getSpotDetail(spotId)
@@ -45,12 +43,7 @@ class SpotViewModel @Inject constructor(
             _spotDetails.value?.toggleLikeState()
 
             if (result != null) {
-                Log.d("SPOT", "toggleLike: 좋아요 토글 성공")
-                Log.d("SPOT", "toggleLike: ${_spotDetails.value?.liked}")
                 loadSpotDetailById(spotId, navController)
-                Log.d("SPOT", "toggleLike: ${_spotDetails.value?.liked}")
-            } else {
-                Log.d("SPOT", "toggleLike: 좋아요 토글 실패")
             }
         }
     }
@@ -64,12 +57,7 @@ class SpotViewModel @Inject constructor(
             _spotDetails.value?.toggleScrapState()
 
             if (result != null) {
-                Log.d("SPOT", "toggleScrap: 스크램 토글 성공")
-                Log.d("SPOT", "toggleScrap: ${_spotDetails.value?.scraped}")
                 loadSpotDetailById(spotId, navController)
-                Log.d("SPOT", "toggleScrap: ${_spotDetails.value?.scraped}")
-            } else {
-                Log.d("SPOT", "toggleScrap: 스크램 토글 실패")
             }
         }
     }

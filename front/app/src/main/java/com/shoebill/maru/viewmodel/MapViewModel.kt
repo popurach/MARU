@@ -6,7 +6,6 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
-import android.util.Log
 import androidx.appcompat.content.res.AppCompatResources.getDrawable
 import androidx.compose.ui.focus.FocusManager
 import androidx.lifecycle.MutableLiveData
@@ -223,7 +222,6 @@ class MapViewModel @Inject constructor(
     }
 
     private fun loadSpotPos(mine: Boolean = false) {
-        Log.d(TAG, "loadSpotPos: ${_filterState.value}")
         val projection = getProjection()
         val boundingBox = BoundingBox(
             projection.west(),
@@ -233,15 +231,11 @@ class MapViewModel @Inject constructor(
             ceil(mapBoxMap.cameraState.zoom).toInt()
         )
         viewModelScope.launch {
-//            val spotList = apiCallback(navController!!) {
-//                spotRepository.getSpotMarker(boundingBox, mine, tagId)
-//            }
             val spotList = withContext(Dispatchers.IO) {
                 apiCallback(navController!!) {
                     spotRepository.getSpotMarker(boundingBox, mine, tagId)
                 }
             }
-            Log.d(TAG, "loadSpotPos: ${spotList?.size}")
             val spotAnnotationList = spotList?.map {
                 addMarker(
                     spotType = when (it.properties.geoType) {
@@ -265,7 +259,7 @@ class MapViewModel @Inject constructor(
                     id = it.properties.id
                 )
             }
-            pointAnnotationManager.create(spotAnnotationList!!)
+            if (spotAnnotationList != null) pointAnnotationManager.create(spotAnnotationList)
         }
     }
 
@@ -428,7 +422,6 @@ class MapViewModel @Inject constructor(
     }
 
     private fun loadLandmarkPos() {
-        Log.d(TAG, "filterState: ${_filterState.value}")
         val projection = getProjection()
 
         viewModelScope.launch {
@@ -541,7 +534,6 @@ class MapViewModel @Inject constructor(
                     }
 
                     override fun onAnimationEnd(animation: Animator) {
-//                        if (setFilterAll) updateFilterState(ALL)
                         loadMarker()
                     }
 

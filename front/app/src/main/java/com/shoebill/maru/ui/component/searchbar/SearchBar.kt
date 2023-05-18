@@ -103,6 +103,7 @@ fun SearchBar(
                         } else {
                             // 추천 목록 싹 제거하기
                             searchBarViewModel.resetRecommendList()
+                            mapViewModel.updateTagId(null)
                         }
                     },
                     keyboardActions = KeyboardActions(

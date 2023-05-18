@@ -1,6 +1,5 @@
 package com.shoebill.maru.ui.component.bottomsheet.landmark
 
-import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
@@ -18,7 +17,6 @@ fun LandMarkPicture(
     bottomSheetNavigatorViewModel: BottomSheetNavigatorViewModel = hiltViewModel()
 ) {
     val owner = landmarkInfoViewModel.owner.observeAsState()
-    Log.d("LANDMARK OWNER", owner.value?.spotImageUrl ?: "")
     AsyncImage(
         model = owner.value!!.spotImageUrl,
         contentDescription = "occupant image",

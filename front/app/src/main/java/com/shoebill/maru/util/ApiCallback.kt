@@ -1,6 +1,5 @@
 package com.shoebill.maru.util
 
-import android.util.Log
 import androidx.navigation.NavHostController
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -11,7 +10,6 @@ suspend fun <T> apiCallback(
     activeFunction: suspend () -> Response<T>
 ): T? {
     val response = activeFunction()
-    Log.d("apiCallback", "response code: ${response.code()} $activeFunction")
     if (response.isSuccessful) {
         return response.body()
     } else if (response.code() == 401) {

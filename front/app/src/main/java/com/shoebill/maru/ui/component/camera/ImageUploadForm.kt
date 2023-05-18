@@ -1,6 +1,5 @@
 package com.shoebill.maru.ui.component.camera
 
-import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -129,7 +128,6 @@ fun ImageUploadForm(
                             } else {
                                 isModalOpen.value = true
                             }
-                            Log.d("SAVE-SPOT", "add spot: $spotId")
                             isLoading.value = false
                         }
                     }
