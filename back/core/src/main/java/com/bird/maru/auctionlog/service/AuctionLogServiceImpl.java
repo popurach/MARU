@@ -220,7 +220,6 @@ public class AuctionLogServiceImpl implements AuctionLogService {
         return 10000;
     }
 
-
     private AuctionLog createAuctionLog(Auction auction, Member member, int price) {
         return AuctionLog.builder()
                          .auction(auction)
