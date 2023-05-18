@@ -242,7 +242,7 @@ class MapViewModel @Inject constructor(
                 }
             }
             Log.d(TAG, "loadSpotPos: ${spotList?.size}")
-            spotList?.forEach {
+            val spotAnnotationList = spotList?.map {
                 addMarker(
                     spotType = when (it.properties.geoType) {
                         "POINT" -> SpotType.SPOT
@@ -265,6 +265,7 @@ class MapViewModel @Inject constructor(
                     id = it.properties.id
                 )
             }
+            pointAnnotationManager.create(spotAnnotationList!!)
         }
     }
 
@@ -320,7 +321,7 @@ class MapViewModel @Inject constructor(
                             false
                         )
                     )
-                    .minZoom(15.0)
+                    .minZoom(10.0)
                     .build()
                 mapBoxMap.setBounds(boundsOptions)
 
@@ -444,9 +445,10 @@ class MapViewModel @Inject constructor(
                 }
             // 리스트가 null이면 종료 아니면 리스트 추가
             withContext(Dispatchers.Main) {
-                listOfLandmark?.forEach { landmark ->
+                val landmarkList = listOfLandmark?.map { landmark ->
                     addMarker(SpotType.LANDMARK, landmark.coordinate, landmark.visited, landmark.id)
                 }
+                pointAnnotationManager.create(landmarkList!!)
                 lastRequestPos = mapBoxMap.cameraState.center
             }
         }
@@ -474,7 +476,7 @@ class MapViewModel @Inject constructor(
         coordinate: Coordinate,
         isVisit: Boolean? = null,
         id: Long?
-    ) {
+    ): PointAnnotationOptions {
         val iconImage = when (spotType) {
             0 -> landmarkImage
             1 -> spotImage
@@ -494,7 +496,8 @@ class MapViewModel @Inject constructor(
             )
         if (spotType == SpotType.LANDMARK) landmarkAnnotations.add(pointAnnotationOptions)
         else spotAnnotations.add(pointAnnotationOptions)
-        pointAnnotationManager.create(pointAnnotationOptions)
+//        pointAnnotationManager.create(pointAnnotationOptions)
+        return pointAnnotationOptions
     }
 
     private fun deletePin() {

@@ -71,7 +71,7 @@ class SpotRepository @Inject constructor(
         mine: Boolean,
         tagId: Long? = null
     ): Response<List<SpotMarker>> {
-        val size = max(100, boundingBox.zoom * (-1450) + 24750)
+        val size = max(100, (boundingBox.zoom * (-500) + 8000))
         return spotApi.getSpotMarker(
             SpotClusterDTO(boundingBox, filter = if (mine) "mine" else "all", tagId, size)
         )
