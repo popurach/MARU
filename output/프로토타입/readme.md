@@ -1,4 +1,4 @@
-# 프로토타입
+# :star2: 프로토타입
 
 [링크](https://www.figma.com/file/lBQkQRb36ApsQHxldCXUnF/%ED%94%84%EB%A1%9C%ED%86%A0%ED%83%80%EC%9E%85?type=design&node-id=0%3A1&t=BM79f9EvGoIUFYwU-1)
 
