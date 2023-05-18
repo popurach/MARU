@@ -287,7 +287,7 @@ class MapViewModel @Inject constructor(
         val curZoomLevel = mapBoxMap.cameraState.zoom
         if (curZoomLevel >= 17.0) return
         viewModelScope.launch {
-            moveCamera(point.latitude(), point.longitude(), false, curZoomLevel + 1)
+            moveCamera(point.latitude(), point.longitude(), curZoomLevel + 1)
         }
     }
 
@@ -526,7 +526,6 @@ class MapViewModel @Inject constructor(
     fun moveCamera(
         lat: Double,
         lng: Double,
-        setFilterAll: Boolean = true,
         zoomLevel: Double = 17.0
     ) {
         val point = Point.fromLngLat(lng, lat)
@@ -542,7 +541,7 @@ class MapViewModel @Inject constructor(
                     }
 
                     override fun onAnimationEnd(animation: Animator) {
-                        if (setFilterAll) updateFilterState(ALL)
+//                        if (setFilterAll) updateFilterState(ALL)
                         loadMarker()
                     }
 
