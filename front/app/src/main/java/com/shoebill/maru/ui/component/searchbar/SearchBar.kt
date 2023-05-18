@@ -102,7 +102,7 @@ fun SearchBar(
                             }
                         } else {
                             // 추천 목록 싹 제거하기
-                            searchBarViewModel.resetRecommendPlacesByKeyword()
+                            searchBarViewModel.resetRecommendList()
                         }
                     },
                     keyboardActions = KeyboardActions(

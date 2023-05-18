@@ -57,7 +57,7 @@ class SearchBarViewModel @Inject constructor(
         }
     }
 
-    fun resetRecommendPlacesByKeyword() {
+    private fun resetRecommendPlacesByKeyword() {
         _recommendedPlaces.value = mutableListOf()
     }
 
@@ -70,5 +70,14 @@ class SearchBarViewModel @Inject constructor(
             }
             _recommendedTags.value = tagList ?: listOf()
         }
+    }
+
+    private fun resetTags() {
+        _recommendedTags.value = listOf()
+    }
+
+    fun resetRecommendList() {
+        resetRecommendPlacesByKeyword()
+        resetTags()
     }
 }
