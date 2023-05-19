@@ -1,0 +1,122 @@
+node {
+    // maru-core는 jenkins pipeline name
+    def srcPath = "/var/jenkins_home/workspace/${env.JOB_NAME}"
+    def backSrcPath = "/back/core"
+    def deployPath = "/app/data/spring/deploy"
+    def back02
+    def greenPath
+
+    stage('Git Clone') {
+        echo "GitLab master 브랜치 Clone 중..."
+        git branch: 'develop', credentialsId: 'account', url: 'https://lab.ssafy.com/s08-final/S08P31A403.git'
+    }
+
+    stage('Copy Setting Files For Build') {
+        print("yml, json 등의 설정 파일을 git에서 받아온 소스 코드에 복사")
+        sh """
+            rm -rf ${srcPath}/${backSrcPath}/conf
+            mkdir -p ${srcPath}/${backSrcPath}/conf
+            cp -rp /app/data/spring/conf/* ${srcPath}/${backSrcPath}/conf
+        """
+    }
+
+    stage('Find Deployed File') {
+        back02 = sh(
+                script: "docker-compose -f ${deployPath}/back-02/docker-compose.yml ps -q | wc -l",
+                returnStdout: true
+        ).trim().toInteger()
+    }
+
+    stage('Build Spring Server Image') {
+        def greenImage = isBlue(back02) ? 'maru/back:1' : 'maru/back:2'
+        sh "docker build -t ${greenImage} ${srcPath}/${backSrcPath}"
+    }
+
+    stage('Run Spring Server Container') {
+        greenPath = isBlue(back02) ? 'back-01' : 'back-02'
+        sh "docker-compose -f ${deployPath}/${greenPath}/docker-compose.yml up -d"
+    }
+
+    stage("Check Health of New Spring Containers") {
+        def greenCnt = sh(
+                script: "docker-compose -f ${deployPath}/${greenPath}/docker-compose.yml ps -q | wc -l",
+                returnStdout: true
+        ).trim().toInteger()
+
+        if (!isHealthy("${deployPath}/${greenPath}", greenCnt)) {
+            sh "docker-compose -f ${deployPath}/${greenPath}/docker-compose.yml down"
+            error('Spring Server의 Health Check 결과가 Unhealthy이므로 Pipeline을 종료합니다.')
+        }
+    }
+
+    stage('Reload Nginx') {
+        def upstream
+
+        // upstream 전환 (이 부분을 동적으로 생성하면 더 좋은 코드가 될 수 있음)
+        if (isBlue(back02)) {
+            upstream = "echo \"upstream springs { server localhost:8080; server localhost:8081; }\" > /etc/nginx/conf.d/upstream.conf"
+        } else {
+            upstream = "echo \"upstream springs { server localhost:8082; server localhost:8083; }\" > /etc/nginx/conf.d/upstream.conf"
+        }
+
+        sh """
+          docker exec nginx sh -c '${upstream}'
+          docker exec nginx \
+            nginx -s reload
+        """
+    }
+
+    stage('Remove Existing Spring Server Container And Image') {
+        def bluePath = isBlue(back02) ? 'back-02' : 'back-01'
+
+        // 기존의 컨테이너 개수 파악
+        def blueCnt = sh(
+                script: "docker-compose -f ${deployPath}/${bluePath}/docker-compose.yml ps -q | wc -l",
+                returnStdout: true
+        ).trim().toInteger()
+
+        if (blueCnt > 0) {
+            print("Blue Container 제거")
+            sh "docker-compose -f ${deployPath}/${bluePath}/docker-compose.yml down"
+        } else {
+            print("기존의 Spring Server Container가 존재하지 않습니다.")
+        }
+
+        sh '''
+          echo "사용하지 않는 컨테이너 삭제"
+          docker container prune -f
+            
+          echo "사용하지 않는 이미지 삭제"
+          docker image prune -a -f
+          
+          echo "사용하지 않는 네트워크 삭제"
+          docker network prune -f
+        '''
+    }
+}
+
+private boolean isBlue(deployedCount) {
+    return deployedCount > 0;
+}
+
+private boolean isHealthy(dir, containerCnt) {
+    for (int i = 0; i < 10; i++) {
+        def healthyCnt = sh(
+                script: "docker-compose -f ${dir}/docker-compose.yml ps | grep healthy | wc -l",
+                returnStdout: true
+        ).trim().toInteger()
+
+        def unhealthyCnt = sh(
+                script: "docker-compose -f ${dir}/docker-compose.yml ps | grep unhealthy | wc -l",
+                returnStdout: true
+        ).trim().toInteger()
+
+        if (containerCnt == healthyCnt - unhealthyCnt) {
+            return true
+        }
+
+        sleep 5
+    }
+
+    return false
+}

@@ -1,0 +1,62 @@
+{
+  "settings": {
+    "index": {
+      "analysis": {
+        "analyzer": {
+          "custom_analyzer": {
+            "tokenizer": "my_nori_tokenizer",
+            "filter": [
+              "lowercase",
+              "my_english_stemmer",
+              "nori_pos_filter",
+              "edge_ngram_filter_front",
+              "trim"
+            ]
+          }
+        },
+        "tokenizer": {
+          "my_nori_tokenizer": {
+            "type": "nori_tokenizer",
+            "decompound_mode": "mixed",
+            "discard_punctuation": "false"
+          }
+        },
+        "filter": {
+          "my_english_stemmer": {
+            "type": "stemmer",
+            "name": "english"
+          },
+          "nori_pos_filter": {
+            "type": "nori_part_of_speech",
+            "stoptags": [
+              "E",
+              "IC",
+              "J",
+              "MM",
+              "NA",
+              "NR",
+              "SE",
+              "SF",
+              "SN",
+              "SP",
+              "SY",
+              "VCN",
+              "VCP",
+              "VV",
+              "VX",
+              "XSA",
+              "XSN",
+              "XSV"
+            ]
+          },
+          "edge_ngram_filter_front": {
+            "type": "edge_ngram",
+            "min_gram": "1",
+            "max_gram": "5",
+            "side": "front"
+          }
+        }
+      }
+    }
+  }
+}

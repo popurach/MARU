@@ -1,0 +1,24 @@
+spring:
+  profiles:
+    active: local
+    group:
+      local:
+        - s3-local
+        - db-dev
+        - global-dev
+        - security-local
+      dev:
+        - s3-server
+        - db-dev
+        - global-dev
+        - security-server
+      prod:
+        - s3-server
+        - db-prod
+        - global-prod
+        - security-server
+    include:
+      - s3
+      - db
+      - global
+      - security

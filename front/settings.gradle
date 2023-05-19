@@ -5,12 +5,31 @@ pluginManagement {
         gradlePluginPortal()
     }
 }
+
+def localPropertiesFile = new File(rootDir, "local.properties")
+def properties = new Properties()
+localPropertiesFile.withInputStream { input ->
+    properties.load(input)
+}
+
 dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
     repositories {
         google()
         mavenCentral()
+        maven {
+            url 'https://api.mapbox.com/downloads/v2/releases/maven'
+            authentication {
+                basic(BasicAuthentication)
+            }
+            credentials {
+                username = "mapbox"
+                password = "${properties.getProperty("MAPBOX_DOWNLOADS_TOKEN")}"
+            }
+        }
+        maven { url 'https://devrepo.kakao.com/nexus/content/groups/public/' }
     }
 }
+
 rootProject.name = "Maru"
 include ':app'

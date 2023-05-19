@@ -1,0 +1,14 @@
+spring:
+  profiles:
+    active: test
+    group:
+      test:
+        - s3-local
+        - db-test
+        - global-dev
+        - security-local
+    include:
+      - s3
+      - db
+      - global
+      - security

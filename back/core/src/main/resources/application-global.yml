@@ -1,0 +1,83 @@
+server:
+  port: 8080
+
+spring:
+  servlet:
+    multipart:
+      max-file-size: 50MB # 요청한 파일 한 개의 최대 크기
+      max-request-size: 50MB # 요청한 파일 전체의 최대 크기
+
+  batch:
+    job:
+      names: ${job.name:NONE}
+      enabled: false # batch 자동 실행 막음
+    jdbc:
+      initialize-schema: always
+
+  quartz:
+    job-store-type: jdbc
+    jdbc:
+      initialize-schema: always
+#    properties:
+#      org:
+#        quartz:
+#          scheduler:
+#            instanceId: AUTO
+#          jobStore:
+#            class: org.quartz.impl.jdbcjobstore.JobStoreTX
+#            driverDelegateClass: org.quartz.impl.jdbcjobstore.StdJDBCDelegate
+#            useProperties: false
+#            tablePrefix: QRTZ_
+#            misfireThreshold: 60000
+#            clusterCheckinInterval: 5000
+#            isClustered: true
+#          threadPool:
+#            class: org.quartz.simpl.SimpleThreadPool
+#            threadCount: 10
+#            threadPriority: 5
+#            threadsInheritContextClassLoaderOfInitializingThread: true
+
+# Server Health Check
+management:
+  endpoints:
+    web:
+      base-path: /api
+      path-mapping:
+        health: health
+  endpoint:
+    health:
+      show-details: never
+
+# 클러스터링 환경 변수 설정
+cluster:
+  initZoom: 24
+  maxZoom: 16
+  minZoom: 0
+  nodeSize: 64
+  radius: 100
+  extent: 512
+  crs: MERCATOR
+
+--- #local, dev
+spring:
+  config:
+    activate:
+      on-profile: global-dev
+  devtools:
+    livereload:
+      enabled: true
+
+logging:
+  level:
+    com: debug
+    org.hibernate.type: off # 바인딩 할 값을 찍는 로그
+
+--- #prod
+spring:
+  config:
+    activate:
+      on-profile: global-prod
+
+logging:
+  level:
+    com: info
