@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -33,7 +34,8 @@ fun MyPage(
             painter = painterResource(R.drawable.arrow_back),
             contentDescription = null,
             modifier = Modifier
-                .padding(horizontal = 15.dp, vertical = 40.dp)
+                .padding(horizontal = 16.dp, vertical = 60.dp)
+                .size(30.dp)
                 .clickable { navigateViewModel.navigator?.navigateUp() }
         )
 
@@ -41,7 +43,7 @@ fun MyPage(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(top = 40.dp, bottom = 0.dp),
+                .padding(top = 40.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             MyPageMemberInfo()

@@ -179,7 +179,7 @@ fun ProfileEditModal(
                                 memberViewModel.updateMemberProfileToServer(context)
                             }
                             launch(Dispatchers.Main) {
-                                navigateViewModel.navigator?.navigate("main")
+                                navigateViewModel.navigator?.navigate("main/-1")
                             }
                         }
                     })
@@ -190,7 +190,7 @@ fun ProfileEditModal(
 
 @Composable
 fun LocalTextField(memberViewModel: MemberViewModel = hiltViewModel()) {
-    val nickname = remember { mutableStateOf("") }
+    val nickname = remember { mutableStateOf(memberViewModel.memberInfo.value!!.nickname) }
 
     TextField(
         value = nickname.value,

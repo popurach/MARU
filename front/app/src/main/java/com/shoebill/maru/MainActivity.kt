@@ -2,18 +2,20 @@ package com.shoebill.maru
 
 import android.content.IntentFilter
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
+import androidx.compose.material.ripple.LocalRippleTheme
+import androidx.compose.material.ripple.RippleAlpha
+import androidx.compose.material.ripple.RippleTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.view.WindowCompat
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -21,9 +23,11 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.shoebill.maru.ui.page.AuctionPage
 import com.shoebill.maru.ui.page.CameraPage
 import com.shoebill.maru.ui.page.LoginPage
@@ -33,7 +37,6 @@ import com.shoebill.maru.ui.page.NoticePage
 import com.shoebill.maru.ui.theme.MaruTheme
 import com.shoebill.maru.util.FcmMessageReceiver
 import com.shoebill.maru.util.PreferenceUtil
-import com.shoebill.maru.viewmodel.CameraViewModel
 import com.shoebill.maru.viewmodel.MapViewModel
 import com.shoebill.maru.viewmodel.NavigateViewModel
 import com.shoebill.maru.viewmodel.NoticeViewModel
@@ -70,17 +73,27 @@ class MainActivity : ComponentActivity() {
                         .padding(bottom = 45.dp),
                     color = MaterialTheme.colors.background
                 ) {
-                    MyApp(startDestination = if (prefUtil.isLogin()) "main" else "login")
+                    CompositionLocalProvider(LocalRippleTheme provides NoRippleTheme) {
+                        MyApp(startDestination = if (prefUtil.isLogin()) "main/{id}" else "login")
+                    }
                 }
             }
         }
+    }
+
+    private object NoRippleTheme : RippleTheme {
+        @Composable
+        override fun defaultColor() = Color.Unspecified
+
+        @Composable
+        override fun rippleAlpha(): RippleAlpha = RippleAlpha(0.0f, 0.0f, 0.0f, 0.0f)
     }
 }
 
 @Composable
 fun MyApp(
     navController: NavHostController = rememberNavController(),
-    startDestination: String = "main",
+    startDestination: String,
 ) {
     val viewModelStoreOwner = checkNotNull(LocalViewModelStoreOwner.current) {
         "No ViewModelStoreOwner was provided via LocalViewModelStoreOwner"
@@ -89,14 +102,20 @@ fun MyApp(
     navigateViewModel.init(navController)
 
     NavHost(
-        navController = navigateViewModel.navigator!!,
+        navController = navController,
         startDestination = startDestination
     ) {
-        composable("main") { backStackEntry ->
+        composable(
+            "main/{id}",
+            arguments = listOf(navArgument("id") {
+                type = NavType.LongType
+                defaultValue = -1L
+            })
+        ) {
             CompositionLocalProvider(LocalViewModelStoreOwner provides viewModelStoreOwner) {
                 val viewModel = hiltViewModel<MapViewModel>()
                 viewModel.initFocusManager(LocalFocusManager.current)
-                MainPage(mapViewModel = viewModel)
+                MainPage(mapViewModel = viewModel, spotId = it.arguments!!.getLong("id"))
             }
         }
         /** 이곳에 화면 추가 **/
@@ -113,22 +132,31 @@ fun MyApp(
             }
         }
 
-        composable("auction") {
+        composable(
+            "auction/{id}",
+            arguments = listOf(navArgument("id") {
+                type = NavType.LongType
+                defaultValue = 0L
+            })
+        ) {
             CompositionLocalProvider(LocalViewModelStoreOwner provides viewModelStoreOwner) {
-                AuctionPage()
+                AuctionPage(id = it.arguments?.getLong("id")!!)
             }
         }
 
-        composable("camera") { backStackEntry ->
-            val cameraViewModel: CameraViewModel = hiltViewModel()
+        composable(
+            "camera/{id}",
+            arguments = listOf(navArgument("id") {
+                type = NavType.LongType
+                defaultValue = -1L
+            })
+        ) {
             CompositionLocalProvider(LocalViewModelStoreOwner provides viewModelStoreOwner) {
-                CameraPage(onImageCaptured = { uri, fromGallery ->
-                    Log.d("CAMERA", "Image Uri Captured from Camera View")
-                    //Todo : use the uri as needed
-
-                }, onError = { imageCaptureException ->
-                    Log.d("CAMERA", "Image Capture Fail: $imageCaptureException ")
-                })
+                CameraPage(landmarkId = it.arguments!!.getLong("id"),
+                    onImageCaptured = { _, _ ->
+                    }, onError = {
+                    }
+                )
             }
         }
 
@@ -140,10 +168,10 @@ fun MyApp(
     }
 }
 
-@Preview(showBackground = true)
-@Composable
-fun DefaultPreview() {
-    MaruTheme {
-        MyApp()
-    }
-}
+//@Preview(showBackground = true)
+//@Composable
+//fun DefaultPreview() {
+//    MaruTheme {
+//        MyApp()
+//    }
+//}

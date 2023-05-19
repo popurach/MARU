@@ -1,24 +1,29 @@
 package com.shoebill.maru.viewmodel
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.paging.Pager
+import androidx.paging.PagingConfig
+import androidx.paging.PagingData
+import com.shoebill.maru.model.data.landmark.SpotImage
+import com.shoebill.maru.model.repository.LandmarkRepository
+import com.shoebill.maru.model.source.LandmarkImageSource
+import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.Flow
+import javax.inject.Inject
 
-class LandmarkPictureListViewModel() : ViewModel() {
-    private val _listData = mutableListOf<String>()
-    private val _pictureList = MutableLiveData<List<String>>()
-    val pictureList: LiveData<List<String>> get() = _pictureList
+@HiltViewModel
+class LandmarkPictureListViewModel @Inject constructor(
+    private val landmarkRepository: LandmarkRepository
+) : ViewModel() {
+    private var landmarkId: Long = 0
 
-    init {
-        _pictureList.value = _listData
-        for (i in 10..1000) {
-            addPicture(i)
-        }
+    fun initLandmarkId(value: Long) {
+        landmarkId = value
     }
 
-    fun addPicture(num: Int) {
-        _listData.add("https://picsum.photos/id/$num/200/300")
-        _pictureList.value = _listData
+    fun getLandmarkPicturePagination(): Flow<PagingData<SpotImage>> {
+        return Pager(PagingConfig(pageSize = 20)) {
+            LandmarkImageSource(landmarkRepository, landmarkId)
+        }.flow
     }
-
 }

@@ -1,5 +1,6 @@
 package com.shoebill.maru.ui.component.camera
 
+import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -17,30 +18,42 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.shoebill.maru.ui.component.bottomsheet.BottomSheetIndicator
 import com.shoebill.maru.ui.component.common.Chip
+import com.shoebill.maru.ui.component.common.CustomCircularProgressBar
 import com.shoebill.maru.ui.component.common.GradientButton
 import com.shoebill.maru.ui.theme.MaruBackground
 import com.shoebill.maru.ui.theme.MaruBrush
 import com.shoebill.maru.viewmodel.CameraViewModel
+import com.shoebill.maru.viewmodel.NavigateViewModel
+import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalLayoutApi::class)
+@OptIn(ExperimentalLayoutApi::class, DelicateCoroutinesApi::class)
 @Composable
 fun ImageUploadForm(
     bitmap: ImageBitmap,
-    cameraViewModel: CameraViewModel = hiltViewModel()
+    landmarkId: Long,
+    cameraViewModel: CameraViewModel = hiltViewModel(),
+    navigateViewModel: NavigateViewModel = hiltViewModel(),
 ) {
-    val inputTag = cameraViewModel.inputTag.observeAsState("")
+    val inputTag = cameraViewModel.inputTag.observeAsState()
     val tagList = cameraViewModel.tagList.observeAsState(listOf())
     val isModalOpen = remember { mutableStateOf(false) }
     val location = cameraViewModel.location.observeAsState()
+    val isLoading = remember { mutableStateOf(false) }
+
+    val coroutineScope = rememberCoroutineScope()
+    val context = LocalContext.current
 
     Box {
         Column(
@@ -56,7 +69,7 @@ fun ImageUploadForm(
                 Box(modifier = Modifier.padding(top = 14.dp)) {
                     TextField(
                         modifier = Modifier.fillMaxWidth(),
-                        value = inputTag.value,
+                        value = inputTag.value ?: "",
                         onValueChange = { value: String ->
                             cameraViewModel.updateInputTag(value)
                         },
@@ -81,7 +94,7 @@ fun ImageUploadForm(
                 }
                 FlowRow(horizontalArrangement = Arrangement.spacedBy(5.dp)) {
                     tagList.value.forEach { tag ->
-                        Chip(text = "# $tag")
+                        Chip(text = "# ${tag.name}")
                     }
                 }
             }
@@ -99,14 +112,38 @@ fun ImageUploadForm(
                         .fillMaxWidth()
                         .height(48.dp),
                     onClick = {
-                        isModalOpen.value = true
+                        // spot 등록 API 호출
+                        isLoading.value = true
+                        coroutineScope.launch {
+                            val spotId = cameraViewModel.saveSpot(
+                                navigateViewModel.navigator!!,
+                                if (landmarkId == -1L) null else landmarkId
+                            )
+                            if (spotId == null) {
+                                Toast.makeText(
+                                    context,
+                                    "등록 실패!",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            } else {
+                                isModalOpen.value = true
+                            }
+                            isLoading.value = false
+                        }
                     }
                 )
             }
         }
+        if (isLoading.value) {
+            CustomCircularProgressBar()
+        }
         if (isModalOpen.value) {
-            ConfirmModal(bitmap) {
-                isModalOpen.value = false
+            if (landmarkId == -1L) {
+                cameraViewModel.moveSpotDetail(navigateViewModel.navigator!!)
+            } else {
+                ConfirmModal(bitmap = bitmap, landmarkId = landmarkId) {
+                    isModalOpen.value = false
+                }
             }
         }
     }

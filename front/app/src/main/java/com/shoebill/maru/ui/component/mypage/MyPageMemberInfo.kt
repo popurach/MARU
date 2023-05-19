@@ -2,6 +2,7 @@ package com.shoebill.maru.ui.component.mypage
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.Icon
@@ -38,11 +39,12 @@ fun MyPageMemberInfo(
         contentDescription = "Translated description of what the image contains",
         contentScale = ContentScale.Crop,
         modifier = Modifier
-            .size(80.dp)
+            .padding(top = 20.dp, bottom = 10.dp)
+            .size(70.dp)
             .clip(CircleShape)
     )
     // nickname
-    Text(text = memberInfo.value.nickname, fontSize = 18.sp, fontWeight = FontWeight.Bold)
+    Text(text = memberInfo.value.nickname, fontSize = 18.sp, fontWeight = FontWeight.SemiBold)
     Row(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(5.dp)
@@ -67,7 +69,7 @@ fun MyPageMemberInfo(
                         blendMode = BlendMode.SrcAtop
                     )
                 }
-            }
+            },
         )
     }
 }

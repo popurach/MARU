@@ -42,16 +42,7 @@ fun StampItem(stamp: Stamp, navigateViewModel: NavigateViewModel = viewModel()) 
                 .size(120.dp)
                 .padding(horizontal = 0.5.dp, vertical = 0.5.dp)
                 .clickable {
-                    navigateViewModel.navigator?.currentBackStackEntry?.savedStateHandle?.set(
-                        key = "spotId",
-                        value = stamp.spotId
-                    )
-                    navigateViewModel.navigator?.currentBackStackEntry?.savedStateHandle?.set(
-                        key = "expandState",
-                        value = true
-                    )
-
-                    navigateViewModel.navigator?.navigate("main")
+                    navigateViewModel.navigator?.navigate("main/${stamp.spotId}")
                 },
             contentScale = ContentScale.Crop
         )

@@ -12,10 +12,9 @@ import com.google.firebase.messaging.FirebaseMessaging
 import com.shoebill.maru.model.data.Member
 import com.shoebill.maru.model.data.MemberUpdateRequest
 import com.shoebill.maru.model.repository.MemberRepository
-import com.shoebill.maru.util.PreferenceUtil
+import com.shoebill.maru.util.apiCallback
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.RequestBody.Companion.toRequestBody
 import java.io.File
@@ -27,7 +26,6 @@ import javax.inject.Inject
 @HiltViewModel
 class MemberViewModel @Inject constructor(
     private val memberRepository: MemberRepository,
-    private val preferenceUtil: PreferenceUtil,
 ) : ViewModel() {
     private val _memberInfo = MutableLiveData<Member>()
     val modifiedNickname = MutableLiveData<String?>()
@@ -35,13 +33,12 @@ class MemberViewModel @Inject constructor(
 
     val memberInfo: LiveData<Member> get() = _memberInfo
 
-    fun updateMemberInfo(value: Member) {
+    private fun updateMemberInfo(value: Member) {
         _memberInfo.value = value
     }
 
-    fun getPoint(): String {
-        return NumberFormat.getNumberInstance(Locale.US).format(_memberInfo.value?.point)
-    }
+    fun getPoint(): String =
+        NumberFormat.getNumberInstance(Locale.US).format(_memberInfo.value?.point ?: 0)
 
     private fun updateNoticeToken() {
         val TAG = "MyFirebaseMessagingService"
@@ -59,32 +56,22 @@ class MemberViewModel @Inject constructor(
             // Get new FCM registration token
             val token = task.result
 
-            runBlocking {
-                launch {
-                    memberRepository.updateNoticeToken(
-                        token.toRequestBody("text/plain".toMediaType())
-                    )
-                }
+            viewModelScope.launch {
+                memberRepository.updateNoticeToken(
+                    token.toRequestBody("text/plain".toMediaType())
+                )
             }
         })
     }
 
     fun getMemberInfo(navigateViewModel: NavigateViewModel) {
-        runBlocking {
-            launch {
-                val response = memberRepository.getMemberInfo()
-                if (response.isSuccessful) {
-                    updateMemberInfo(response.body()!!)
-                    // notice token update 필요
-                    updateNoticeToken()
-                } else {
-                    Log.d("MEMBER", "회원 정보 조회 실패")
-                    preferenceUtil.clear()
-                    navigateViewModel.navigator?.navigate("login")
-                }
+        viewModelScope.launch {
+            val memberInfo = apiCallback(navigateViewModel.navigator!!) {
+                memberRepository.getMemberInfo()
             }
+            updateMemberInfo(memberInfo!!)
+            updateNoticeToken()
         }
-
     }
 
     fun logout() {
@@ -108,10 +95,8 @@ class MemberViewModel @Inject constructor(
             )
 
             if (response.isSuccessful) {
-                Log.d("TEST", "updateMemberProfileToServer: 회원정보 업데이트 완료")
                 response.body()?.let { updateMemberInfo(it) }
             } else {
-                Log.d("TEST", "updateMemberProfileToServer: 회원정보 업데이트 실패")
             }
         }
     }
@@ -127,5 +112,4 @@ class MemberViewModel @Inject constructor(
 
         return file
     }
-
 }

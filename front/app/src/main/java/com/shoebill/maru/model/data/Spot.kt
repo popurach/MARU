@@ -1,37 +1,25 @@
 package com.shoebill.maru.model.data
 
 data class Spot(
-    val id: Long,
-    val landmarkId: Long?,
-    val imageUrl: String,
-    val likeCount: Int,
-    val tags: List<Tag>?,
-    val liked: Boolean,
-    val scraped: Boolean,
+    val id: Long = 0L,
+    val landmarkId: Long? = null,
+    val imageUrl: String = "https://picsum.photos/id/1/1000/2000",
+    val likeCount: Int = 0,
+    val tags: List<Tag>? = null,
+    var liked: Boolean = false,
+    var scraped: Boolean = false,
+    val coordinate: Coordinate = Coordinate()
 ) {
+    fun toggleLikeState() {
+        this.liked = !this.liked
+    }
 
-    constructor(id: Long, imageUrl: String, scraped: Boolean) : this(
-        id = id,
-        landmarkId = null,
-        imageUrl = imageUrl,
-        likeCount = 0,
-        tags = null,
-        liked = false,
-        scraped = scraped,
-    )
-
-    constructor() : this(
-        id = 0L,
-        landmarkId = null,
-        imageUrl = "https://picsum.photos/id/1/1000/2000",
-        likeCount = 0,
-        tags = null,
-        liked = false,
-        scraped = false,
-    )
+    fun toggleScrapState() {
+        this.scraped = !this.scraped
+    }
 }
 
 data class Tag(
-    val id: Long,
+    val id: Long? = null,
     val name: String,
 )

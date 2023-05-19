@@ -1,5 +1,6 @@
 package com.shoebill.maru.viewmodel
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.location.Location
 import android.media.MediaScannerConnection
@@ -12,19 +13,34 @@ import androidx.core.net.toFile
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import androidx.navigation.NavHostController
+import com.google.android.gms.location.LocationServices
 import com.shoebill.maru.R
+import com.shoebill.maru.model.data.Tag
+import com.shoebill.maru.model.repository.SpotRepository
+import com.shoebill.maru.util.apiCallback
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Locale
 import java.util.concurrent.Executors
+import javax.inject.Inject
 
-class CameraViewModel() : ViewModel() {
+@HiltViewModel
+class CameraViewModel @Inject constructor(private val spotRepository: SpotRepository) :
+    ViewModel() {
     private val FILENAME = "yyyy-MM-dd-HH-mm-ss-SSS"
-    private val PHOTO_EXTENSION = ".png"
+    private val PHOTO_EXTENSION = ".jpg"
     private val _imageUrl = MutableLiveData("")
     private val _location = MutableLiveData<Location?>()
+    private var capturedFile: File? = null
+
+    private var savedSpotId: Long = -1
 
     val location: LiveData<Location?> get() = _location
     fun setLocation(location: Location) {
@@ -39,8 +55,8 @@ class CameraViewModel() : ViewModel() {
     private val _inputTag = MutableLiveData("")
     val inputTag get() = _inputTag
 
-    private val listOfTag: MutableList<String> = mutableListOf()
-    private val _tagList = MutableLiveData<List<String>>(listOf())
+    private val listOfTag: MutableList<Tag> = mutableListOf()
+    private val _tagList = MutableLiveData<List<Tag>>(listOf())
     val tagList get() = _tagList
 
     fun updateInputTag(value: String) {
@@ -49,12 +65,14 @@ class CameraViewModel() : ViewModel() {
 
     fun addTag() {
         if (_inputTag.value.isNullOrEmpty()) return
-        listOfTag.add(_inputTag.value!!)
+        listOfTag.add(
+            Tag(name = _inputTag.value!!)
+        )
         _tagList.value = listOfTag
         _inputTag.value = ""
     }
 
-    fun backToCameraScreen(value: Boolean) {
+    fun clearCameraViewModel(value: Boolean) {
         _isCapture.value = value
         _imageUrl.value = null
         _inputTag.value = ""
@@ -63,6 +81,7 @@ class CameraViewModel() : ViewModel() {
         _tagList.value = listOfTag
     }
 
+    @SuppressLint("MissingPermission")
     fun takePhoto(
         context: Context,
         imageCapture: ImageCapture,
@@ -71,7 +90,15 @@ class CameraViewModel() : ViewModel() {
         onImageCaptured: (Uri, Boolean) -> Unit,
         onError: (ImageCaptureException) -> Unit,
     ) {
-        imageCapture.takePicture(context, scope, lensFacing, onImageCaptured, onError)
+
+        val fusedLocationClient = LocationServices.getFusedLocationProviderClient(context)
+
+        fusedLocationClient.lastLocation.addOnSuccessListener { location ->
+            location.also {
+                setLocation(location)
+                imageCapture.takePicture(context, scope, lensFacing, onImageCaptured, onError)
+            }
+        }
     }
 
     private fun ImageCapture.takePicture(
@@ -85,6 +112,7 @@ class CameraViewModel() : ViewModel() {
         // Create output file to hold the image
         val photoFile = createFile(outputDirectory)
         val outputFileOptions = getOutputFileOptions(lensFacing, photoFile)
+        capturedFile = photoFile
 
         this.takePicture(
             outputFileOptions,
@@ -125,6 +153,9 @@ class CameraViewModel() : ViewModel() {
         val metadata = ImageCapture.Metadata().apply {
             // Mirror image when using the front camera
             isReversedHorizontal = lensFacing == CameraSelector.LENS_FACING_FRONT
+            _location.value?.let {
+                this.location = it
+            }
         }
         // Create output options object which contains file + metadata
 
@@ -146,6 +177,40 @@ class CameraViewModel() : ViewModel() {
         }
         return if (mediaDir != null && mediaDir.exists())
             mediaDir else this.filesDir
+    }
+
+    suspend fun saveSpot(navController: NavHostController, landmarkId: Long?): Long? {
+        val spotId = apiCallback(navController) {
+            spotRepository.saveSpot(
+                spotImage = capturedFile!!,
+                tags = _tagList.value,
+                landmarkId = landmarkId
+            )
+        }
+        if (spotId != null) savedSpotId = spotId
+        return spotId
+    }
+
+    fun moveSpotDetail(navController: NavHostController) {
+        clearCameraViewModel(false)
+        viewModelScope.launch {
+            withContext(Dispatchers.Main) {
+                navController.navigate("main/$savedSpotId") {
+                    popUpTo(navController.graph.id) {
+                        inclusive = true
+                    }
+                }
+            }
+        }
+    }
+
+    fun moveAuctionPage(navController: NavHostController, landmarkId: Long) {
+        clearCameraViewModel(false)
+        navController.navigate("auction/$landmarkId") {
+            popUpTo(navController.graph.id) {
+                inclusive = true
+            }
+        }
     }
 }
 

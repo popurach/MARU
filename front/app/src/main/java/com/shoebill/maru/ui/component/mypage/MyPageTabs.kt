@@ -17,10 +17,12 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.shoebill.maru.R
+import com.shoebill.maru.ui.theme.Pretendard
 import com.shoebill.maru.viewmodel.MyPageViewModel
 
 @Composable
@@ -39,7 +41,6 @@ fun MyPageTabs(
         indicator = { tabPositions ->
             TabRowDefaults.Indicator(
                 color = Color(0xFF6039DF),
-                height = 2.dp,
                 modifier = Modifier.tabIndicatorOffset(tabPositions[tabIndex.value])
             )
         }
@@ -49,7 +50,10 @@ fun MyPageTabs(
                 Text(
                     text = title,
                     color = if (tabIndex.value == index) Color(0xFF6039DF) else Color.Black,
-                    fontSize = 15.sp
+                    fontWeight = if (tabIndex.value == index) FontWeight.SemiBold else FontWeight.Normal,
+                    fontSize = 12.sp,
+                    fontFamily = Pretendard,
+                    letterSpacing = -(0.3).sp
                 )
             },
                 selected = tabIndex.value == index,

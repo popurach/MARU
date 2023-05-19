@@ -8,7 +8,7 @@ import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import com.shoebill.maru.model.data.notice.Notice
 import com.shoebill.maru.model.repository.NoticeRepository
-import com.shoebill.maru.model.repository.NoticeSource
+import com.shoebill.maru.model.source.NoticeSource
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
