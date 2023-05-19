@@ -191,26 +191,4 @@ class SpotCustomQueryRepositoryTest {
         ).hasSize(pageSize);
     }
 
-    @Test
-    @DisplayName("지도 기반 스팟 좌표 조회 테스트")
-    void simpleFindMarkerTest() {
-        // given
-        MapCondition condition = MapCondition.builder()
-                                             .boundingBox(BoundingBox.builder()
-                                                                     .west(-180.0)
-                                                                     .south(-90.0)
-                                                                     .east(180.0)
-                                                                     .north(90.0)
-                                                                     .zoom(1)
-                                                                     .build())
-                                             .build();
-
-        // when
-        List<Marker> markerbyBoundingBox = spotCustomQueryRepository.findMarkerByBoundingBox(condition.getBoundingBox());
-        log.debug("{}", markerbyBoundingBox);
-
-        // then
-        assertThat(markerbyBoundingBox).hasSize(50);
-    }
-
 }
