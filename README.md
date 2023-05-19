@@ -132,12 +132,152 @@
 
 ### Front-End
 ```
-
+com
+└── shoebill
+    └── maru
+        ├── model
+        │   ├── data
+        │   │   ├── landmark
+        │   │   ├── myAuction
+        │   │   ├── notice
+        │   │   ├── request
+        │   │   ├── search
+        │   │   └── spot
+        │   ├── interfaces
+        │   ├── module
+        │   ├── repository
+        │   └── source
+        ├── ui
+        │   ├── component
+        │   │   ├── auction
+        │   │   ├── bottomsheet
+        │   │   │   ├── landmark
+        │   │   │   └── spotlist
+        │   │   ├── camera
+        │   │   ├── common
+        │   │   ├── drawer
+        │   │   ├── filter
+        │   │   ├── mypage
+        │   │   ├── notice
+        │   │   └── searchbar
+        │   ├── page
+        │   └── theme
+        ├── util
+        └── viewmodel
 ```
 
 ### Back-End
 ```
-
+com
+└── bird
+    └── maru
+        ├── auction
+        │   ├── controller
+        │   │   └── dto
+        │   ├── mapper
+        │   ├── repository
+        │   │   └── query
+        │   └── service
+        │       └── query
+        ├── auctionlog
+        │   ├── controller
+        │   │   └── dto
+        │   ├── mapper
+        │   ├── repository
+        │   │   └── query
+        │   └── service
+        │       └── query
+        ├── auth
+        │   ├── controller
+        │   ├── repository
+        │   └── service
+        │       └── dto
+        ├── cloud
+        │   ├── aws
+        │   │   └── s3
+        │   │       └── service
+        │   └── firebase
+        │       └── fcm
+        ├── cluster
+        │   ├── geo
+        │   ├── mapper
+        │   └── util
+        ├── common
+        │   ├── aop
+        │   ├── config
+        │   │   ├── Batch
+        │   │   ├── Quartz
+        │   │   ├── WebSocket
+        │   │   └── converter
+        │   ├── exception
+        │   ├── filter
+        │   │   └── dto
+        │   ├── handler
+        │   ├── redis
+        │   └── util
+        ├── domain
+        │   ├── converter
+        │   └── model
+        │       ├── document
+        │       ├── entity
+        │       └── type
+        │           └── id
+        ├── landmark
+        │   ├── controller
+        │   │   └── dto
+        │   ├── mapper
+        │   ├── repository
+        │   │   └── query
+        │   └── service
+        │       └── query
+        ├── like
+        │   ├── repository
+        │   │   └── query
+        │   └── service
+        │       └── query
+        ├── map
+        │   ├── controller
+        │   │   └── dto
+        │   └── service
+        │       └── query
+        ├── member
+        │   ├── controller
+        │   │   └── dto
+        │   ├── mapper
+        │   ├── repository
+        │   │   └── query
+        │   └── service
+        │       └── query
+        ├── notice
+        │   ├── controller
+        │   │   └── dto
+        │   ├── model
+        │   ├── repository
+        │   └── service
+        ├── point
+        │   ├── controller
+        │   └── service
+        ├── scrap
+        │   ├── repository
+        │   │   └── query
+        │   └── service
+        │       └── query
+        ├── spot
+        │   ├── controller
+        │   │   └── dto
+        │   ├── mapper
+        │   ├── repository
+        │   │   └── query
+        │   │       └── dto
+        │   └── service
+        │       ├── dto
+        │       └── query
+        └── tag
+            ├── controller
+            ├── repository
+            │   └── query
+            └── service
+                └── query
 ```
 
 ## 프로젝트 산출물
