@@ -108,6 +108,9 @@
 * OAuth2 Client 2.7.9 (소셜 로그인 프레임워크)
 * JWT (사용자 인증)
 * Spring Data JPA 2.7.9 (Hibernate 구현체)
+* Spring Batch (대량의 데이터 처리)
+* Spring Quartz (jdbcjobstore -> 클러스터링, Batch Job를 위한 스케줄러)
+* Stomp Websocket 2.3.3-1
 * QueryDSL 5.0.0 (JPA 쿼리를 코드로 작성하기 위한 프레임워크)
 * Redis 2.7.9 (인메모리 데이터 구조 저장소)
 * MySQL 8.0 (RDBMS)
