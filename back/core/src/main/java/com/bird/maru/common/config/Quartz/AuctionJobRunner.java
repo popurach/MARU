@@ -26,9 +26,13 @@ public class AuctionJobRunner extends JobRunner {
         auctionClosedJobDetail.getJobDataMap().put("jobName", "auctionClosedJob");
 
 //        Trigger trigger = buildJobTrigger("0 30 0 ? * *"); // 매일 00:30마다 실행
-        Trigger trigger = buildJobTrigger("0 30 0 ? * MON"); // 매주 월요일 00:30마다 실행
-        Trigger auctionAlarmTrigger = buildJobTrigger("0 0 23 ? * Sun"); // 매주 일요일 23:00에 1시간 뒤 마감 알림
-        Trigger auctionClosedTrigger = buildJobTrigger("0 0 0 ? * Mon"); // 매주 일요일 24:00 경매 종료 알림
+//        Trigger trigger = buildJobTrigger("0 30 0 ? * MON"); // 매주 월요일 00:30마다 실행
+//        Trigger auctionAlarmTrigger = buildJobTrigger("0 0 23 ? * Sun"); // 매주 일요일 23:00에 1시간 뒤 마감 알림
+//        Trigger auctionClosedTrigger = buildJobTrigger("0 0 0 ? * Mon"); // 매주 일요일 24:00 경매 종료 알림
+
+        Trigger trigger = buildJobTrigger("0 30 0 ? * *"); // 매일 00:30마다 실행
+        Trigger auctionAlarmTrigger = buildJobTrigger("0 0 23 ? * *"); // 매일 23:00에 1시간 뒤 마감 알림
+        Trigger auctionClosedTrigger = buildJobTrigger("0 0 0 ? * *"); // 매일 24:00 경매 종료 알림
 
 //        Trigger trigger = buildJobTrigger("0 */1 * ? * *"); // 1분마다 실행
 //        Trigger trigger = buildJobTrigger( "0 34 17 ? * *"); // 5분마다 실행
