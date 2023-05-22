@@ -120,10 +120,14 @@ fun SearchBar(
 
                                 } else {
                                     // 태그로 검색 일때, 현재 위치 그대로 태그로 필터링
+                                    val tag = searchBarViewModel.recommendedTags.value?.get(0)
+                                    if (tag != null) {
+                                        searchBarViewModel.updateKeyword("#${tag.name}")
+                                        mapViewModel.updateTagId(tag.id)
+                                        mapViewModel.loadMarker()
+                                    }
                                 }
                             }
-
-                            searchBarViewModel.updateKeyword("")
                             mapViewModel.clearFocus()
                         }
                     ),
