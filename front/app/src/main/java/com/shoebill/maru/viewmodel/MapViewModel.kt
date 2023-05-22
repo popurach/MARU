@@ -303,7 +303,7 @@ class MapViewModel @Inject constructor(
         })
 
         mapView.apply {
-            getMapboxMap().loadStyleUri("mapbox://styles/chartype/clgd8mwak000001sczpqlrb72") {
+            getMapboxMap().loadStyleUri(context.getString(R.string.mapbox_style_url)) {
                 scalebar.enabled = false
                 compass.enabled = false
 

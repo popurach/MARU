@@ -1,5 +1,6 @@
 <resources>
     <string name="app_name">Maru</string>
     <string name="mapbox_public_token">pk.eyJ1IjoiY2hhcnR5cGUiLCJhIjoiY2xnYm1pajN2MWM4azN4cGluaXIxYnlueiJ9.-uY6n7MhVHDSCpcQdERHMg</string>
+    <string name="mapbox_style_url">mapbox://styles/chartype/clgd8mwak000001sczpqlrb72</string>
     <string name="default_notification_channel_id">fcm_default_channel</string>
 </resources>
