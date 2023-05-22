@@ -108,21 +108,26 @@ fun SearchBar(
                     },
                     keyboardActions = KeyboardActions(
                         onDone = {
-                            if (keyword.value[0] != '#') {
-                                // 장소로 검색일때, Map view 를 검색 결과의 lng lat 로 이동
-                                val place = searchBarViewModel.recommendedPlaces.value?.get(0)
+                            if (keyword.value.isNotEmpty()) {
+                                if (keyword.value[0] != '#') {
+                                    // 장소로 검색일때, Map view 를 검색 결과의 lng lat 로 이동
+                                    val place = searchBarViewModel.recommendedPlaces.value?.get(0)
 
-                                if (place != null) {
-                                    mapViewModel.moveCamera(lng = place.lng, lat = place.lat)
-                                    searchBarViewModel.prefUtil.saveSearchHistory(place)
+                                    if (place != null) {
+                                        mapViewModel.moveCamera(lng = place.lng, lat = place.lat)
+                                        searchBarViewModel.prefUtil.saveSearchHistory(place)
+                                    }
+
+                                } else {
+                                    // 태그로 검색 일때, 현재 위치 그대로 태그로 필터링
+                                    val tag = searchBarViewModel.recommendedTags.value?.get(0)
+                                    if (tag != null) {
+                                        searchBarViewModel.updateKeyword("#${tag.name}")
+                                        mapViewModel.updateTagId(tag.id)
+                                        mapViewModel.loadMarker()
+                                    }
                                 }
-
-                            } else {
-                                // 태그로 검색 일때, 현재 위치 그대로 태그로 필터링
-
                             }
-
-                            searchBarViewModel.updateKeyword("")
                             mapViewModel.clearFocus()
                         }
                     ),

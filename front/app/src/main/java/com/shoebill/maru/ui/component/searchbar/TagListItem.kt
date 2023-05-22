@@ -39,10 +39,9 @@ fun TagListItem(
             modifier = Modifier
                 .padding(horizontal = 10.dp)
                 .clickable {
-                    searchBarViewModel.updateKeyword("# ${tag.name}")
+                    searchBarViewModel.updateKeyword("#${tag.name}")
                     mapViewModel.updateTagId(tag.id)
                     mapViewModel.loadMarker()
-                    
                     mapViewModel.clearFocus()
                 },
             verticalAlignment = Alignment.CenterVertically

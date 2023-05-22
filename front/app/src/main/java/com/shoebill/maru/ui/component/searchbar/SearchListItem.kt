@@ -1,4 +1,4 @@
-package com.shoebill.maru.ui.component
+package com.shoebill.maru.ui.component.searchbar
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable

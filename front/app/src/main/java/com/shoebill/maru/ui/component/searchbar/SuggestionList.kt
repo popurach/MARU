@@ -22,7 +22,6 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.shoebill.maru.R
 import com.shoebill.maru.model.data.Place
-import com.shoebill.maru.ui.component.SearchListItem
 import com.shoebill.maru.viewmodel.MapViewModel
 import com.shoebill.maru.viewmodel.SearchBarViewModel
 
