@@ -103,7 +103,7 @@ fun AuctionPage(
     }
 
     DisposableEffect(Unit) {
-        auctionViewModel.initLandmarkId(id)
+        auctionViewModel.initLandmarkId(id, navigateViewModel.navigator!!)
         if (isConnected.value == false) {
             auctionViewModel.runStomp(context, navigateViewModel.navigator!!)
         }

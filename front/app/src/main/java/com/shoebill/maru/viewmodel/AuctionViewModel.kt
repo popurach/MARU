@@ -13,6 +13,7 @@ import com.shoebill.maru.model.data.AuctionBiddingRequest
 import com.shoebill.maru.model.data.AuctionInfo
 import com.shoebill.maru.model.repository.AuctionRepository
 import com.shoebill.maru.util.PreferenceUtil
+import com.shoebill.maru.util.apiCallback
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -54,11 +55,11 @@ class AuctionViewModel @Inject constructor(
 
     private var isPop: Boolean = false
 
-    fun initLandmarkId(value: Long) {
+    fun initLandmarkId(value: Long, navController: NavHostController) {
         landmarkId = value
         viewModelScope.launch {
-            getAuctionInfo(landmarkId)
-            getAuctionHistory(landmarkId)
+            getAuctionInfo(landmarkId, navController)
+            getAuctionHistory(landmarkId, navController)
         }
     }
 
@@ -70,44 +71,66 @@ class AuctionViewModel @Inject constructor(
         _bid.value = _bid.value!!.minus(unit.value!!)
     }
 
-    private fun getAuctionHistory(landmarkId: Long) {
+    private fun getAuctionHistory(landmarkId: Long, navController: NavHostController) {
         viewModelScope.launch {
             try {
                 val result = withContext(Dispatchers.IO) {
-                    auctionRepository.getAuctionHistory(landmarkId).toTypedArray()
-                }
-                _auctionHistory.value = result
+                    apiCallback(navController) {
+                        auctionRepository.getAuctionHistory(landmarkId)
+                    }
+                }?.toTypedArray()
+                _auctionHistory.value = result!!
             } catch (e: Exception) {
-                Log.e("AUCTION", "Error while getting auction info: $e")
+                Log.e("AUCTION", "Error while getting auction history: $e")
             }
         }
     }
 
-    private fun getAuctionInfo(landmarkId: Long) {
+    private fun getAuctionInfo(landmarkId: Long, navController: NavHostController) {
         viewModelScope.launch {
             try {
-                val result = auctionRepository.getAuctionInfo(landmarkId)
-                _auctionInfo.value = result
+                val result = apiCallback(navController) {
+                    auctionRepository.getAuctionInfo(landmarkId)
+                }
+                _auctionInfo.value = result!!
             } catch (e: Exception) {
                 Log.d(TAG, "getAuctionInfo: $e")
             }
         }
     }
 
-    fun createBidding(onComplete: (Boolean) -> Unit) {
+    fun createBidding(navController: NavHostController, onComplete: (Boolean) -> Unit) {
         val requestBody = AuctionBiddingRequest(landmarkId, _bid.value!!)
         viewModelScope.launch {
             val success = withContext(Dispatchers.IO) {
-                auctionRepository.createBidding(requestBody)
+                try {
+                    apiCallback(navController) {
+                        auctionRepository.createBidding(requestBody)
+                    }
+                    true
+                } catch (e: Exception) {
+                    false
+                }
             }
             onComplete(success)
         }
     }
 
-    fun deleteBidding(auctionLogId: Long, onComplete: (Boolean) -> Unit) {
+    fun deleteBidding(
+        auctionLogId: Long,
+        navController: NavHostController,
+        onComplete: (Boolean) -> Unit
+    ) {
         viewModelScope.launch {
-            val success = withContext(viewModelScope.coroutineContext) {
-                auctionRepository.deleteBidding(auctionLogId)
+            val success = withContext(Dispatchers.IO) {
+                try {
+                    apiCallback(navController) {
+                        auctionRepository.deleteBidding(auctionLogId)
+                    }
+                    true
+                } catch (e: Exception) {
+                    false
+                }
             }
             onComplete(success)
         }
