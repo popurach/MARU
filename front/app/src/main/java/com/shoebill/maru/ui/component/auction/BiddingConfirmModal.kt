@@ -84,7 +84,7 @@ fun BiddingConfirmModal(
                         .height(48.dp)
                         .clip(RoundedCornerShape(40.dp)),
                     onClick = {
-                        auctionViewModel.createBidding { success ->
+                        auctionViewModel.createBidding(navigateViewModel.navigator!!) { success ->
                             if (success) {
                                 onDismissRequest()
                                 memberViewModel.getMemberInfo(navigateViewModel)

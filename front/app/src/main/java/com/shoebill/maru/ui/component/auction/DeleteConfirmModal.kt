@@ -82,7 +82,10 @@ fun DeleteConfirmModal(
                         .clip(RoundedCornerShape(40.dp))
                         .background(Color.Transparent)
                         .clickable {
-                            auctionViewModel.deleteBidding(auctionLogId) { success ->
+                            auctionViewModel.deleteBidding(
+                                auctionLogId,
+                                navigateViewModel.navigator!!
+                            ) { success ->
                                 if (success) {
                                     onDismissRequest()
                                     memberViewModel.getMemberInfo(navigateViewModel)
