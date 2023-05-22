@@ -9,7 +9,9 @@ import com.shoebill.maru.model.data.Spot
 import com.shoebill.maru.model.repository.SpotRepository
 import com.shoebill.maru.util.apiCallback
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @HiltViewModel
@@ -26,9 +28,11 @@ class SpotViewModel @Inject constructor(
     }
 
     fun loadSpotDetailById(spotId: Long, navController: NavHostController) {
-        viewModelScope.launch {
-            val mySpot = apiCallback(navController) {
-                spotRepository.getSpotDetail(spotId)
+        viewModelScope.launch(Dispatchers.Main) {
+            val mySpot = withContext(Dispatchers.IO) {
+                apiCallback(navController) {
+                    spotRepository.getSpotDetail(spotId)
+                }
             }
             _spotDetails.value = mySpot
         }
@@ -40,10 +44,8 @@ class SpotViewModel @Inject constructor(
                 spotRepository.toggleLike(spotId)
             }
 
-            _spotDetails.value?.toggleLikeState()
-
-            if (result != null) {
-                loadSpotDetailById(spotId, navController)
+            if (result == Unit) {
+                _spotDetails.value?.toggleLikeState()
             }
         }
     }
@@ -54,10 +56,8 @@ class SpotViewModel @Inject constructor(
                 spotRepository.toggleScrap(spotId)
             }
 
-            _spotDetails.value?.toggleScrapState()
-
-            if (result != null) {
-                loadSpotDetailById(spotId, navController)
+            if (result == Unit) {
+                _spotDetails.value?.toggleScrapState()
             }
         }
     }

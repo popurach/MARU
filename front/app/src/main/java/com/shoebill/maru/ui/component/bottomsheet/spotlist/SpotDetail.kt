@@ -1,5 +1,6 @@
 package com.shoebill.maru.ui.component.bottomsheet.spotlist
 
+import android.util.Log
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
@@ -14,6 +15,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.Icon
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
@@ -44,14 +46,10 @@ fun SpotDetail(
     mapViewModel: MapViewModel = hiltViewModel(),
     spotViewModel: SpotViewModel = hiltViewModel() // 3. spotRepository 가 필요해서 컴포넌트랑 생명주기가 다른게 이상함
 ) {
-    mapViewModel.updateBottomSheetState(true)
-    spotViewModel.initSpotId(spotId)
-    spotViewModel.loadSpotDetailById(
-        spotId,
-        navigateViewModel.navigator!!
-    )
     val spotDetails = spotViewModel.spotDetails.observeAsState()
     val isMoved = remember { mutableStateOf(false) }
+
+    Log.d("SCRAP", "SpotDetail: ${spotDetails.value?.scraped}")
 
     LaunchedEffect(spotDetails.value) {
         if (spotDetails.value != null && !isMoved.value) {
@@ -60,6 +58,17 @@ fun SpotDetail(
                 spotDetails.value!!.coordinate.lat,
                 spotDetails.value!!.coordinate.lng
             )
+        }
+    }
+    DisposableEffect(Unit) {
+        Log.d("SPOT-DETAIL", "DisposableEffect called")
+        mapViewModel.updateBottomSheetState(true)
+        spotViewModel.initSpotId(spotId)
+        spotViewModel.loadSpotDetailById(
+            spotId,
+            navigateViewModel.navigator!!
+        )
+        onDispose {
             isMoved.value = false
         }
     }
