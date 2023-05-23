@@ -1,6 +1,7 @@
 package com.shoebill.maru.viewmodel
 
 import androidx.lifecycle.ViewModel
+import androidx.navigation.NavHostController
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
@@ -13,7 +14,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class LandmarkPictureListViewModel @Inject constructor(
-    private val landmarkRepository: LandmarkRepository
+    private val landmarkRepository: LandmarkRepository,
 ) : ViewModel() {
     private var landmarkId: Long = 0
 
@@ -21,9 +22,9 @@ class LandmarkPictureListViewModel @Inject constructor(
         landmarkId = value
     }
 
-    fun getLandmarkPicturePagination(): Flow<PagingData<SpotImage>> {
+    fun getLandmarkPicturePagination(navHostController: NavHostController): Flow<PagingData<SpotImage>> {
         return Pager(PagingConfig(pageSize = 20)) {
-            LandmarkImageSource(landmarkRepository, landmarkId)
+            LandmarkImageSource(landmarkRepository, landmarkId, navHostController)
         }.flow
     }
 }

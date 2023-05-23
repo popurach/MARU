@@ -1,6 +1,7 @@
 package com.shoebill.maru.viewmodel
 
 import androidx.lifecycle.ViewModel
+import androidx.navigation.NavHostController
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
@@ -17,15 +18,15 @@ import javax.inject.Inject
 class MyBiddingViewModel @Inject constructor(private val myBiddingRepository: MyBiddingRepository) :
     ViewModel() {
 
-    fun getMyBiddingPagination(): Flow<PagingData<MyAuction>> {
+    fun getMyBiddingPagination(navHostController: NavHostController): Flow<PagingData<MyAuction>> {
         return Pager(PagingConfig(pageSize = 20)) {
-            MyBiddingSource(myBiddingRepository)
+            MyBiddingSource(myBiddingRepository, navHostController = navHostController)
         }.flow
     }
 
-    fun getMyNonBiddingPagination(): Flow<PagingData<LandmarkInfo>> {
+    fun getMyNonBiddingPagination(navHostController: NavHostController): Flow<PagingData<LandmarkInfo>> {
         return Pager(PagingConfig(pageSize = 20)) {
-            MyNonBiddingSource(myBiddingRepository)
+            MyNonBiddingSource(myBiddingRepository, navHostController = navHostController)
         }.flow
     }
 }

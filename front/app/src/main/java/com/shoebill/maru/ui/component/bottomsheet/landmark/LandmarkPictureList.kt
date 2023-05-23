@@ -22,16 +22,20 @@ import coil.compose.SubcomposeAsyncImage
 import coil.request.ImageRequest
 import com.shoebill.maru.viewmodel.BottomSheetNavigatorViewModel
 import com.shoebill.maru.viewmodel.LandmarkPictureListViewModel
+import com.shoebill.maru.viewmodel.NavigateViewModel
 
 @Composable
 fun LandmarkPictureList(
     landmarkPictureListViewModel: LandmarkPictureListViewModel = hiltViewModel(),
     bottomSheetNavigatorViewModel: BottomSheetNavigatorViewModel = hiltViewModel(),
-    landmarkId: Long
+    navigatorViewModel: NavigateViewModel = hiltViewModel(),
+    landmarkId: Long,
 ) {
     landmarkPictureListViewModel.initLandmarkId(landmarkId)
     val pictureList =
-        landmarkPictureListViewModel.getLandmarkPicturePagination().collectAsLazyPagingItems()
+        landmarkPictureListViewModel
+            .getLandmarkPicturePagination(navigatorViewModel.navigator!!)
+            .collectAsLazyPagingItems()
     Box(modifier = Modifier.fillMaxSize()) {
         LazyVerticalGrid(
             columns = GridCells.Adaptive(minSize = 128.dp)

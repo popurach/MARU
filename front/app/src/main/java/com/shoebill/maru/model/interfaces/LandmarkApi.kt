@@ -18,8 +18,8 @@ interface LandmarkApi {
             "lastOffset",
             encoded = true
         ) lastOffset: Long?, // encoded true 일 경우, null 일때는 포함 안됨
-        @Query("size") size: Int = 20
-    ): List<Stamp>
+        @Query("size") size: Int = 20,
+    ): Response<List<Stamp>>
 
     @GET("/api/map/landmarks")
     suspend fun getLandmarkByPos(
@@ -42,12 +42,12 @@ interface LandmarkApi {
             "lastOffset",
             encoded = true
         ) lastOffset: Long? = 0, // encoded true 일 경우, null 일때는 포함 안됨
-        @Query("size") size: Int = 20
-    ): List<SpotImage>
+        @Query("size") size: Int = 20,
+    ): Response<List<SpotImage>>
 
     @POST("/api/landmarks/{id}")
     suspend fun visitLandmark(
-        @Path("id") id: Long
+        @Path("id") id: Long,
     ): Response<Int>
 
 }

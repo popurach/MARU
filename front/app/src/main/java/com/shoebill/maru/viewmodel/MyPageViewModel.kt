@@ -3,6 +3,7 @@ package com.shoebill.maru.viewmodel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.navigation.NavHostController
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
@@ -20,27 +21,27 @@ import javax.inject.Inject
 @HiltViewModel
 class MyPageViewModel @Inject constructor(
     private val spotRepository: SpotRepository,
-    private val landmarkRepository: LandmarkRepository
+    private val landmarkRepository: LandmarkRepository,
 ) : ViewModel() {
     private val _tabIndex = MutableLiveData<Int>(0)
 
     val tabIndex: LiveData<Int> get() = _tabIndex
 
-    fun getScrapedSpotsPagination(): Flow<PagingData<Spot>> {
+    fun getScrapedSpotsPagination(navHostController: NavHostController): Flow<PagingData<Spot>> {
         return Pager(PagingConfig(pageSize = 20)) {
-            ScrapedSpotSource(spotRepository)
+            ScrapedSpotSource(spotRepository, navHostController = navHostController)
         }.flow
     }
 
-    fun getGalleryPagination(): Flow<PagingData<Spot>> {
+    fun getGalleryPagination(navHostController: NavHostController): Flow<PagingData<Spot>> {
         return Pager(PagingConfig(pageSize = 20)) {
-            GallerySource(spotRepository)
+            GallerySource(spotRepository, navHostController = navHostController)
         }.flow
     }
 
-    fun getStampPagination(): Flow<PagingData<Stamp>> {
+    fun getStampPagination(navHostController: NavHostController): Flow<PagingData<Stamp>> {
         return Pager(PagingConfig(pageSize = 20)) {
-            StampSource(landmarkRepository)
+            StampSource(landmarkRepository, navHostController = navHostController)
         }.flow
     }
 
