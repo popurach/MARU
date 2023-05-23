@@ -19,7 +19,7 @@ import javax.inject.Inject
 class SearchBarViewModel @Inject constructor(
     val prefUtil: PreferenceUtil,
     private val kakaoMapRepository: KakaoMapRepository,
-    private val searchRepository: SearchRepository
+    private val searchRepository: SearchRepository,
 ) : ViewModel() {
     private val _keyword = MutableLiveData<String>()
     val keyword: LiveData<String> get() = _keyword
@@ -34,13 +34,16 @@ class SearchBarViewModel @Inject constructor(
         _keyword.value = value
     }
 
-    fun getRecommendPlacesByKeyword(query: String) {
+    fun getRecommendPlacesByKeyword(query: String, navController: NavHostController) {
         viewModelScope.launch {
-            val response = kakaoMapRepository.getRecommendPlacesByKeyword(query)
-            if (response.isSuccessful) {
-                val body = response.body()
+            val body = apiCallback(navController) {
+                kakaoMapRepository.getRecommendPlacesByKeyword(query)
+            }
+
+            body?.let {
+                // null 이 아닐때 실행 되는 코드
                 val recommendList = mutableListOf<Place>()
-                for (doc in body?.documents!!) {
+                for (doc in it.documents) {
                     recommendList.add(
                         Place(
                             placeName = doc.place_name,
@@ -51,6 +54,8 @@ class SearchBarViewModel @Inject constructor(
                     )
                 }
                 _recommendedPlaces.value = recommendList
+            } ?: run {
+                // null 일때 실행 되는 코드
             }
         }
     }

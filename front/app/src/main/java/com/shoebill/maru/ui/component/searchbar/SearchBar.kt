@@ -92,7 +92,7 @@ fun SearchBar(
                         if (it.length >= 2) {
                             if (it[0] != '#') {
                                 // 장소로 검색시 장소 추천 목록 불러 오기
-                                searchBarViewModel.getRecommendPlacesByKeyword(it)
+                                searchBarViewModel.getRecommendPlacesByKeyword(it, navigateViewModel.navigator!!)
                             } else {
                                 // 태그로 검색 시 태그 추천 목록 보여주기
                                 searchBarViewModel.loadRecommendTagsByKeyword(

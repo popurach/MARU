@@ -7,6 +7,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.navigation.NavHostController
 import com.google.android.gms.tasks.OnCompleteListener
 import com.google.firebase.messaging.FirebaseMessaging
 import com.shoebill.maru.model.data.Member
@@ -40,7 +41,7 @@ class MemberViewModel @Inject constructor(
     fun getPoint(): String =
         NumberFormat.getNumberInstance(Locale.US).format(_memberInfo.value?.point ?: 0)
 
-    private fun updateNoticeToken() {
+    private fun updateNoticeToken(navHostController: NavHostController) {
         val TAG = "MyFirebaseMessagingService"
 
         FirebaseMessaging.getInstance().token.addOnCompleteListener(OnCompleteListener { task ->
@@ -57,9 +58,11 @@ class MemberViewModel @Inject constructor(
             val token = task.result
 
             viewModelScope.launch {
-                memberRepository.updateNoticeToken(
-                    token.toRequestBody("text/plain".toMediaType())
-                )
+                apiCallback(navHostController) {
+                    memberRepository.updateNoticeToken(
+                        token.toRequestBody("text/plain".toMediaType())
+                    )
+                }
             }
         })
     }
@@ -70,7 +73,7 @@ class MemberViewModel @Inject constructor(
                 memberRepository.getMemberInfo()
             }
             updateMemberInfo(memberInfo!!)
-            updateNoticeToken()
+            updateNoticeToken(navigateViewModel.navigator!!)
         }
     }
 
@@ -78,7 +81,10 @@ class MemberViewModel @Inject constructor(
         memberRepository.logout()
     }
 
-    suspend fun updateMemberProfileToServer(context: Context) {
+    suspend fun updateMemberProfileToServer(
+        context: Context,
+        navHostController: NavHostController
+    ) {
         viewModelScope.launch() {
             val imageUri = modifiedImageUri.value
             val nickname = modifiedNickname.value
@@ -87,16 +93,17 @@ class MemberViewModel @Inject constructor(
                 file = uriToFile(context, imageUri)
             }
 
-            val response = memberRepository.updateMemberInfo(
-                MemberUpdateRequest(
-                    image = file,
-                    nickname = nickname
+            apiCallback(navHostController) {
+                memberRepository.updateMemberInfo(
+                    MemberUpdateRequest(
+                        image = file,
+                        nickname = nickname
+                    )
                 )
-            )
-
-            if (response.isSuccessful) {
-                response.body()?.let { updateMemberInfo(it) }
-            } else {
+            }?.let {
+                updateMemberInfo(it)
+            } ?: run {
+                // response null 일때 실행되는 코드
             }
         }
     }

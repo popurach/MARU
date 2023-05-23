@@ -26,8 +26,10 @@ import com.shoebill.maru.viewmodel.NavigateViewModel
 @Composable
 fun ScrapScreen(
     myPageViewModel: MyPageViewModel = hiltViewModel(),
+    navigateViewModel: NavigateViewModel = hiltViewModel(),
 ) {
-    val scrapedSpots = myPageViewModel.getScrapedSpotsPagination().collectAsLazyPagingItems()
+    val scrapedSpots = myPageViewModel.getScrapedSpotsPagination(navigateViewModel.navigator!!)
+        .collectAsLazyPagingItems()
 
     LazyVerticalGrid(
         columns = GridCells.Adaptive(minSize = 128.dp)

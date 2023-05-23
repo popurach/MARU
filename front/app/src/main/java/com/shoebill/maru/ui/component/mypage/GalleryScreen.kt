@@ -27,7 +27,8 @@ fun GalleryScreen(
     myPageViewModel: MyPageViewModel = viewModel(),
     navigateViewModel: NavigateViewModel = viewModel(),
 ) {
-    val galleryList = myPageViewModel.getGalleryPagination().collectAsLazyPagingItems()
+    val galleryList = myPageViewModel.getGalleryPagination(navigateViewModel.navigator!!)
+        .collectAsLazyPagingItems()
 
     LazyVerticalGrid(columns = GridCells.Adaptive(minSize = 128.dp)) {
         if (galleryList.itemCount == 0) {

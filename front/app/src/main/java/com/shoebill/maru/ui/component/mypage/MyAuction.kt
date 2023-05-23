@@ -40,7 +40,8 @@ fun MyAuction(
     myBiddingViewModel: MyBiddingViewModel = hiltViewModel(),
     navigateViewModel: NavigateViewModel = viewModel(),
 ) {
-    val myBiddings = myBiddingViewModel.getMyBiddingPagination().collectAsLazyPagingItems()
+    val myBiddings = myBiddingViewModel.getMyBiddingPagination(navigateViewModel.navigator!!)
+        .collectAsLazyPagingItems()
     val isDeleteModalOpen = remember { mutableStateOf(false) }
     val selectedId = remember {
         mutableStateOf<Long>(-1)

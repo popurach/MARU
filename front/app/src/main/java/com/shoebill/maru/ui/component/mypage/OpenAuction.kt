@@ -35,7 +35,7 @@ fun OpenAuction(
     myBiddingViewModel: MyBiddingViewModel = hiltViewModel(),
     navigateViewModel: NavigateViewModel = viewModel(),
 ) {
-    val landmarkInfos = myBiddingViewModel.getMyNonBiddingPagination().collectAsLazyPagingItems()
+    val landmarkInfos = myBiddingViewModel.getMyNonBiddingPagination(navigateViewModel.navigator!!).collectAsLazyPagingItems()
 
     LazyColumn(
         modifier = Modifier

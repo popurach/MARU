@@ -11,6 +11,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.paging.compose.collectAsLazyPagingItems
 import coil.compose.AsyncImage
@@ -21,9 +22,10 @@ import com.shoebill.maru.viewmodel.NavigateViewModel
 
 @Composable
 fun StampScreen(
-    myPageViewModel: MyPageViewModel = viewModel()
+    myPageViewModel: MyPageViewModel = viewModel(),
+    navigateViewModel: NavigateViewModel = hiltViewModel(),
 ) {
-    val stamps = myPageViewModel.getStampPagination().collectAsLazyPagingItems()
+    val stamps = myPageViewModel.getStampPagination(navigateViewModel.navigator!!).collectAsLazyPagingItems()
 
     LazyVerticalGrid(columns = GridCells.Adaptive(minSize = 128.dp)) {
         items(stamps.itemCount) { idx ->

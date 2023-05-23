@@ -3,6 +3,7 @@ package com.shoebill.maru.viewmodel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.navigation.NavHostController
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
@@ -15,7 +16,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class NoticeViewModel @Inject constructor(
-    private val noticeRepository: NoticeRepository
+    private val noticeRepository: NoticeRepository,
 ) : ViewModel() {
     private val _isNew = MutableLiveData<Boolean>()
     val isNew: LiveData<Boolean> get() = _isNew
@@ -28,9 +29,9 @@ class NoticeViewModel @Inject constructor(
         _isNew.value = false
     }
 
-    fun getNoticePagination(): Flow<PagingData<Notice>> {
+    fun getNoticePagination(navHostController: NavHostController): Flow<PagingData<Notice>> {
         return Pager(PagingConfig(pageSize = 15)) {
-            NoticeSource(noticeRepository)
+            NoticeSource(noticeRepository, navHostController = navHostController)
         }.flow
     }
 }

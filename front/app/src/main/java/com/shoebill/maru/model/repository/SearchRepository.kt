@@ -6,10 +6,8 @@ import retrofit2.Response
 import javax.inject.Inject
 
 class SearchRepository @Inject constructor(
-    private val searchApi: SearchApi
+    private val searchApi: SearchApi,
 ) {
-    suspend fun getElasticTagList(keyword: String): Response<List<SearchTag>> {
-        return searchApi.getElasticTagList(keyword = keyword)
-
-    }
+    suspend fun getElasticTagList(keyword: String): Response<List<SearchTag>> =
+        searchApi.getElasticTagList(keyword = keyword)
 }

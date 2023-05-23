@@ -20,11 +20,15 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.shoebill.maru.R
+import com.shoebill.maru.viewmodel.NavigateViewModel
 import com.shoebill.maru.viewmodel.NoticeViewModel
 
 @Composable
-fun NoticeList(noticeViewModel: NoticeViewModel = hiltViewModel()) {
-    val notices = noticeViewModel.getNoticePagination().collectAsLazyPagingItems()
+fun NoticeList(
+    noticeViewModel: NoticeViewModel = hiltViewModel(),
+    navigateViewModel: NavigateViewModel = hiltViewModel(),
+) {
+    val notices = noticeViewModel.getNoticePagination(navigateViewModel.navigator!!).collectAsLazyPagingItems()
 
     Box(modifier = Modifier.fillMaxSize()) {
         LazyColumn(
