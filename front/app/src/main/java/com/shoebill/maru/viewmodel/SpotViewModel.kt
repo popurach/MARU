@@ -45,7 +45,7 @@ class SpotViewModel @Inject constructor(
             }
 
             if (result == Unit) {
-                _spotDetails.value?.toggleLikeState()
+                loadSpotDetailById(spotId, navController)
             }
         }
     }
@@ -57,7 +57,7 @@ class SpotViewModel @Inject constructor(
             }
 
             if (result == Unit) {
-                _spotDetails.value?.toggleScrapState()
+                loadSpotDetailById(spotId, navController)
             }
         }
     }
