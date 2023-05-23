@@ -176,7 +176,10 @@ fun ProfileEditModal(
                     onClick = {
                         GlobalScope.launch {
                             launch(Dispatchers.IO) {
-                                memberViewModel.updateMemberProfileToServer(context)
+                                memberViewModel.updateMemberProfileToServer(
+                                    context,
+                                    navigateViewModel.navigator!!
+                                )
                             }
                             launch(Dispatchers.Main) {
                                 navigateViewModel.navigator?.navigate("main/-1")
