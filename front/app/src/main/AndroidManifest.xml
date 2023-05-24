@@ -16,7 +16,7 @@
         android:maxSdkVersion="32" />
 
     <application
-        android:name=".MaruApplication"
+        android:name=".ui.main.MaruApplication"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
@@ -38,7 +38,7 @@
         <!--            android:value="@string/default_notification_channel_id" />-->
 
         <activity
-            android:name=".MainActivity"
+            android:name=".ui.main.MainActivity"
             android:exported="true"
             android:theme="@style/Theme.Maru">
             <intent-filter>
@@ -70,7 +70,7 @@
         </activity>
 
         <service
-            android:name=".MyFirebaseMessagingService"
+            android:name=".util.MyFirebaseMessagingService"
             android:enabled="true"
             android:exported="false">
             <intent-filter>
