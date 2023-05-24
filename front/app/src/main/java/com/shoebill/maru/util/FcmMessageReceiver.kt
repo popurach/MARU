@@ -3,7 +3,7 @@ package com.shoebill.maru.util
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import com.shoebill.maru.viewmodel.NoticeViewModel
+import com.shoebill.maru.ui.feature.notice.NoticeViewModel
 
 class FcmMessageReceiver constructor(private val noticeViewModel: NoticeViewModel) :
     BroadcastReceiver() {
@@ -12,5 +12,4 @@ class FcmMessageReceiver constructor(private val noticeViewModel: NoticeViewMode
             noticeViewModel.newNoticeArrived()
         }
     }
-
 }
