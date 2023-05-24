@@ -29,6 +29,7 @@ class AppInterceptor @Inject constructor(
                     // 재발급 api 호출 -> 결과는 accessToken : String
                     val refreshRequest =
                         originRequest.newBuilder().header("Authorization", "Bearer $refreshToken")
+                            .method("GET", null)
                             .url("${BuildConfig.BASE_URL}api/auth/access-token").build()
                     val refreshResponse = chain.proceed(refreshRequest)
 
