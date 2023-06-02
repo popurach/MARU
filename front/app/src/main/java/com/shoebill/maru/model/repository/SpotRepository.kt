@@ -22,7 +22,7 @@ import javax.inject.Inject
 
 
 class SpotRepository @Inject constructor(
-    private val spotApi: SpotApi
+    private val spotApi: SpotApi,
 ) {
     fun getAroundSpots(
         navController: NavHostController,
@@ -31,7 +31,7 @@ class SpotRepository @Inject constructor(
         east: Double,
         north: Double,
         filter: String = "ALL",
-        tagId: Long?
+        tagId: Long?,
     ): Flow<PagingData<Spot>> = Pager(config = PagingConfig(pageSize = 20)) {
         SpotSource(spotApi, navController, west, south, east, north, filter, tagId)
     }.flow
@@ -42,7 +42,7 @@ class SpotRepository @Inject constructor(
             filename = spotImage.name,
             body = spotImage.asRequestBody()
         )
-        
+
         val tagsList = ArrayList<String>()
         tags?.forEach {
             tagsList.add(it.name)
@@ -56,16 +56,16 @@ class SpotRepository @Inject constructor(
         )
     }
 
-    suspend fun getMySpots(lastOffset: Long?): List<Spot> =
+    suspend fun getMySpots(lastOffset: Long?): Response<List<Spot>> =
         spotApi.getMySpots(lastOffset = lastOffset, size = 20)
 
-    suspend fun getMyScrapedSpots(lastOffset: Long?): List<Spot> =
+    suspend fun getMyScrapedSpots(lastOffset: Long?): Response<List<Spot>> =
         spotApi.getMyScrapedSpots(lastOffset = lastOffset, size = 20)
 
     suspend fun getSpotMarker(
         boundingBox: BoundingBox,
         mine: Boolean,
-        tagId: Long? = null
+        tagId: Long? = null,
     ): Response<List<SpotMarker>> {
         val size = max(100, (boundingBox.zoom * (-700) + 12000))
         return spotApi.getSpotMarker(

@@ -1,5 +1,6 @@
 package com.shoebill.maru.model
 
+import android.util.Log
 import com.shoebill.maru.BuildConfig
 import com.shoebill.maru.util.PreferenceUtil
 import okhttp3.Interceptor
@@ -13,6 +14,7 @@ class AppInterceptor @Inject constructor(
         val originRequest = chain.request()
         val accessToken = prefUtil.getString("accessToken", "")
         // 1. accessToken 존재한 다면 header 에 추가
+        Log.d("INTERCEPTOR", "originRequest: $originRequest")
         if (accessToken != "") {
             val requestWithAccessToken =
                 originRequest.newBuilder().header("Authorization", "Bearer $accessToken")
@@ -27,6 +29,7 @@ class AppInterceptor @Inject constructor(
                     // 재발급 api 호출 -> 결과는 accessToken : String
                     val refreshRequest =
                         originRequest.newBuilder().header("Authorization", "Bearer $refreshToken")
+                            .method("GET", null)
                             .url("${BuildConfig.BASE_URL}api/auth/access-token").build()
                     val refreshResponse = chain.proceed(refreshRequest)
 

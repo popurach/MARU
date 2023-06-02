@@ -10,16 +10,16 @@ import retrofit2.Response
 import javax.inject.Inject
 
 class LandmarkRepository @Inject constructor(
-    private val landmarkApi: LandmarkApi
+    private val landmarkApi: LandmarkApi,
 ) {
-    suspend fun getVisitedLandmarks(lastOffset: Long?): List<Stamp> =
+    suspend fun getVisitedLandmarks(lastOffset: Long?): Response<List<Stamp>> =
         landmarkApi.getVisitedLandmarks(lastOffset = lastOffset)
 
     suspend fun getLandmarkByPos(
         west: Double,
         south: Double,
         east: Double,
-        north: Double
+        north: Double,
     ): Response<List<Landmark>> = landmarkApi.getLandmarkByPos(west, south, east, north)
 
     suspend fun getLandmarkOwner(landmarkId: Long): Response<Owner> =
@@ -28,7 +28,7 @@ class LandmarkRepository @Inject constructor(
     suspend fun getLandmarkName(landmarkId: Long): Response<LandmarkName> =
         landmarkApi.getLandmarkName(landmarkId)
 
-    suspend fun getLandmarkImages(lastOffset: Long?, landmarkId: Long): List<SpotImage> =
+    suspend fun getLandmarkImages(lastOffset: Long?, landmarkId: Long): Response<List<SpotImage>> =
         landmarkApi.getImageUrls(lastOffset = lastOffset, id = landmarkId)
 
     suspend fun visitLandmark(landmarkId: Long): Response<Int> =

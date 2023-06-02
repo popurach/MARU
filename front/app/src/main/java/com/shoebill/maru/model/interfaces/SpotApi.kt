@@ -35,7 +35,7 @@ interface SpotApi {
     @POST("/api/spots") // spot 등록
     suspend fun saveSpot(
         @Part spotImage: MultipartBody.Part? = null,
-        @Part("data") data: SaveSpot
+        @Part("data") data: SaveSpot,
     ): Response<Long>
 
 
@@ -45,8 +45,8 @@ interface SpotApi {
             "lastOffset",
             encoded = true
         ) lastOffset: Long? = 0, // encoded true 일 경우, null 일때는 포함 안됨
-        @Query("size") size: Int = 20
-    ): List<Spot>
+        @Query("size") size: Int = 20,
+    ): Response<List<Spot>>
 
     @GET("api/spots/my/scraps")
     suspend fun getMyScrapedSpots(
@@ -54,27 +54,27 @@ interface SpotApi {
             "lastOffset",
             encoded = true
         ) lastOffset: Long? = 0, // encoded true 일 경우, null 일때는 포함 안됨
-        @Query("size") size: Int = 20
-    ): List<Spot>
+        @Query("size") size: Int = 20,
+    ): Response<List<Spot>>
 
     // 지도 기반 스팟 목록 조회
     @POST("/api/map/spots")
     suspend fun getSpotMarker(
-        @Body parameter: SpotClusterDTO
+        @Body parameter: SpotClusterDTO,
     ): Response<List<SpotMarker>>
 
     @GET("/api/spots/{id}")
     suspend fun getSpotDetail(
-        @Path("id") id: Long
+        @Path("id") id: Long,
     ): Response<Spot>
 
     @POST("/api/spots/{spotId}/like")
     suspend fun toggleLike(
-        @Path("spotId") spotId: Long
+        @Path("spotId") spotId: Long,
     ): Response<Unit>
 
     @POST("/api/spots/{spotId}/scrap")
     suspend fun toggleScrap(
-        @Path("spotId") spotId: Long
+        @Path("spotId") spotId: Long,
     ): Response<Unit>
 }
